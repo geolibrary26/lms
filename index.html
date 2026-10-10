@@ -459,7 +459,7 @@ function startData(){
 /* ===================== SHELL ===================== */
 const NAV=[['dash',''+ic('home')+'','Tổng quan'],['att',''+ic('userCheck')+'','Điểm danh'],['report',''+ic('calendar')+'','Chuyên cần tháng'],['classes',''+ic('building')+'','Lớp học'],['students',''+ic('grad')+'','Học sinh'],['scores',''+ic('file')+'','Điểm số'],['fees',''+ic('wallet')+'','Học phí'],['online',''+ic('video')+'','Lớp online'],['settings',''+ic('settings')+'','Cài đặt']];
 function showShell(){
-  $('#app').innerHTML='<div class="shell"><aside class="side" id="side"><div class="brand"><div class="lg">'+brandMark()+'</div><div><b>'+esc(BR.name)+'</b><span>Quản lí lớp học</span></div></div><div id="nav"></div><div class="me"><b>'+esc(S.profile.name)+'</b><span style="opacity:.7">'+esc(S.profile.role)+(S.profile.owner?' · Superadmin':'')+'</span><button class="btn sm mt8 lo" onclick="logout()">'+ic('logout')+' Đăng xuất</button></div></aside><main class="main"><div class="top"><button class="ham" onclick="$(\'#side\').classList.toggle(\'open\')">'+ic('menu')+'</button><b>'+esc(BR.name)+'</b></div><div id="main"></div></main></div>';
+  $('#app').innerHTML='<div class="shell"><aside class="side" id="side"><div class="brand"><div class="lg">'+brandMark()+'</div><div><b>'+esc(BR.name)+'</b><span>Learning Management</span></div></div><div id="nav"></div><div class="me"><b>'+esc(S.profile.name)+'</b><span style="opacity:.7">'+esc(S.profile.role)+(S.profile.owner?' · Superadmin':'')+'</span><button class="btn sm mt8 lo" onclick="logout()">'+ic('logout')+' Đăng xuất</button></div></aside><main class="main"><div class="top"><button class="ham" onclick="$(\'#side\').classList.toggle(\'open\')">'+ic('menu')+'</button><b>'+esc(BR.name)+'</b></div><div id="main"></div></main></div>';
   render();
 }
 function go(v,p){ S.view=v; if(p) Object.assign(S.P[{att:'att',report:'rep',scores:'sc',fees:'fee',students:'stu',classes:'cls'}[v]||'cls'],p); const s=$('#side'); if(s) s.classList.remove('open'); render(); window.scrollTo(0,0); }
@@ -965,7 +965,7 @@ async function showLogin(msg){
   const fs=[['userCheck','Điểm danh nhanh, gộp lớp, lớp online tự điểm danh bằng ảnh khuôn mặt'],['file','Điểm số, chuyên cần và báo cáo Excel'],['wallet','Theo dõi học phí, nhắc phụ huynh'],['shield','Phân quyền và duyệt tài khoản chặt chẽ']];
   $('#app').innerHTML='<div class="lgs"><div class="lgs-l"><div class="lgs-brand">'+brandMark()+'<b>'+esc(BR.name)+'</b></div><h2>GeoLibrary<br>Database for Teacher</h2><div class="lgs-f">'+fs.map(f=>'<div class="row">'+ic(f[0],18)+'<span>'+f[1]+'</span></div>').join('')+'</div></div><div class="lgs-r"><div class="authcard"><div class="logo">'+brandMark()+'</div><h1>Đăng nhập</h1><div class="sub">Dùng tài khoản Google đã được cấp quyền</div><div id="aerr"></div>'+(msg?'<div class="ok">'+esc(msg)+'</div>':'')+
   (bad?'<div class="err">Link mời không hợp lệ hoặc đã hết hạn. </div>':INV?'<div class="ok">Bạn được mời làm <b>'+esc(inv.role||'Trợ giảng')+'</b>. Đăng nhập Google để gửi yêu cầu</div>':'')+
-  '<button class="btn gbtn full" id="gBtn" onclick="doGoogle()">'+GI+' Tiếp tục với Google</button><div class="center small muted mt16">Hãy tiếp tục với Invite Link</div></div></div></div>';
+  '<button class="btn gbtn full" id="gBtn" onclick="doGoogle()">'+GI+' Tiếp tục với Google</button><div class="center small muted mt16">Tạo tài khoản với Invite Link</div></div></div></div>';
 }
 async function doGoogle(){ const b=$('#gBtn'); b.disabled=true; try{ await auth.signInWithPopup(prov); }catch(e){ if(e.code==='auth/popup-blocked') return auth.signInWithRedirect(prov); if(!/popup-closed|cancelled-popup/.test(e.code||'')) aerr(e); b.disabled=false; } }
 
@@ -1049,7 +1049,7 @@ Object.keys(LG).forEach(n=>{ const f=window[n],[t,c,k]=LG[n]; window[n]=async fu
 /* ---- Thương hiệu / logo ---- */
 let BR={name:'Chuyên Địa lí cô Hải Hà',logo:''};
 const brandMark=()=>BR.logo?'<img class="bl" src="'+esc(BR.logo)+'" alt="">':'<span class="bm">'+ic('globe',22)+'</span>';
-function applyBrand(){ document.title=BR.name+' · Quản lí lớp học'; const l=document.querySelector('link[rel=icon]'); if(l&&BR.logo) l.href=BR.logo; }
+function applyBrand(){ document.title=BR.name+' · Learning Management'; const l=document.querySelector('link[rel=icon]'); if(l&&BR.logo) l.href=BR.logo; }
 async function loadBrand(){ try{ const v=(await rdb.ref('public/brand').get()).val(); if(v) BR=Object.assign(BR,{name:v.name||BR.name,logo:v.logo||''}); }catch(e){} applyBrand(); }
 const _bj=bootJoin; bootJoin=async function(){ await loadBrand(); return _bj(); };
 function brandCard(){ return '<div class="card"><div class="b mb12">Thương hiệu</div><div class="row" style="gap:16px"><div class="lgp">'+brandMark()+'</div><div class="grow"><label class="btn sm" style="cursor:pointer">'+ic('upload',14)+' Tải logo lên<input type="file" accept="image/*" hidden onchange="uploadLogo(this)"></label>'+(BR.logo?' <button class="btn sm red" onclick="delLogo()">'+ic('trash',14)+' Gỡ logo</button>':'')+'<div class="small muted mt8">Ảnh vuông, nền trong suốt đẹp nhất. Tự thu nhỏ về 256px.</div></div></div><div class="field mt12"><label>Tên trung tâm</label><input class="inp" id="brName" value="'+esc(BR.name)+'"></div><button class="btn pri" onclick="saveBrand()">Lưu thương hiệu</button></div>'; }
