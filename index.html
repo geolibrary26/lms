@@ -977,7 +977,7 @@ async function bootStaff(u){
       let su=false; const cu=(await rdb.ref('config/superUid').get()).val();
       if(!cu&&(!SUPER_EMAIL||em===SUPER_EMAIL.toLowerCase())){ await rdb.ref('config/superUid').set(u.uid); su=true; }
       let inv=null; if(!su&&INV){ inv=(await C('invites').doc(INV).get()).data(); if(inv&&(!inv.active||inv.exp<Date.now())) inv=null; }
-      if(!su&&!inv) return gate(''+ic('lock')+'','Cần link mời','Tài khoản <b>'+esc(em)+'</b> chưa được mời. Hãy xin superadmin link mời rồi mở lại link đó.');
+      if(!su&&!inv) return gate(''+ic('lock')+'','Hãy tiếp tục với một Invite Link','Tài khoản <b>'+esc(em)+'</b> chưa được mời. Cần một invite link để tạo tài khoản');
       p={name:u.displayName||em,email:em,photo:u.photoURL||'',role:su?'superadmin':(inv.role||'Trợ giảng'),status:su?'active':'pending',createdAt:Date.now()}; if(!su) p.invite=INV;
       await C('users').doc(u.uid).set(p);
       if(su){ await C('settings').doc('main').set({centerName:BR.name,faceThreshold:0.5,early:15,late:10,createdAt:Date.now()},{merge:true}); await rdb.ref('public/brand').set({name:BR.name}); }
