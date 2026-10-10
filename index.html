@@ -962,7 +962,7 @@ const gate=(ic,t,s,x)=>{ $('#app').innerHTML='<div class="authwrap"><div class="
 async function showLogin(msg){
   await loadBrand(); let inv=null; if(INV){ try{ inv=(await C('invites').doc(INV).get()).data(); }catch(e){} }
   const bad=INV&&(!inv||!inv.active||inv.exp<Date.now());
-  const fs=[['',''],['',''],['',''],['','']];
+  const fs=[['userCheck','Điểm danh nhanh, gộp lớp, lớp online tự điểm danh bằng ảnh khuôn mặt'],['file','Điểm số, chuyên cần và báo cáo Excel'],['wallet','Theo dõi học phí, nhắc phụ huynh'],['shield','Phân quyền và duyệt tài khoản chặt chẽ']];
   $('#app').innerHTML='<div class="lgs"><div class="lgs-l"><div class="lgs-brand">'+brandMark()+'<b>'+esc(BR.name)+'</b></div><h2>GeoLibrary<br>Database for Teacher</h2><div class="lgs-f">'+fs.map(f=>'<div class="row">'+ic(f[0],18)+'<span>'+f[1]+'</span></div>').join('')+'</div></div><div class="lgs-r"><div class="authcard"><div class="logo">'+brandMark()+'</div><h1>Đăng nhập</h1><div class="sub">Dùng tài khoản Google đã được cấp quyền</div><div id="aerr"></div>'+(msg?'<div class="ok">'+esc(msg)+'</div>':'')+
   (bad?'<div class="err">Link mời không hợp lệ hoặc đã hết hạn. </div>':INV?'<div class="ok">Bạn được mời làm <b>'+esc(inv.role||'Trợ giảng')+'</b>. Đăng nhập Google để gửi yêu cầu</div>':'')+
   '<button class="btn gbtn full" id="gBtn" onclick="doGoogle()">'+GI+' Tiếp tục với Google</button><div class="center small muted mt16">Hãy tiếp tục với Invite Link</div></div></div></div>';
