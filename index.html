@@ -53,7 +53,7 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 @media(max-width:860px){.side{transform:translateX(-100%)}.side.open{transform:none;box-shadow:0 0 60px rgba(0,0,0,.4)}.main{margin-left:0;padding:14px 14px 60px}.top{display:flex}}
 h2.pt{font-size:22px;font-weight:800;letter-spacing:-.02em}
 .card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:18px}
-.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.g3{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
 .stat .v{font-size:26px;font-weight:800;margin-top:4px}.stat .l{color:var(--soft);font-size:12.5px;font-weight:600}
 .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700}
 .pill-gray{background:#edf1f5;color:var(--soft)}.pill-grn{background:var(--grns);color:#166534}.pill-red{background:var(--reds);color:#991b1b}.pill-amber{background:var(--ambs);color:#92400e}.pill-blue{background:var(--blus);color:#1e40af}.pill-teal{background:var(--ps);color:var(--p2)}
@@ -104,7 +104,7 @@ body{background:linear-gradient(180deg,#edf1f7 0,#f4f7fb 420px) fixed}
 h2.pt{font-size:24px;letter-spacing:-.025em;color:#0f2137}
 .svg-ic{flex:none;vertical-align:-.2em}
 .side{width:256px;background:linear-gradient(190deg,#14304d,#0d2137 55%,#091827);border-right:1px solid rgba(255,255,255,.06)}
-.main{margin-left:256px;max-width:1360px;padding:26px 30px 70px}
+.main{margin-left:256px;max-width:none;padding:26px 34px 70px}
 @media(max-width:860px){.main{margin-left:0;padding:14px 14px 70px}}
 .brand{gap:12px;padding:2px 6px 18px}.brand b{font-size:14px}
 .bm,.bl{width:42px;height:42px;border-radius:12px;flex:none}
@@ -174,6 +174,66 @@ h2.pt{font-size:24px;letter-spacing:-.025em;color:#0f2137}
 .jas{display:flex;align-items:center;gap:12px;background:#f0f6fc;border:1px solid #cfe0f0;border-radius:12px;padding:12px 14px;margin-bottom:16px}
 .dob{display:grid;grid-template-columns:1fr 1fr 1.6fr;gap:10px}.dob .inp{text-align:center;font-size:18px;font-weight:700;padding:12px 6px}
 .warn{background:var(--ambs);color:#92400e;padding:10px 12px;border-radius:10px}
+/* ===== GIAO DIỆN v3: bố cục rộng, gộp lớp, ảnh vào lớp ===== */
+.main{max-width:none}
+.nowrap{white-space:nowrap}
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.ph .sub{color:var(--soft);margin-top:5px;max-width:760px;line-height:1.55}
+.card{transition:box-shadow .2s,transform .2s}
+.tbcard{background:#fff;border:1px solid #e3eaf1;border-radius:14px;padding:10px 12px;box-shadow:var(--sh);margin:0 0 14px}
+.side .nav{position:relative}
+.side .nav .svg-ic{opacity:.9}
+.me .btn.lo{margin-top:10px}
+.grid.g3{grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+.grid.g4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.emptyic{display:flex;justify-content:center;color:var(--faint);margin-bottom:10px}
+.empty{padding:44px 14px}
+.ctag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;background:#eef3f9;color:#1a4a7a;font-size:11px;font-weight:700;border:1px solid #d9e5f1}
+.ctag.mg{background:#efe8fa;color:#6b3fa0;border-color:#e0d3f3}
+.mgbanner{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(120deg,#f3ecfb,#eaf1fa);border:1px solid #dccdf0;border-radius:14px;padding:14px 18px;margin-bottom:14px;color:#4a2d78}
+.mgbanner>.svg-ic{flex:none}
+.mgbox{border:1.5px solid var(--line);border-radius:12px;max-height:230px;overflow:auto;background:#fafcfe}
+.mgc-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;transition:.15s}
+.mgc-row:last-child{border:0}.mgc-row:hover{background:#f0f6fc}
+.mgc-row input{width:17px;height:17px;accent-color:var(--p)}
+.mgbox .small.muted{padding:12px 14px;display:block}
+.mgnote{display:flex;gap:10px;background:#eef4fb;color:#1f4d7d;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;margin-top:6px}
+.mgnote>.svg-ic{flex:none;margin-top:2px}
+.mgcard{border-top:4px solid #8b5fc7}
+.mgrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mgcls{display:flex;flex-direction:column;background:#f6f2fc;border:1px solid #e3d8f4;border-radius:12px;padding:8px 14px;min-width:90px}
+.mgcls b{color:#4a2d78}
+.plus{font-weight:800;color:#8b5fc7;font-size:18px}
+.linkcard{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:12px}
+.mini{background:#fff;border:1px solid #e3eaf1;border-radius:14px;padding:12px 14px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:2px;border-left:4px solid #cbd5e1}
+.mini b{font-size:22px;letter-spacing:-.02em}.mini span{font-size:12px;color:var(--soft);font-weight:600}
+.mini.g{border-left-color:var(--grn)}.mini.a{border-left-color:var(--amb)}.mini.b{border-left-color:var(--blu)}.mini.r{border-left-color:var(--red)}
+.seg{display:inline-flex;background:#e6edf5;border-radius:12px;padding:4px;gap:2px;flex-wrap:wrap}
+.seg button{padding:8px 14px;border-radius:9px;font-weight:600;font-size:13px;color:var(--soft);display:inline-flex;align-items:center;gap:8px}
+.seg button span{background:rgba(15,26,42,.08);border-radius:99px;padding:1px 8px;font-size:11.5px}
+.seg button.on{background:#fff;color:var(--p2);box-shadow:0 1px 4px rgba(7,19,34,.12)}
+.seg button.on span{background:var(--blus);color:var(--p2)}
+.oc{border-left:5px solid #cbd5e1}.oc:hover{box-shadow:0 14px 34px -14px rgba(7,19,34,.28);transform:translateY(-2px)}
+.oc.ph-live{border-left-color:#e0364f}.oc.ph-open{border-left-color:#2563a8}.oc.ph-upcoming{border-left-color:#94a3b3}.oc.ph-grace{border-left-color:var(--amb)}
+.qa{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.qbtn{display:inline-flex;align-items:center;gap:9px;padding:11px 16px;border-radius:12px;background:#fff;border:1px solid #e3eaf1;box-shadow:var(--sh);font-weight:600;font-size:13.5px;color:var(--p2);transition:.18s}
+.qbtn:hover{transform:translateY(-2px);border-color:#3b82c4}
+.qbtn .svg-ic{color:#2563a8}
+.pfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.pf{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.pfi{display:block;width:100%;background:#0b1522;cursor:zoom-in}
+.pfi img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transform:scaleX(-1);transition:.2s}.pfi:hover img{opacity:.88}
+.pfb{padding:9px 11px}
+.lb{position:fixed;inset:0;z-index:300;background:rgba(5,12,22,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;animation:pop .15s ease-out;color:#fff}
+.lb img{max-width:min(92vw,820px);max-height:76vh;border-radius:14px;box-shadow:0 30px 80px -20px #000;transform:scaleX(-1)}
+.lb .cap{font-weight:600}.lbx{position:absolute;top:16px;right:18px;color:#fff;background:rgba(255,255,255,.14);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center}
+.fbadge{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;background:rgba(10,20,34,.72);color:#fff;border-radius:99px;padding:7px 12px;font-size:13px;font-weight:600;backdrop-filter:blur(4px)}
+.fbadge.ok{background:rgba(22,140,90,.9)}
+.cam .oval{transition:.2s}.cam .oval.ok{border-color:#4ade80;border-style:solid}
+.tbl thead th{position:sticky;top:0;z-index:2}
+.btn.sm .svg-ic{margin-right:-1px}
+@media(max-width:860px){.grid.g3{grid-template-columns:1fr}.ph{align-items:flex-start}.tbcard .inp{flex:1;min-width:0}}
 </style>
 </head>
 <body>
@@ -330,11 +390,15 @@ const PH = { upcoming:['Sắp diễn ra','pill-gray'], open:['Mở điểm danh'
 /* face-api */
 const FACE_CDNS=['https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js','https://cdnjs.cloudflare.com/ajax/libs/face-api.js/0.22.2/face-api.min.js','https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js'];
 const FACE_MODEL='https://justadudewhohacks.github.io/face-api.js/models';
-let facePromise=null;
+let facePromise=null, FACE_KIND='';
 function ensureFaceApi(){ if(facePromise) return facePromise; facePromise=(async()=>{
   if(typeof faceapi==='undefined'){ let ok=false; for(const u of FACE_CDNS){ try{ await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=u; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); if(typeof faceapi!=='undefined'){ok=true;break;} }catch(e){} } if(!ok) throw new Error('no faceapi'); }
-  await faceapi.nets.ssdMobilenetv1.loadFromUri(FACE_MODEL); await faceapi.nets.faceLandmark68Net.loadFromUri(FACE_MODEL); await faceapi.nets.faceRecognitionNet.loadFromUri(FACE_MODEL); return true;
+  try{ await faceapi.nets.tinyFaceDetector.loadFromUri(FACE_MODEL); FACE_KIND='tiny'; }
+  catch(e){ await faceapi.nets.ssdMobilenetv1.loadFromUri(FACE_MODEL); FACE_KIND='ssd'; }
+  return true;
 })().catch(e=>{ facePromise=null; throw e; }); return facePromise; }
+const faceOpts=()=>FACE_KIND==='tiny'?new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.4}):new faceapi.SsdMobilenetv1Options({minConfidence:0.5});
+
 const dist = (a,b) => { let s=0; for(let i=0;i<a.length;i++){ const d=a[i]-b[i]; s+=d*d; } return Math.sqrt(s); };
 
 /* ===================== STATE ===================== */
@@ -403,7 +467,7 @@ function setP(k,f,v){ S.P[k][f]=v; render(); }
 function render(){
   const nav=$('#nav'); if(!nav) return;
   nav.innerHTML=navList().map(n=>'<button class="nav '+(S.view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')"><i>'+n[1]+'</i>'+n[2]+'</button>').join('');
-  const V={members:vMembers,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,settings:vSettings};
+  const V={members:vMembers,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,merge:vMerge,settings:vSettings};
   $('#main').innerHTML=V[S.view]();
 }
 const classOpts = (sel,all) => (all?'<option value="">Tất cả lớp</option>':'')+activeClasses().map(c=>'<option value="'+c.id+'" '+(c.id===sel?'selected':'')+'>'+esc(c.name)+'</option>').join('');
@@ -419,40 +483,128 @@ function vDash(){
   const up=Object.values(S.onl).filter(o=>phase(o)!=='ended').sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).slice(0,5);
   return '<h2 class="pt">Xin chào, '+esc(S.profile.name)+' '+ic('smile')+'</h2><div class="muted mb16">'+DOWN[now.getDay()]+', '+fmtD(td)+'</div>'+
   '<div class="grid g4"><div class="card stat"><div class="l">Học sinh đang học</div><div class="v">'+stu.length+'</div></div><div class="card stat"><div class="l">Lớp học</div><div class="v">'+cls.length+'</div></div><div class="card stat"><div class="l">Chuyên cần tháng '+m.split('-').reverse().join('/')+'</div><div class="v">'+(tot?Math.round(pr/tot*100)+'%':'—')+'</div></div><div class="card stat"><div class="l">Học phí đã thu ('+S.feeMonth.split('-').reverse().join('/')+')</div><div class="v">'+money(paid)+'</div><div class="small muted">/ '+money(due)+'</div></div></div>'+
-  '<div class="grid g2 mt16"><div class="card"><div class="b mb12">Lớp học hôm nay</div>'+(todays.length?todays.map(c=>{ const d=S.att[c.id+'_'+td], n=d?Object.keys(d.marks||{}).length:0, sch=(c.schedule||[]).find(x=>x.dow===now.getDay());
+  '<div class="grid g2 mt16"><div class="card"><div class="b mb12">Lớp học hôm nay</div>'+(todays.length?todays.map(c=>{ const d=sessionFor(c.id,td), n=d?Object.keys(d.marks||{}).length:0, sch=(c.schedule||[]).find(x=>x.dow===now.getDay());
     return '<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line)"><div><b>'+esc(c.name)+'</b><div class="small muted">'+sch.start+' – '+sch.end+' · '+classStudents(c.id).length+' HS</div></div><div class="row">'+(n?'<span class="pill pill-grn">Đã điểm danh '+n+'</span>':'<span class="pill pill-gray">Chưa điểm danh</span>')+'<button class="btn sm pri" onclick="go(\'att\',{classId:\''+c.id+'\',date:\''+td+'\'})">Điểm danh</button></div></div>'; }).join(''):'<div class="empty">Hôm nay không có lớp theo lịch.</div>')+'</div>'+
   '<div class="card"><div class="b mb12">Lớp online sắp tới</div>'+(up.length?up.map(o=>'<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line)"><div><b>'+esc(o.title||className(o.classId))+'</b><div class="small muted">'+fmtD(o.date)+' · '+o.start+'–'+o.end+' · '+esc(className(o.classId))+'</div></div><span class="pill '+PH[phase(o)][1]+'">'+PH[phase(o)][0]+'</span></div>').join(''):'<div class="empty">Chưa có lớp online.</div>')+'<div class="mt12"><button class="btn sm" onclick="go(\'online\')">Quản lí lớp online '+ic('arrowR')+'</button></div></div></div>';
 }
 
 /* ===================== ĐIỂM DANH ===================== */
+/* ===================== GỘP LỚP · TIỆN ÍCH ===================== */
+function pageHead(t,sub,act){ return '<div class="ph"><div><h2 class="pt">'+t+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div><div class="row wrap">'+(act||'')+'</div></div>'; }
+const sessAll=()=>Object.assign({},S.att,S.onl);
+function sessionFor(cid,date){ let own=null; for(const d of Object.values(sessAll())){ if(d.date!==date) continue; if((d.merged||[]).includes(cid)) return d; if(d.classId===cid) own=d; } return own; }
+const sessClassIds=d=>[d.classId].concat(d.merged||[]).filter(Boolean);
+const sessClassNames=d=>sessClassIds(d).map(className).join(' + ');
+const isMerged=d=>!!(d&&(d.merged||[]).length);
+const inSess=(d,cid)=>d.classId===cid||(d.merged||[]).includes(cid);
+function sessionStudents(d){ const seen={},out=[]; sessClassIds(d).forEach(cid=>classStudents(cid).forEach(s=>{ if(!seen[s.id]){ seen[s.id]=1; out.push(s); } })); return out.sort(byName); }
+const stuTags=(s,d)=>sessClassIds(d).filter(c=>(s.classIds||[]).includes(c)).map(className);
+const ctags=d=>sessClassIds(d).map(c=>'<span class="ctag">'+esc(className(c))+'</span>').join(' ');
+const wdOf=date=>DOWN[new Date(date+'T00:00').getDay()];
+function mergeChecks(pid,sel){ const o=activeClasses().filter(c=>c.id!==pid); if(!o.length) return '<div class="small muted">Chưa có lớp khác để gộp.</div>';
+  return o.map(c=>'<label class="mgc-row"><input type="checkbox" class="mgc" value="'+c.id+'" '+((sel||[]).includes(c.id)?'checked':'')+'><span class="grow"><b>'+esc(c.name)+'</b><span class="small muted"> · '+classStudents(c.id).length+' HS'+((c.schedule||[]).length?' · '+esc(schedText(c)):'')+'</span></span></label>').join(''); }
+
+/* Gộp / gỡ gộp lớp cho một buổi (lớp chính + các lớp được gộp). Dùng chung cho buổi trực tiếp và buổi online. */
+async function applyMerge(pid,date,list){
+  list=Array.from(new Set(list||[])).filter(x=>x&&x!==pid&&S.classes[x]);
+  const id=pid+'_'+date, snap=await C('attendance').where('date','==',date).get(), docs={};
+  snap.docs.forEach(x=>{ docs[x.id]=Object.assign({id:x.id},x.data()); });
+  const cur=docs[id]||{}, old=cur.merged||[];
+  if(!list.length&&!old.length) return;
+  const add=list.filter(x=>!old.includes(x)), rem=old.filter(x=>!list.includes(x)), all=Object.values(docs);
+  const host=all.find(d=>d.id!==id&&(d.merged||[]).includes(pid));
+  if(host) throw new Error('Lớp '+className(pid)+' đang được gộp vào buổi của lớp '+className(host.classId)+' ngày này. Hãy mở buổi đó để chỉnh sửa.');
+  const moves={};
+  for(const cid of add){
+    if(all.find(d=>d.id!==id&&(d.merged||[]).includes(cid))) throw new Error('Lớp '+className(cid)+' đã được gộp vào một buổi khác trong ngày này.');
+    const own=docs[cid+'_'+date];
+    if(own){ if(own.online) throw new Error('Lớp '+className(cid)+' đang có buổi online riêng ngày này. Hãy huỷ buổi đó trước khi gộp.'); moves[cid]=own; }
+  }
+  await C('attendance').doc(id).set({classId:pid,date,merged:list.length?list:FV.delete()},{merge:true});
+  const cm=cur.marks||{};
+  for(const cid of add){ const own=moves[cid]; if(!own) continue; const mm={};
+    Object.entries(own.marks||{}).forEach(([sid,m])=>{ if(!cm[sid]) mm['marks.'+sid]=m; });
+    if(Object.keys(mm).length) await C('attendance').doc(id).update(mm);
+    await C('attendance').doc(cid+'_'+date).delete(); try{ await C('links').doc(cid+'_'+date).delete(); }catch(e){} }
+  for(const cid of rem){ const stay=[pid].concat(list), mm={}, del={};
+    Object.entries(cur.marks||{}).forEach(([sid,m])=>{ const st=S.students[sid]; if(st&&(st.classIds||[]).includes(cid)&&!stay.some(x=>(st.classIds||[]).includes(x))){ mm[sid]=m; del['marks.'+sid]=FV.delete(); } });
+    if(Object.keys(mm).length){ await C('attendance').doc(cid+'_'+date).set({classId:cid,date,marks:mm},{merge:true}); await C('attendance').doc(id).update(del); } }
+  if(!list.length){ const f=(await C('attendance').doc(id).get()).data()||{}; if(!f.online&&!Object.keys(f.marks||{}).length) await C('attendance').doc(id).delete(); }
+  try{ log((list.length?'Gộp lớp ':'Huỷ gộp lớp ')+className(pid)+(list.length?' + '+list.map(className).join(' + '):'')+' ngày '+fmtD(date)); }catch(e){}
+}
+async function unmergeSession(id){ const d=sessAll()[id]; if(!d) return; if(!confirm('Huỷ gộp? Điểm danh của học sinh từng lớp sẽ được trả về buổi riêng của lớp đó.')) return;
+  try{ await applyMerge(d.classId,d.date,[]); toast('Đã huỷ gộp lớp','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
+function mergeModal(pid,date){
+  const cur=sessionFor(pid,date)||{}, mainId=cur.classId||pid;
+  modal(isMerged(cur)?'Sửa gộp lớp':'Gộp lớp học chung một buổi',
+   '<div class="cols2"><div class="field"><label>Lớp chính</label><select class="inp" id="mgMain" onchange="mgRefresh()" '+(cur.id?'disabled':'')+'>'+classOpts(mainId)+'</select></div><div class="field"><label>Ngày học</label><input class="inp" id="mgDate" type="date" value="'+date+'" '+(cur.id?'disabled':'')+'></div></div>'+
+   '<div class="field"><label>Chọn các lớp cùng học chung buổi này</label><div id="mgList" class="mgbox">'+mergeChecks(mainId,cur.merged||[])+'</div></div>'+
+   '<div class="mgnote">'+ic('info',16)+'<div>Học sinh của các lớp được gộp sẽ cùng nằm trong <b>một danh sách điểm danh</b>. Chuyên cần vẫn tính riêng cho từng lớp. Muốn học chung <b>online</b>, hãy dùng nút “Tạo buổi online” — học sinh hai lớp vào chung một link.</div></div>',
+   '<button class="btn" onclick="closeModal()">Đóng</button><button class="btn pri" onclick="saveMergeModal()">'+ic('layers',15)+' Lưu gộp lớp</button>'); }
+function mgRefresh(){ const b=$('#mgList'); if(b) b.innerHTML=mergeChecks($('#mgMain').value,[]); }
+async function saveMergeModal(){ const pid=$('#mgMain').value, date=$('#mgDate').value, list=Array.from(document.querySelectorAll('.mgc:checked')).map(x=>x.value);
+  if(!pid||!date){ toast('Thiếu lớp hoặc ngày','err'); return; }
+  const cur=sessionFor(pid,date)||{}; if(!list.length&&!isMerged(cur)){ toast('Hãy chọn ít nhất 1 lớp để gộp','err'); return; }
+  try{ await applyMerge(pid,date,list); closeModal(); toast(list.length?'Đã gộp lớp':'Đã huỷ gộp','ok'); if(S.view==='att'){ S.P.att.classId=pid; S.P.att.date=date; } if(S.view==='merge'){ S.P.mg.month=date.slice(0,7); } render(); }
+  catch(e){ toast(e.message||String(e),'err'); } }
+
+/* ===================== ĐIỂM DANH ===================== */
+function attCtx(){ const p=S.P.att, d=sessionFor(p.classId,p.date)||{}; return {p,d,id:d.id||(p.classId+'_'+p.date),pc:d.classId||p.classId,marks:d.marks||{},studs:d.id?sessionStudents(d):classStudents(p.classId)}; }
+function attRows(){
+  const {d,id,marks,studs}=attCtx(), p=S.P.att, merged=isMerged(d), q=norm(p.q||''), f=p.f||'';
+  const list=studs.filter(s=>{ const m=marks[s.id]; if(q&&!norm(s.name).includes(q)) return false; if(f==='none') return !m; if(f) return m&&m.s===f; return true; });
+  if(!list.length) return '<tr><td colspan="4"><div class="empty">Không có học sinh phù hợp.</div></td></tr>';
+  return list.map((s,i)=>{ const m=marks[s.id]||{}, b=(k,l)=>'<button class="'+k+' '+(m.s===k?'on':'')+'" onclick="mark(\''+s.id+'\',\''+k+'\')">'+l+'</button>';
+    return '<tr><td class="muted">'+(i+1)+'</td><td><div class="row"><span class="avatar">'+esc(givenName(s.name).charAt(0))+'</span><div><b>'+esc(s.name)+'</b>'+(merged?' '+stuTags(s,d).map(t=>'<span class="ctag">'+esc(t)+'</span>').join(' '):'')+'<div class="row small" style="gap:6px;margin-top:2px">'+(m.m==='online'?'<span class="pill pill-blue">'+ic('video',12)+' vào lớp '+fmtHM(m.t)+'</span>':'')+(m.f==='model_unavailable'?'<span class="pill pill-amber">chưa dò được mặt — xem ảnh</span>':'')+'</div></div></div></td><td><div class="mk">'+b('P','Có mặt')+b('L','Muộn')+b('E','Phép')+b('A','Vắng')+'</div></td><td class="right">'+(m.m==='online'&&d.online?'<button class="btn sm" onclick="viewProof(\''+id+'\',\''+s.id+'\')">'+ic('camera',14)+' Ảnh</button>':'')+'</td></tr>'; }).join('');
+}
+function attSearch(v){ S.P.att.q=v; const t=$('#attRows'); if(t) t.innerHTML=attRows(); }
 function vAtt(){
-  const cls=activeClasses(); if(!cls.length) return '<h2 class="pt">Điểm danh</h2><div class="mt16">'+noClass()+'</div>';
+  const cls=activeClasses(); if(!cls.length) return pageHead('Điểm danh','Ghi nhận chuyên cần theo từng buổi học')+'<div class="mt16">'+noClass()+'</div>';
   const p=S.P.att; if(!p.classId||!S.classes[p.classId]) p.classId=cls[0].id; if(!p.date) p.date=dk(new Date());
   ensureAtt(p.date.slice(0,7));
-  const id=p.classId+'_'+p.date, d=S.att[id]||{}, marks=d.marks||{}, studs=classStudents(p.classId);
-  const cnt={P:0,L:0,E:0,A:0}; studs.forEach(s=>{ const m=marks[s.id]; if(m&&cnt[m.s]!=null) cnt[m.s]++; });
-  const unm=studs.length-cnt.P-cnt.L-cnt.E-cnt.A;
-  const rows=studs.map((s,i)=>{ const m=marks[s.id]||{}; const b=(k,l)=>'<button class="'+k+' '+(m.s===k?'on':'')+'" onclick="mark(\''+s.id+'\',\''+k+'\')">'+l+'</button>';
-    return '<tr><td>'+(i+1)+'</td><td><div class="row"><span class="avatar">'+esc(givenName(s.name).charAt(0))+'</span><div><b>'+esc(s.name)+'</b>'+(m.m==='online'?' <span class="pill pill-blue">online '+fmtHM(m.t)+'</span>':'')+(m.f==='enrolled'?' <span class="pill pill-teal">Đăng ký FaceID</span>':'')+(m.f==='model_unavailable'?' <span class="pill pill-amber">chưa đối chiếu mặt</span>':'')+'</div></div></td><td><div class="mk">'+b('P','Có mặt')+b('L','Muộn')+b('E','Phép')+b('A','Vắng')+'</div></td></tr>'; }).join('');
-  return '<div class="row between wrap"><h2 class="pt">Điểm danh</h2><div class="row"><button class="btn" onclick="editSession(\''+(d.online?id:'')+'\',\''+p.classId+'\',\''+p.date+'\')">'+ic('video')+' '+(d.online?'Sửa buổi online':'Tạo buổi online')+'</button></div></div>'+
-  '<div class="toolbar"><select class="inp" onchange="setP(\'att\',\'classId\',this.value)">'+classOpts(p.classId)+'</select><button class="btn" onclick="shiftDate(-1)">'+ic('arrowL')+'</button><input class="inp" type="date" value="'+p.date+'" onchange="setP(\'att\',\'date\',this.value)"><button class="btn" onclick="shiftDate(1)">'+ic('arrowR')+'</button><button class="btn" onclick="setP(\'att\',\'date\',dk(new Date()))">Hôm nay</button><span class="grow"></span><button class="btn pri" onclick="markAll()">'+ic('check')+' Tất cả có mặt</button></div>'+
-  '<div class="row wrap mb12"><span class="pill pill-grn">Có mặt '+cnt.P+'</span><span class="pill pill-amber">Muộn '+cnt.L+'</span><span class="pill pill-blue">Phép '+cnt.E+'</span><span class="pill pill-red">Vắng '+cnt.A+'</span><span class="pill pill-gray">Chưa điểm danh '+unm+'</span>'+(d.online?'<span class="pill '+PH[phase(d)][1]+'">Online · '+PH[phase(d)][0]+'</span>':'')+'</div>'+
-  (d.online?'<div class="card mb12 row between wrap"><div><b>Link cho học sinh:</b> <span class="small muted" style="word-break:break-all">'+esc(joinLink(id))+'</span></div><button class="btn sm" onclick="copyText(joinLink(\''+id+'\'))">Sao chép</button></div>':'')+
-  (studs.length?'<div class="card" style="padding:0"><div class="scroll"><table class="tbl"><thead><tr><th>#</th><th>Học sinh</th><th>Trạng thái</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>':'<div class="card empty">Lớp chưa có học sinh. Vào mục Học sinh để thêm.</div>');
+  const {d,id,pc,marks,studs}=attCtx(), merged=isMerged(d), cnt={P:0,L:0,E:0,A:0};
+  studs.forEach(s=>{ const m=marks[s.id]; if(m&&cnt[m.s]!=null) cnt[m.s]++; });
+  const unm=studs.length-cnt.P-cnt.L-cnt.E-cnt.A, pct=studs.length?Math.round((studs.length-unm)/studs.length*100):0;
+  const act='<button class="btn" onclick="mergeModal(\''+pc+'\',\''+p.date+'\')">'+ic('layers')+' '+(merged?'Sửa gộp lớp':'Gộp lớp')+'</button><button class="btn pri" onclick="editSession(\''+(d.online?id:'')+'\',\''+pc+'\',\''+p.date+'\')">'+ic('video')+' '+(d.online?'Sửa buổi online':'Tạo buổi online')+'</button>';
+  const mini=(l,v,c)=>'<div class="mini '+c+'"><b>'+v+'</b><span>'+l+'</span></div>';
+  return pageHead('Điểm danh',wdOf(p.date)+', '+fmtD(p.date)+' · '+(merged?sessClassNames(d):esc(className(p.classId))),act)+
+  '<div class="toolbar tbcard"><select class="inp" onchange="setP(\'att\',\'classId\',this.value)">'+classOpts(p.classId)+'</select><button class="btn" onclick="shiftDate(-1)">'+ic('arrowL')+'</button><input class="inp" type="date" value="'+p.date+'" onchange="setP(\'att\',\'date\',this.value)"><button class="btn" onclick="shiftDate(1)">'+ic('arrowR')+'</button><button class="btn" onclick="setP(\'att\',\'date\',dk(new Date()))">Hôm nay</button></div>'+
+  (merged?'<div class="mgbanner">'+ic('layers',22)+'<div class="grow"><b>Buổi học gộp · '+studs.length+' học sinh</b><div class="small" style="margin-top:4px">'+ctags(d)+(p.classId!==d.classId?' · điểm danh chung trong buổi của lớp chính <b>'+esc(className(d.classId))+'</b>':'')+'</div></div><button class="btn sm" onclick="mergeModal(\''+pc+'\',\''+p.date+'\')">Sửa</button><button class="btn sm red" onclick="unmergeSession(\''+id+'\')">Huỷ gộp</button></div>':'')+
+  (d.online?'<div class="card mb12 linkcard"><span class="si c1">'+ic('video',20)+'</span><div class="grow"><b>Link vào lớp cho học sinh</b><div class="small muted" style="word-break:break-all">'+esc(joinLink(id))+'</div></div><span class="pill '+PH[phase(d)][1]+'">'+PH[phase(d)][0]+'</span><button class="btn sm" onclick="copyText(joinLink(\''+id+'\'))">'+ic('copy',14)+' Sao chép</button><button class="btn sm" onclick="openRoom(\''+id+'\')">'+ic('external',14)+' Mở phòng</button><button class="btn sm" onclick="viewProofs(\''+id+'\')">'+ic('camera',14)+' Ảnh vào lớp</button></div>':'')+
+  '<div class="minis">'+mini('Sĩ số',studs.length,'')+mini('Có mặt',cnt.P,'g')+mini('Muộn',cnt.L,'a')+mini('Phép',cnt.E,'b')+mini('Vắng',cnt.A,'r')+mini('Chưa điểm danh',unm,'x')+'</div>'+
+  '<div class="bar mb12"><div style="width:'+pct+'%"></div></div>'+
+  '<div class="toolbar" style="margin-top:0"><div class="jsr" style="min-width:230px;flex:1;max-width:340px">'+ic('search',16)+'<input class="inp" style="padding:9px 12px 9px 40px;font-size:14px" placeholder="Tìm học sinh…" value="'+esc(p.q||'')+'" oninput="attSearch(this.value)"></div><select class="inp" onchange="setP(\'att\',\'f\',this.value)"><option value="">Mọi trạng thái</option><option value="none" '+(p.f==='none'?'selected':'')+'>Chưa điểm danh</option><option value="P" '+(p.f==='P'?'selected':'')+'>Có mặt</option><option value="L" '+(p.f==='L'?'selected':'')+'>Muộn</option><option value="E" '+(p.f==='E'?'selected':'')+'>Phép</option><option value="A" '+(p.f==='A'?'selected':'')+'>Vắng</option></select><span class="grow"></span><button class="btn pri" onclick="markAll()">'+ic('check')+' Tất cả có mặt</button></div>'+
+  (studs.length?'<div class="card" style="padding:0"><div class="scroll"><table class="tbl"><thead><tr><th>#</th><th>Học sinh</th><th>Trạng thái</th><th></th></tr></thead><tbody id="attRows">'+attRows()+'</tbody></table></div></div>':'<div class="card empty">Lớp chưa có học sinh. Vào mục Học sinh để thêm.</div>');
 }
 function shiftDate(n){ const p=S.P.att, d=new Date(p.date+'T00:00'); d.setDate(d.getDate()+n); p.date=dk(d); render(); }
 async function mark(sid,s){
-  const p=S.P.att, id=p.classId+'_'+p.date, ref=C('attendance').doc(id), cur=(S.att[id]&&S.att[id].marks&&S.att[id].marks[sid])||null;
+  const c=attCtx(), cur=c.marks[sid]||null, ref=C('attendance').doc(c.id), cid=c.d.id?c.pc:c.p.classId;
   try{
     if(cur&&cur.s===s){ await ref.update({['marks.'+sid]:FV.delete()}); return; }
-    await ref.set({classId:p.classId,date:p.date,marks:{[sid]:{s,t:Date.now(),m:(cur&&cur.m==='online')?'online':'manual',by:S.profile.name}}},{merge:true});
+    await ref.set({classId:cid,date:c.p.date,marks:{[sid]:{s,t:Date.now(),m:(cur&&cur.m==='online')?'online':'manual',by:S.profile.name}}},{merge:true});
   }catch(e){ toast('Lỗi: '+e.message,'err'); }
 }
 async function markAll(){
-  const p=S.P.att, id=p.classId+'_'+p.date, studs=classStudents(p.classId), cur=(S.att[id]&&S.att[id].marks)||{}, mm={};
-  studs.forEach(s=>{ if(!cur[s.id]) mm[s.id]={s:'P',t:Date.now(),m:'manual',by:S.profile.name}; });
+  const c=attCtx(), cid=c.d.id?c.pc:c.p.classId, mm={};
+  c.studs.forEach(s=>{ if(!c.marks[s.id]) mm[s.id]={s:'P',t:Date.now(),m:'manual',by:S.profile.name}; });
   if(!Object.keys(mm).length){ toast('Mọi học sinh đã có trạng thái'); return; }
-  try{ await C('attendance').doc(id).set({classId:p.classId,date:p.date,marks:mm},{merge:true}); toast('Đã đánh dấu có mặt cho HS chưa điểm danh','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); }
+  try{ await C('attendance').doc(c.id).set({classId:cid,date:c.p.date,marks:mm},{merge:true}); toast('Đã đánh dấu có mặt cho học sinh chưa điểm danh','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); }
+}
+
+/* ===================== GỘP LỚP · TRANG QUẢN LÝ ===================== */
+function vMerge(){
+  const p=S.P.mg; if(!p.month) p.month=mk(new Date()); ensureAtt(p.month);
+  const list=Object.values(sessAll()).filter(d=>isMerged(d)&&d.date.startsWith(p.month)).sort((a,b)=>(b.date+(b.start||'')).localeCompare(a.date+(a.start||'')));
+  const act='<button class="btn" onclick="mergeModal(activeClasses()[0]?activeClasses()[0].id:\'\',dk(new Date()))">'+ic('users')+' Gộp học trực tiếp</button><button class="btn pri" onclick="newOnline()">'+ic('video')+' Gộp học online</button>';
+  const cards=list.map(d=>{ const studs=sessionStudents(d), n=Object.keys(d.marks||{}).length, ok=Object.values(d.marks||{}).filter(m=>m.s==='P'||m.s==='L').length, online=!!d.online;
+    return '<div class="card mgcard"><div class="row between"><span class="pill '+(online?PH[phase(d)][1]:'pill-teal')+'">'+(online?ic('video',12)+' Online · '+PH[phase(d)][0]:ic('users',12)+' Trực tiếp')+'</span><span class="small muted">'+wdOf(d.date)+', '+fmtD(d.date)+'</span></div>'+
+    '<div class="mt12 mgrow">'+sessClassIds(d).map((c,i)=>(i?'<span class="plus">+</span>':'')+'<div class="mgcls"><b>'+esc(className(c))+'</b><span class="small muted">'+classStudents(c).length+' HS</span></div>').join('')+'</div>'+
+    (online?'<div class="small muted mt8">'+esc(d.title||'')+' · '+d.start+'–'+d.end+'</div>':'')+
+    '<div class="row between mt12 small"><span>Đã điểm danh <b>'+n+'/'+studs.length+'</b></span><span class="muted">có mặt '+ok+'</span></div><div class="bar mt8"><div style="width:'+(studs.length?Math.round(n/studs.length*100):0)+'%"></div></div>'+
+    '<div class="row wrap mt12"><button class="btn sm pri" onclick="go(\'att\',{classId:\''+d.classId+'\',date:\''+d.date+'\'})">Điểm danh</button>'+(online?'<button class="btn sm" onclick="copyText(joinLink(\''+d.id+'\'))">'+ic('link',14)+' Link</button><button class="btn sm" onclick="viewProofs(\''+d.id+'\')">'+ic('camera',14)+' Ảnh</button><button class="btn sm" onclick="editSession(\''+d.id+'\',\''+d.classId+'\',\''+d.date+'\')">Sửa</button>':'<button class="btn sm" onclick="mergeModal(\''+d.classId+'\',\''+d.date+'\')">Sửa gộp</button>')+'<button class="btn sm red" onclick="unmergeSession(\''+d.id+'\')">Huỷ gộp</button></div></div>'; }).join('');
+  return pageHead('Gộp lớp','Hai hay nhiều lớp cùng học chung một buổi — trực tiếp hoặc chung một lớp online',act)+
+  '<div class="toolbar tbcard"><input class="inp" type="month" value="'+p.month+'" onchange="setP(\'mg\',\'month\',this.value)"><span class="small muted">'+list.length+' buổi gộp trong tháng</span></div>'+
+  (list.length?'<div class="grid g3">'+cards+'</div>':'<div class="card empty"><div class="emptyic">'+ic('layers',34)+'</div><div class="b" style="font-size:16px;color:var(--ink)">Chưa có buổi gộp nào trong tháng này</div><div class="mt8" style="max-width:520px;margin:8px auto 0">Dùng khi hai lớp cùng học chung một buổi (ví dụ lớp nghỉ, dạy bù, ôn tập chung). Học sinh của các lớp sẽ nằm chung một danh sách điểm danh; chuyên cần vẫn tính riêng theo từng lớp.</div></div>');
 }
 
 /* ---- buổi online ---- */
@@ -460,57 +612,103 @@ async function editSession(id,classId,date){
   const d=id?(S.onl[id]||S.att[id]||{}):{}; let link={};
   if(id){ try{ const l=await C('links').doc(id).get(); link=l.data()||{}; }catch(e){} }
   const c=S.classes[classId]||{}, sch=(c.schedule||[]).find(x=>x.dow===new Date(date+'T00:00').getDay())||{};
+  const ex=sessionFor(classId,date)||{}, sel=d.merged||ex.merged||[], dt=d.title||(sel.length?'Buổi học gộp '+[classId].concat(sel).map(className).join(' + '):'Buổi học '+(c.name||''));
   modal(id?'Sửa buổi online':'Tạo buổi học online',
-   '<div class="field"><label>Lớp</label><select class="inp" id="ssClass" '+(id?'disabled':'')+'>'+classOpts(classId)+'</select></div><div class="field"><label>Tiêu đề buổi học</label><input class="inp" id="ssTitle" value="'+esc(d.title||('Buổi học '+(c.name||'')))+'"></div>'+
+   '<div class="field"><label>Lớp chính</label><select class="inp" id="ssClass" onchange="ssMgRefresh()" '+(id?'disabled':'')+'>'+classOpts(classId)+'</select></div>'+
+   '<div class="field"><label>'+ic('layers',14)+' Gộp lớp — các lớp cùng học chung link này (tuỳ chọn)</label><div id="mgList" class="mgbox">'+mergeChecks(classId,sel)+'</div></div>'+
+   '<div class="field"><label>Tiêu đề buổi học</label><input class="inp" id="ssTitle" value="'+esc(dt)+'"></div>'+
    '<div class="cols2"><div class="field"><label>Ngày</label><input class="inp" id="ssDate" type="date" value="'+date+'" '+(id?'disabled':'')+'></div><div></div><div class="field"><label>Bắt đầu</label><input class="inp" id="ssStart" type="time" value="'+(d.start||sch.start||'18:00')+'"></div><div class="field"><label>Kết thúc</label><input class="inp" id="ssEnd" type="time" value="'+(d.end||sch.end||'19:30')+'"></div></div>'+
    '<div class="field"><label>Link phòng học (Google Meet / Zoom / Teams…)</label><input class="inp" id="ssUrl" placeholder="https://meet.google.com/…" value="'+esc(link.url||c.onlineUrl||'')+'"></div>'+
    '<div class="cols2"><div class="field"><label>Mở điểm danh trước (phút)</label><input class="inp" id="ssEarly" type="number" value="'+(d.early!=null?d.early:(S.settings.early!=null?S.settings.early:15))+'"></div><div class="field"><label>Tính muộn sau (phút)</label><input class="inp" id="ssLate" type="number" value="'+(d.late!=null?d.late:(S.settings.late!=null?S.settings.late:10))+'"></div></div>'+
-   '<div class="small muted">Học sinh vào bằng link, chọn tên, nhập ngày sinh + trường, chụp mặt. Hệ thống tự điểm danh.</div>',
+   '<div class="small muted">Học sinh vào bằng link, chọn tên, nhập ngày sinh + trường rồi đưa mặt vào camera. Hệ thống thấy có khuôn mặt là tự điểm danh và lưu ảnh để trợ giảng xem lại.</div>',
    (id?'<button class="btn red" onclick="delSession(\''+id+'\')">Huỷ buổi online</button>':'')+'<button class="btn" onclick="closeModal()">Đóng</button><button class="btn pri" onclick="saveSession(\''+id+'\')">Lưu</button>');
 }
+function ssMgRefresh(){ const b=$('#mgList'); if(b) b.innerHTML=mergeChecks($('#ssClass').value,[]); }
 async function saveSession(oldId){
-  const cid=val('ssClass')||($('#ssClass')&&$('#ssClass').value), date=val('ssDate'), url=val('ssUrl');
+  const cid=val('ssClass')||($('#ssClass')&&$('#ssClass').value), date=val('ssDate'), url=val('ssUrl'), list=Array.from(document.querySelectorAll('.mgc:checked')).map(x=>x.value);
   if(!cid||!date){ toast('Thiếu lớp hoặc ngày','err'); return; }
   if(url && !/^https?:\/\//i.test(url)){ toast('Link phải bắt đầu bằng http(s)://','err'); return; }
-  const id=cid+'_'+date, th=S.settings.faceThreshold!=null?+S.settings.faceThreshold:0.5;
+  const id=cid+'_'+date;
   try{
-    await C('attendance').doc(id).set({classId:cid,date,online:true,title:val('ssTitle'),start:val('ssStart'),end:val('ssEnd'),early:+val('ssEarly')||0,late:+val('ssLate')||0,thr:th,createdBy:S.profile.name},{merge:true});
+    const host=sessionFor(cid,date); if(host&&host.id!==id&&(host.merged||[]).includes(cid)) throw new Error('Lớp này đang được gộp vào buổi của lớp '+className(host.classId)+' ngày này. Hãy chọn lớp đó làm lớp chính.');
+    await applyMerge(cid,date,list);
+    await C('attendance').doc(id).set({classId:cid,date,online:true,title:val('ssTitle'),start:val('ssStart'),end:val('ssEnd'),early:+val('ssEarly')||0,late:+val('ssLate')||0,createdBy:S.profile.name},{merge:true});
     await C('links').doc(id).set({url,platform:url?new URL(url).hostname.replace(/^www\./,''):''});
     closeModal(); toast('Đã lưu buổi online','ok'); if(S.view==='att'){ S.P.att.classId=cid; S.P.att.date=date; render(); }
-  }catch(e){ toast('Lỗi: '+e.message,'err'); }
+  }catch(e){ toast(e.message||String(e),'err'); }
 }
-async function delSession(id){ if(!confirm('Huỷ buổi online này? (Dữ liệu điểm danh của buổi sẽ bị xoá)')) return; try{ await C('attendance').doc(id).delete(); await C('links').doc(id).delete(); closeModal(); toast('Đã huỷ','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
+async function delSession(id){ if(!confirm('Huỷ buổi online này? (Dữ liệu điểm danh và ảnh của buổi sẽ bị xoá)')) return;
+  try{ try{ const ps=await C('proofs').where('docId','==',id).get(); await Promise.all(ps.docs.map(x=>C('proofs').doc(x.id).delete())); }catch(e){}
+    await C('attendance').doc(id).delete(); await C('links').doc(id).delete(); closeModal(); toast('Đã huỷ','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
+async function openRoom(id){ try{ const l=(await C('links').doc(id).get()).data()||{}; if(l.url) window.open(l.url,'_blank','noopener'); else toast('Chưa có link phòng học — bấm Sửa để thêm','err'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
 
 /* ===================== LỚP ONLINE ===================== */
+const joinedN=o=>Object.values(o.marks||{}).filter(m=>m.m==='online').length;
+function onlCard(o){ const ph=phase(o), tot=sessionStudents(o).length, n=joinedN(o), pct=tot?Math.round(n/tot*100):0;
+  return '<div class="card oc ph-'+ph+'"><div class="row between"><span class="pill '+PH[ph][1]+'">'+PH[ph][0]+'</span><span class="small muted">'+wdOf(o.date)+', '+fmtD(o.date)+'</span></div>'+
+  '<div class="b mt8" style="font-size:16px;letter-spacing:-.01em">'+esc(o.title||'Buổi online')+'</div>'+
+  '<div class="small muted mt8 row wrap" style="gap:6px">'+ic('clock',13)+' '+o.start+'–'+o.end+' '+(isMerged(o)?'<span class="ctag mg">'+ic('layers',11)+' Gộp</span> ':'')+ctags(o)+'</div>'+
+  '<div class="row between mt12 small"><span>Đã vào lớp <b>'+n+'/'+tot+'</b></span><b>'+pct+'%</b></div><div class="bar mt8"><div style="width:'+pct+'%"></div></div>'+
+  '<div class="row wrap mt12"><button class="btn sm" onclick="copyText(joinLink(\''+o.id+'\'))">'+ic('link',14)+' Link</button><button class="btn sm" onclick="openRoom(\''+o.id+'\')">'+ic('external',14)+' Mở phòng</button><button class="btn sm" onclick="go(\'att\',{classId:\''+o.classId+'\',date:\''+o.date+'\'})">Điểm danh</button><button class="btn sm" onclick="viewProofs(\''+o.id+'\')">'+ic('camera',14)+' Ảnh</button><button class="btn sm" onclick="exportSession(\''+o.id+'\')">'+ic('download',14)+' Excel</button><button class="btn sm" onclick="editSession(\''+o.id+'\',\''+o.classId+'\',\''+o.date+'\')">Sửa</button></div></div>'; }
+function onlList(){ const p=S.P.onl, q=norm(p.q||''), all=Object.values(S.onl);
+  const act=all.filter(o=>phase(o)!=='ended').sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)), done=all.filter(o=>phase(o)==='ended').sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start));
+  let list=p.tab==='ended'?done:p.tab==='all'?all.sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start)):act;
+  if(q) list=list.filter(o=>norm((o.title||'')+' '+sessClassNames(o)).includes(q));
+  return list.length?'<div class="grid g3">'+list.map(onlCard).join('')+'</div>':'<div class="card empty"><div class="emptyic">'+ic('video',34)+'</div>'+(all.length?'Không có buổi nào phù hợp.':'Chưa có buổi online nào. Bấm “Tạo buổi online” để bắt đầu.')+'</div>'; }
+function onlSearch(v){ S.P.onl.q=v; const b=$('#onlList'); if(b) b.innerHTML=onlList(); }
 function vOnline(){
-  const list=Object.values(S.onl).sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start));
-  return '<div class="row between wrap"><h2 class="pt">Lớp học online</h2><button class="btn pri" onclick="newOnline()">+ Tạo buổi online</button></div><div class="muted mb12">Học sinh tham gia bằng link, không cần đăng nhập — chọn tên, nhập ngày sinh & trường, xác thực khuôn mặt để tự động điểm danh.</div>'+
-  (list.length?'<div class="grid g3">'+list.map(o=>{ const n=Object.values(o.marks||{}).filter(m=>m.m==='online').length, tot=classStudents(o.classId).length, ph=phase(o);
-    return '<div class="card"><div class="row between"><span class="pill '+PH[ph][1]+'">'+PH[ph][0]+'</span><span class="small muted">'+fmtD(o.date)+'</span></div><div class="b mt8" style="font-size:15px">'+esc(o.title||'Buổi online')+'</div><div class="small muted">'+esc(className(o.classId))+' · '+o.start+'–'+o.end+'</div><div class="mt12 small">Đã vào lớp: <b>'+n+'/'+tot+'</b></div><div class="bar mt8"><div style="width:'+(tot?Math.round(n/tot*100):0)+'%"></div></div><div class="row wrap mt12"><button class="btn sm" onclick="copyText(joinLink(\''+o.id+'\'))">'+ic('link')+' Link</button><button class="btn sm" onclick="go(\'att\',{classId:\''+o.classId+'\',date:\''+o.date+'\'})">Điểm danh</button><button class="btn sm" onclick="viewProofs(\''+o.id+'\')">'+ic('camera')+' Ảnh</button><button class="btn sm" onclick="editSession(\''+o.id+'\',\''+o.classId+'\',\''+o.date+'\')">Sửa</button></div></div>'; }).join('')+'</div>':'<div class="card empty">Chưa có buổi online nào.</div>');
+  const p=S.P.onl, all=Object.values(S.onl), td=dk(new Date()), done=all.filter(o=>phase(o)==='ended'), up=all.filter(o=>phase(o)!=='ended');
+  let rate=0,n=0; done.forEach(o=>{ const t=sessionStudents(o).length; if(t){ rate+=joinedN(o)/t; n++; } });
+  const stat=(l,v,x,i,c)=>'<div class="card stat"><span class="si '+c+'">'+ic(i,22)+'</span><div><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(x?'<div class="small muted">'+x+'</div>':'')+'</div></div>';
+  const tab=(k,l,c)=>'<button class="'+(p.tab===k?'on':'')+'" onclick="setP(\'onl\',\'tab\',\''+k+'\')">'+l+' <span>'+c+'</span></button>';
+  return pageHead('Lớp học online','Học sinh vào bằng link, không cần đăng nhập — chọn tên, nhập ngày sinh & trường, đưa mặt vào camera để tự động điểm danh.','<button class="btn" onclick="go(\'merge\')">'+ic('layers')+' Gộp lớp</button><button class="btn pri" onclick="newOnline()">'+ic('plus',16)+' Tạo buổi online</button>')+
+  '<div class="grid g4 mb16">'+stat('Hôm nay',all.filter(o=>o.date===td).length,'buổi online','calendar','c1')+stat('Đang diễn ra',all.filter(o=>phase(o)==='live').length,'','video','c2')+stat('Buổi gộp lớp',all.filter(isMerged).length,'','layers','c3')+stat('Tỉ lệ vào lớp TB',n?Math.round(rate/n*100)+'%':'—','các buổi đã kết thúc','userCheck','c4')+'</div>'+
+  '<div class="toolbar" style="margin-top:0"><div class="seg">'+tab('active','Sắp tới & đang diễn ra',up.length)+tab('ended','Đã kết thúc',done.length)+tab('all','Tất cả',all.length)+'</div><span class="grow"></span><div class="jsr" style="min-width:220px;max-width:300px">'+ic('search',16)+'<input class="inp" style="padding:9px 12px 9px 40px;font-size:14px" placeholder="Tìm buổi học…" value="'+esc(p.q||'')+'" oninput="onlSearch(this.value)"></div></div>'+
+  '<div id="onlList">'+onlList()+'</div>';
 }
 function newOnline(){ const c=activeClasses(); if(!c.length){ toast('Hãy tạo lớp trước','err'); return; } editSession('',c[0].id,dk(new Date())); }
+function exportSession(id){ const o=S.onl[id]||S.att[id]; if(!o) return; const st={P:'Có mặt',L:'Muộn',E:'Có phép',A:'Vắng'}, rows=[['STT','Họ tên','Lớp','Trạng thái','Giờ vào lớp','Hình thức']];
+  sessionStudents(o).forEach((s,i)=>{ const m=(o.marks||{})[s.id]; rows.push([i+1,s.name,stuTags(s,o).join(', '),m?st[m.s]:'Chưa điểm danh',m&&m.t?fmtHM(m.t):'',m?(m.m==='online'?'Tự điểm danh (online)':'Trợ giảng'):'']); });
+  exportXlsx('Online_'+(o.title||'buoi')+'_'+o.date,rows); }
+
+/* ---- Ảnh học sinh vào lớp online ---- */
+let PX={};
+function lightbox(src,cap,sid){ const e=document.createElement('div'); e.className='lb'; e.onclick=ev=>{ if(ev.target===e||ev.target.classList.contains('lbx')) e.remove(); };
+  e.innerHTML='<button class="lbx" aria-label="Đóng">'+ic('x',22)+'</button><img src="'+src+'" alt=""><div class="cap">'+esc(cap||'')+'</div>'+(sid?'<button class="btn sm" onclick="dlPx(\''+sid+'\')">'+ic('download',14)+' Tải ảnh</button>':''); document.body.appendChild(e); }
+function showPx(sid){ const v=PX[sid]; if(v) lightbox(v.img,((S.students[sid]||{}).name||sid)+' · '+fmtHM(v.ts),sid); }
+function dlPx(sid){ const v=PX[sid]; if(!v) return; const a=document.createElement('a'); a.href=v.img; a.download=norm((S.students[sid]||{}).name||sid).replace(/\s+/g,'_')+'.jpg'; a.click(); }
+async function viewProof(id,sid){ try{ const d=await C('proofs').doc(id+'_'+sid).get(), v=d.data(); if(!v){ toast('Học sinh này chưa có ảnh','err'); return; } PX[sid]=v; showPx(sid); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
 async function viewProofs(id){
-  modal('Ảnh xác thực','<div class="muted">Đang tải…</div>','',true);
-  try{ const s=await C('proofs').where('docId','==',id).get(); const arr=s.docs.map(d=>d.data()).sort((a,b)=>a.ts-b.ts);
-    $('#modalRoot .mb').innerHTML=arr.length?'<div class="thumbs">'+arr.map(p=>'<div><img src="'+p.img+'"><div class="small b">'+esc((S.students[p.sid]||{}).name||p.sid)+'</div><div class="small muted">'+fmtHM(p.ts)+(p.dist!=null?' · d='+(+p.dist).toFixed(2):'')+(p.flag?' · '+esc(p.flag):'')+'</div></div>').join('')+'</div>':'<div class="empty">Chưa có ảnh.</div>'; }
-  catch(e){ $('#modalRoot .mb').innerHTML='<div class="err">'+esc(e.message)+'</div>'; }
+  const o=S.onl[id]||S.att[id]||{}; modal(ic('camera',18)+' Ảnh vào lớp · '+esc(o.title||''),'<div class="muted">Đang tải…</div>','',true);
+  try{
+    const sn=await C('proofs').where('docId','==',id).get(); PX={}; sn.docs.forEach(x=>{ const v=x.data(); PX[v.sid]=v; });
+    const studs=sessionStudents(o), joined=studs.filter(s=>PX[s.id]), miss=studs.filter(s=>!PX[s.id]);
+    Object.keys(PX).forEach(sid=>{ if(S.students[sid]&&!studs.find(s=>s.id===sid)) joined.push(S.students[sid]); });
+    joined.sort((a,b)=>PX[a.id].ts-PX[b.id].ts);
+    const late=sid=>{ const m=(o.marks||{})[sid]; return m&&m.s==='L'; };
+    const msg='Các em chưa vào lớp online "'+(o.title||'')+'": '+miss.map(s=>s.name).join(', ')+'. Vào lớp tại: '+joinLink(id);
+    $('#modalRoot .mb').innerHTML='<div class="row wrap mb12"><span class="pill pill-grn">Đã vào lớp '+joined.length+'</span><span class="pill pill-gray">Chưa vào '+miss.length+'</span>'+(isMerged(o)?'<span class="pill pill-teal">'+ic('layers',12)+' '+esc(sessClassNames(o))+'</span>':'')+'</div>'+
+    (joined.length?'<div class="pfgrid">'+joined.map(s=>{ const v=PX[s.id]; return '<div class="pf"><button class="pfi" onclick="showPx(\''+s.id+'\')"><img src="'+v.img+'" alt=""></button><div class="pfb"><b>'+esc(s.name)+'</b><div class="small muted">'+fmtHM(v.ts)+(late(s.id)?' · <span style="color:var(--amb)">muộn</span>':'')+(isMerged(o)?' · '+esc(stuTags(s,o).join(', ')):'')+'</div>'+(v.flag==='model_unavailable'?'<div class="pill pill-amber mt8">chưa dò được mặt — hãy xem ảnh</div>':'')+'</div></div>'; }).join('')+'</div>':'<div class="empty">Chưa có học sinh nào vào lớp.</div>')+
+    (miss.length?'<div class="b mt16 mb12">Chưa vào lớp ('+miss.length+')</div><div>'+miss.map(s=>'<span class="chip" style="background:#edf1f5;color:var(--soft)">'+esc(s.name)+'</span>').join('')+'</div><div class="mt12"><button class="btn sm" data-m="'+esc(msg)+'" onclick="copyText(this.dataset.m)">'+ic('copy',14)+' Sao chép tin nhắn nhắc vào lớp</button></div>':'');
+  }catch(e){ $('#modalRoot .mb').innerHTML='<div class="err">'+esc(e.message)+'</div>'; }
 }
 
 /* ===================== CHUYÊN CẦN THÁNG ===================== */
+function repDocs(p){ return Object.values(S.att).filter(d=>inSess(d,p.classId)&&d.date.startsWith(p.month)).sort((a,b)=>a.date.localeCompare(b.date)); }
 function vRep(){
-  const cls=activeClasses(); if(!cls.length) return '<h2 class="pt">Chuyên cần tháng</h2><div class="mt16">'+noClass()+'</div>';
+  const cls=activeClasses(); if(!cls.length) return pageHead('Chuyên cần tháng','')+'<div class="mt16">'+noClass()+'</div>';
   const p=S.P.rep; if(!p.classId||!S.classes[p.classId]) p.classId=cls[0].id; if(!p.month) p.month=mk(new Date()); ensureAtt(p.month);
-  const docs=Object.values(S.att).filter(d=>d.classId===p.classId&&d.date.startsWith(p.month)).sort((a,b)=>a.date.localeCompare(b.date)), studs=classStudents(p.classId);
-  const sym={P:''+ic('check')+'',L:'M',E:'P',A:'V'};
-  const rows=studs.map((s,i)=>{ const c={P:0,L:0,E:0,A:0}; const cells=docs.map(d=>{ const m=(d.marks||{})[s.id]; if(m&&c[m.s]!=null) c[m.s]++; return '<td class="center"><span class="cell '+(m?'c-'+m.s:'c-N')+'">'+(m?sym[m.s]:'·')+'</span></td>'; }).join(''); const t=c.P+c.L+c.E+c.A, r=t?Math.round((c.P+c.L)/t*100):null;
-    return '<tr><td>'+(i+1)+'</td><td class="nowrap"><b>'+esc(s.name)+'</b></td>'+cells+'<td class="center">'+c.P+'</td><td class="center">'+c.L+'</td><td class="center">'+c.E+'</td><td class="center">'+c.A+'</td><td style="min-width:110px">'+(r==null?'—':'<b style="color:'+(r<80?'var(--red)':'var(--grn)')+'">'+r+'%</b><div class="bar"><div style="width:'+r+'%;background:'+(r<80?'var(--red)':'var(--grn)')+'"></div></div>')+'</td></tr>'; }).join('');
-  return '<div class="row between wrap"><h2 class="pt">Chuyên cần tháng</h2><button class="btn" onclick="exportRep()">'+ic('download')+' Xuất Excel</button></div><div class="toolbar"><select class="inp" onchange="setP(\'rep\',\'classId\',this.value)">'+classOpts(p.classId)+'</select><input class="inp" type="month" value="'+p.month+'" onchange="setP(\'rep\',\'month\',this.value)"><span class="small muted">'+docs.length+' buổi học trong tháng</span></div>'+
-  '<div class="row wrap small mb12"><span class="cell c-P">'+ic('check')+'</span>Có mặt <span class="cell c-L">M</span>Muộn <span class="cell c-E">P</span>Phép <span class="cell c-A">V</span>Vắng <span class="cell c-N">·</span>Chưa ghi · Chuyên cần = (có mặt + muộn) / số buổi đã ghi</div>'+
-  (docs.length&&studs.length?'<div class="card" style="padding:0"><div class="scroll"><table class="tbl"><thead><tr><th>#</th><th>Học sinh</th>'+docs.map(d=>'<th class="center" style="cursor:pointer" title="Mở buổi" onclick="go(\'att\',{classId:\''+d.classId+'\',date:\''+d.date+'\'})">'+d.date.slice(8)+'/'+d.date.slice(5,7)+(d.online?' '+ic('video')+'':'')+'</th>').join('')+'<th class="center">CM</th><th class="center">M</th><th class="center">P</th><th class="center">V</th><th>Chuyên cần</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>':'<div class="card empty">Chưa có dữ liệu điểm danh trong tháng này.</div>');
+  const docs=repDocs(p), studs=classStudents(p.classId), sym={P:''+ic('check')+'',L:'M',E:'P',A:'V'}; let sumP=0,sumT=0,low=0;
+  const rows=studs.map((s,i)=>{ const c={P:0,L:0,E:0,A:0}; const cells=docs.map(d=>{ const m=(d.marks||{})[s.id]; if(m&&c[m.s]!=null) c[m.s]++; return '<td class="center"><span class="cell '+(m?'c-'+m.s:'c-N')+'">'+(m?sym[m.s]:'·')+'</span></td>'; }).join(''); const t=c.P+c.L+c.E+c.A, r=t?Math.round((c.P+c.L)/t*100):null; if(t){ sumP+=c.P+c.L; sumT+=t; if(r<80) low++; }
+    return '<tr><td class="muted">'+(i+1)+'</td><td class="nowrap"><b>'+esc(s.name)+'</b></td>'+cells+'<td class="center">'+c.P+'</td><td class="center">'+c.L+'</td><td class="center">'+c.E+'</td><td class="center">'+c.A+'</td><td style="min-width:110px">'+(r==null?'—':'<b style="color:'+(r<80?'var(--red)':'var(--grn)')+'">'+r+'%</b><div class="bar"><div style="width:'+r+'%;background:'+(r<80?'var(--red)':'var(--grn)')+'"></div></div>')+'</td></tr>'; }).join('');
+  return pageHead('Chuyên cần tháng','Bảng điểm danh theo từng buổi trong tháng','<button class="btn" onclick="exportRep()">'+ic('download')+' Xuất Excel</button>')+
+  '<div class="toolbar tbcard"><select class="inp" onchange="setP(\'rep\',\'classId\',this.value)">'+classOpts(p.classId)+'</select><input class="inp" type="month" value="'+p.month+'" onchange="setP(\'rep\',\'month\',this.value)"><span class="grow"></span><span class="pill pill-gray">'+docs.length+' buổi</span>'+(sumT?'<span class="pill pill-grn">Chuyên cần TB '+Math.round(sumP/sumT*100)+'%</span>':'')+(low?'<span class="pill pill-red">'+low+' HS dưới 80%</span>':'')+'</div>'+
+  '<div class="row wrap small mb12"><span class="cell c-P">'+ic('check')+'</span>Có mặt <span class="cell c-L">M</span>Muộn <span class="cell c-E">P</span>Phép <span class="cell c-A">V</span>Vắng <span class="cell c-N">·</span>Chưa ghi · '+ic('layers',13)+' Buổi gộp lớp · Chuyên cần = (có mặt + muộn) / số buổi đã ghi</div>'+
+  (docs.length&&studs.length?'<div class="card" style="padding:0"><div class="scroll"><table class="tbl"><thead><tr><th>#</th><th>Học sinh</th>'+docs.map(d=>'<th class="center" style="cursor:pointer" title="'+(isMerged(d)?'Buổi gộp: '+esc(sessClassNames(d))+' — ':'')+'Mở buổi" onclick="go(\'att\',{classId:\''+p.classId+'\',date:\''+d.date+'\'})">'+d.date.slice(8)+'/'+d.date.slice(5,7)+(d.online?' '+ic('video',12):'')+(isMerged(d)?' '+ic('layers',12):'')+'</th>').join('')+'<th class="center">CM</th><th class="center">M</th><th class="center">P</th><th class="center">V</th><th>Chuyên cần</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>':'<div class="card empty">Chưa có dữ liệu điểm danh trong tháng này.</div>');
 }
 function exportRep(){
-  const p=S.P.rep, docs=Object.values(S.att).filter(d=>d.classId===p.classId&&d.date.startsWith(p.month)).sort((a,b)=>a.date.localeCompare(b.date)), studs=classStudents(p.classId), sym={P:'x',L:'M',E:'P',A:'V'};
-  const rows=[['Họ tên'].concat(docs.map(d=>fmtD(d.date)),['Có mặt','Muộn','Phép','Vắng','Chuyên cần %'])];
+  const p=S.P.rep, docs=repDocs(p), studs=classStudents(p.classId), sym={P:'x',L:'M',E:'P',A:'V'};
+  const rows=[['Họ tên'].concat(docs.map(d=>fmtD(d.date)+(isMerged(d)?' (gộp)':'')),['Có mặt','Muộn','Phép','Vắng','Chuyên cần %'])];
   studs.forEach(s=>{ const c={P:0,L:0,E:0,A:0}; const cells=docs.map(d=>{ const m=(d.marks||{})[s.id]; if(m&&c[m.s]!=null) c[m.s]++; return m?sym[m.s]:''; }); const t=c.P+c.L+c.E+c.A; rows.push([s.name].concat(cells,[c.P,c.L,c.E,c.A,t?Math.round((c.P+c.L)/t*100):''])); });
   exportXlsx('ChuyenCan_'+className(p.classId)+'_'+p.month,rows);
 }
@@ -545,11 +743,9 @@ function vStudents(){
 }
 function editStudent(id){
   const s=id?S.students[id]:{classIds:S.P.stu.classId?[S.P.stu.classId]:[],active:true};
-  modal(id?'Sửa học sinh':'Thêm học sinh','<div class="field"><label>Họ và tên</label><input class="inp" id="sName2" value="'+esc(s.name||'')+'"></div><div class="cols2"><div class="field"><label>Ngày sinh *</label><input class="inp" id="sDob" type="date" value="'+(s.dob||'')+'"></div><div class="field"><label>Trường *</label><input class="inp" id="sSchool" value="'+esc(s.school||'')+'" placeholder="VD: THCS Nguyễn Tất Thành"></div><div class="field"><label>SĐT học sinh</label><input class="inp" id="sPhone" value="'+esc(s.phone||'')+'"></div><div class="field"><label>SĐT phụ huynh</label><input class="inp" id="sPP" value="'+esc(s.parentPhone||'')+'"></div></div><div class="small muted mb12">Ngày sinh + trường dùng để học sinh xác nhận khi vào lớp online.</div><div class="field"><label>Lớp đang học</label>'+activeClasses().map(c=>'<label class="chk"><input type="checkbox" class="sCls" value="'+c.id+'" '+((s.classIds||[]).includes(c.id)?'checked':'')+'> '+esc(c.name)+'</label>').join('')+'</div><div class="field"><label>Ghi chú</label><textarea class="inp" id="sNote" rows="2">'+esc(s.note||'')+'</textarea></div><label class="chk"><input type="checkbox" id="sActive" '+(s.active!==false?'checked':'')+'> Đang theo học</label>'+(id?'<div class="mt12" id="faceBox"><span class="small muted">Đang kiểm tra FaceID…</span></div>':''),
+  modal(id?'Sửa học sinh':'Thêm học sinh','<div class="field"><label>Họ và tên</label><input class="inp" id="sName2" value="'+esc(s.name||'')+'"></div><div class="cols2"><div class="field"><label>Ngày sinh *</label><input class="inp" id="sDob" type="date" value="'+(s.dob||'')+'"></div><div class="field"><label>Trường *</label><input class="inp" id="sSchool" value="'+esc(s.school||'')+'" placeholder="VD: THCS Nguyễn Tất Thành"></div><div class="field"><label>SĐT học sinh</label><input class="inp" id="sPhone" value="'+esc(s.phone||'')+'"></div><div class="field"><label>SĐT phụ huynh</label><input class="inp" id="sPP" value="'+esc(s.parentPhone||'')+'"></div></div><div class="small muted mb12">Ngày sinh + trường dùng để học sinh xác nhận khi vào lớp online.</div><div class="field"><label>Lớp đang học</label>'+activeClasses().map(c=>'<label class="chk"><input type="checkbox" class="sCls" value="'+c.id+'" '+((s.classIds||[]).includes(c.id)?'checked':'')+'> '+esc(c.name)+'</label>').join('')+'</div><div class="field"><label>Ghi chú</label><textarea class="inp" id="sNote" rows="2">'+esc(s.note||'')+'</textarea></div><label class="chk"><input type="checkbox" id="sActive" '+(s.active!==false?'checked':'')+'> Đang theo học</label>'+'',
    (id?'<button class="btn red" onclick="delStudent(\''+id+'\')">Xoá</button>':'')+'<button class="btn" onclick="closeModal()">Huỷ</button><button class="btn pri" onclick="saveStudent(\''+(id||'')+'\')">Lưu</button>');
-  if(id) C('roster').doc(id).get().then(d=>{ const r=d.data()||{}; const b=$('#faceBox'); if(b) b.innerHTML=r.face?'<span class="pill pill-grn">FaceID đã đăng ký '+fmtD(dk(new Date(r.faceAt||Date.now())))+'</span> <button class="btn sm red" onclick="resetFace(\''+id+'\')">Đặt lại FaceID</button>':'<span class="pill pill-gray">Chưa đăng ký FaceID — sẽ tự đăng ký ở lần vào lớp online đầu tiên</span>'; }).catch(()=>{});
 }
-async function resetFace(id){ if(!confirm('Xoá FaceID của học sinh này?')) return; try{ await C('roster').doc(id).update({face:FV.delete(),faceAt:FV.delete()}); const b=$('#faceBox'); if(b) b.innerHTML='<span class="pill pill-gray">Đã đặt lại</span>'; }catch(e){ toast('Lỗi: '+e.message,'err'); } }
 async function saveStudent(id){
   const name=val('sName2'); if(!name){ toast('Nhập họ tên','err'); return; }
   const sid=id||uid(), dob=val('sDob'), school=val('sSchool'), classIds=Array.from(document.querySelectorAll('.sCls:checked')).map(x=>x.value), active=$('#sActive').checked;
@@ -660,11 +856,11 @@ service cloud.firestore {
 }`;
 function vSettings(){
   const st=S.settings||{}, owner=S.profile.owner, users=Object.values(S.users).sort((a,b)=>(a.status==='pending'?0:1)-(b.status==='pending'?0:1)||(a.name||'').localeCompare(b.name||'','vi'));
-  return '<h2 class="pt">Cài đặt</h2><div class="grid g2 mt16"><div class="card"><div class="b mb12">Thông số hệ thống</div><div class="field"><label>Ngưỡng nhận diện khuôn mặt (nhỏ hơn = chặt hơn, mặc định 0.5)</label><input class="inp" id="stThr" type="number" step="0.05" min="0.3" max="0.7" value="'+(st.faceThreshold!=null?st.faceThreshold:0.5)+'"></div><div class="cols2"><div class="field"><label>Mở điểm danh trước (phút)</label><input class="inp" id="stEarly" type="number" value="'+(st.early!=null?st.early:15)+'"></div><div class="field"><label>Tính muộn sau (phút)</label><input class="inp" id="stLate" type="number" value="'+(st.late!=null?st.late:10)+'"></div></div><button class="btn pri" onclick="saveSettings()">Lưu cài đặt</button></div>'+
+  return '<h2 class="pt">Cài đặt</h2><div class="grid g2 mt16"><div class="card"><div class="b mb12">Thông số hệ thống</div><div class="cols2"><div class="field"><label>Mở điểm danh trước (phút)</label><input class="inp" id="stEarly" type="number" value="'+(st.early!=null?st.early:15)+'"></div><div class="field"><label>Tính muộn sau (phút)</label><input class="inp" id="stLate" type="number" value="'+(st.late!=null?st.late:10)+'"></div></div><button class="btn pri" onclick="saveSettings()">Lưu cài đặt</button></div>'+
   '<div class="card"><div class="b mb12">Nhân sự (trợ giảng & giảng viên)</div>'+users.map(u=>'<div class="row between" style="padding:9px 0;border-bottom:1px solid var(--line)"><div><b>'+esc(u.name)+'</b> '+(u.owner?'<span class="pill pill-teal">Chủ quản</span>':'')+'<div class="small muted">'+esc(u.role||'')+' · '+esc(u.email||'')+'</div></div><div class="row">'+(u.status==='pending'?'<span class="pill pill-amber">Chờ duyệt</span>':u.status==='disabled'?'<span class="pill pill-red">Đã khoá</span>':'<span class="pill pill-grn">Hoạt động</span>')+(owner&&!u.owner?(u.status==='active'?'<button class="btn sm red" onclick="setUserStatus(\''+u.id+'\',\'disabled\')">Khoá</button>':'<button class="btn sm pri" onclick="setUserStatus(\''+u.id+'\',\'active\')">Duyệt</button>'):'')+'</div></div>').join('')+'<div class="small muted mt12">Trợ giảng và giảng viên đã được duyệt đều có quyền quản trị: điểm danh, quản lí điểm, học phí.</div></div></div>'+
   '<div class="card mt16"><div class="b">Thiết lập Firebase (làm một lần)</div><ol class="small muted" style="margin:10px 0 10px 18px;line-height:1.8"><li>Firebase Console '+ic('arrowR')+' <b>Authentication</b> '+ic('arrowR')+' bật <b>Email/Password</b>; thêm tên miền website vào <i>Authorized domains</i>.</li><li><b>Firestore Database</b> '+ic('arrowR')+' tạo database (chế độ production).</li><li>Tab <b>Rules</b> '+ic('arrowR')+' dán đoạn bên dưới '+ic('arrowR')+' Publish.</li><li>Người đăng ký đầu tiên tự thành Chủ quản; những người sau cần được duyệt tại đây.</li></ol><div class="row between mb12"><span class="small b">Firestore Rules</span><button class="btn sm" onclick="copyText(RULES)">Sao chép</button></div><pre class="code">'+esc(RULES)+'</pre></div>';
 }
-async function saveSettings(){ try{ await C('settings').doc('main').set({faceThreshold:+val('stThr')||0.5,early:+val('stEarly')||0,late:+val('stLate')||0},{merge:true}); toast('Đã lưu','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
+async function saveSettings(){ try{ await C('settings').doc('main').set({early:+val('stEarly')||0,late:+val('stLate')||0},{merge:true}); toast('Đã lưu','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
 async function setUserStatus(id,s){ try{ await C('users').doc(id).update({status:s}); toast('Đã cập nhật','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
 
 /* ===================== TRANG HỌC SINH VÀO LỚP ONLINE (không đăng nhập) ===================== */
@@ -675,11 +871,13 @@ async function bootJoin(){
   J.id=JOIN; jShell('<div class="center muted">Đang tải lớp học…</div>');
   try{
     const d=await C('attendance').doc(J.id).get(); if(!d.exists||!d.data().online) return jErr('Không tìm thấy lớp online');
-    J.doc=d.data(); const c=await C('classes').doc(J.doc.classId).get(); J.cls=c.data()||{};
-    const r=await C('roster').where('classIds','array-contains',J.doc.classId).get(); J.roster=r.docs.map(x=>Object.assign({id:x.id},x.data())).filter(x=>x.active!==false).sort(byName);
+    J.doc=d.data(); J.cids=[J.doc.classId].concat(J.doc.merged||[]);
+    const cs=await Promise.all(J.cids.map(c=>C('classes').doc(c).get())); J.cnames=cs.map(x=>(x.data()||{}).name||'—'); J.cls={name:J.cnames.join(' + ')};
+    const r=await C('roster').get(); J.roster=r.docs.map(x=>Object.assign({id:x.id},x.data())).filter(x=>x.active!==false&&(x.classIds||[]).some(c=>J.cids.includes(c))).sort(byName);
     renderJoin(); setInterval(()=>{ if(J.step===1) renderJoin(true); },30000);
   }catch(e){ jErr('Không tải được: '+(e.code==='permission-denied'?'chưa cấu hình quyền truy cập':e.message)); }
 }
+const jCls=s=>(s.classIds||[]).filter(c=>(J.cids||[]).includes(c)).map(c=>J.cnames[J.cids.indexOf(c)]).join(', ');
 function jHead(){ const d=J.doc, ph=phase(d); return '<div class="logo">'+brandMark()+'</div><h1>'+esc(d.title||'Lớp học online')+'</h1><div class="sub">'+esc(J.cls.name||'')+' · '+fmtD(d.date)+' · '+d.start+'–'+d.end+'<br><span class="pill '+PH[ph][1]+'" style="margin-top:8px">'+PH[ph][0]+'</span></div>'; }
 function renderJoin(soft){
   if(soft && document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName)) return;
@@ -695,10 +893,20 @@ function renderJoin(soft){
     jStartCam(); return;
   }
 }
-function jStop(){ if(J.stream){ J.stream.getTracks().forEach(t=>t.stop()); J.stream=null; } }
+function jStop(){ if(J.timer){ clearInterval(J.timer); J.timer=null; } if(J.stream){ J.stream.getTracks().forEach(t=>t.stop()); J.stream=null; } }
 async function jStartCam(){
-  try{ jStop(); J.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false}); const v=$('#jv'); if(!v) return; v.srcObject=J.stream; v.play().catch(()=>{}); const b=$('#jShot'); if(b) b.disabled=false; ensureFaceApi().catch(()=>{}); }
-  catch(e){ const m=$('#jmsg'); if(m) m.innerHTML='<div class="err">Không mở được camera. Hãy cho phép quyền camera (trang cần chạy trên https).</div>'; }
+  try{ jStop(); J.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false}); const v=$('#jv'); if(!v) return; v.srcObject=J.stream; v.play().catch(()=>{}); const b=$('#jShot'); if(b) b.disabled=false;
+    const cam=$('#jCam'); if(cam) cam.insertAdjacentHTML('beforeend','<div class="fbadge" id="jFace">Đang tìm khuôn mặt…</div>');
+    J.hits=0; ensureFaceApi().then(()=>{ if(J.stream) J.timer=setInterval(jTick,800); }).catch(()=>{ const f=$('#jFace'); if(f) f.textContent='Bấm “Chụp & điểm danh”'; });
+  }catch(e){ const m=$('#jmsg'); if(m) m.innerHTML='<div class="err">Không mở được camera. Hãy cho phép quyền camera (trang cần chạy trên https).</div>'; }
+}
+async function jTick(){
+  const v=$('#jv'); if(!v||!v.videoWidth||J.busy||J.step!==2||J.ticking) return; J.ticking=true;
+  try{ const r=await faceapi.detectAllFaces(v,faceOpts()), f=$('#jFace'), o=document.querySelector('.cam .oval');
+    if(r.length){ J.hits++; if(f){ f.textContent='Đã nhận diện khuôn mặt ✓'; f.className='fbadge ok'; } if(o) o.classList.add('ok'); if(J.hits>=3){ J.ticking=false; jCapture(true); return; } }
+    else{ J.hits=0; if(f){ f.textContent='Đang tìm khuôn mặt… hãy nhìn thẳng vào camera'; f.className='fbadge'; } if(o) o.classList.remove('ok'); }
+  }catch(e){}
+  J.ticking=false;
 }
 function jFail(t){ J.tries++; if(J.tries>=6){ J.lock=Date.now()+60000; J.tries=0; } return t; }
 async function jVerifyInfo(){
@@ -710,30 +918,22 @@ async function jVerifyInfo(){
   const h=await vhash(sid,dob,school); if(h!==st.vhash){ say(jFail('Thông tin chưa đúng. Kiểm tra lại ngày sinh và trường.')); return; }
   J.sid=sid; J.step=2; J.msg=''; J.tries=0; renderJoin();
 }
-async function jCapture(){
-  const v=$('#jv'); if(!v||!v.videoWidth){ toast('Camera chưa sẵn sàng','err'); return; }
-  if(Date.now()<J.lock){ $('#jmsg').innerHTML='<div class="err">Thử quá nhiều lần, chờ '+Math.ceil((J.lock-Date.now())/1000)+' giây.</div>'; return; }
-  if(J.busy) return; J.busy=true; const btn=$('#jShot'); btn.disabled=true; const say=(t,k)=>{ $('#jmsg').innerHTML='<div class="'+(k||'err')+'">'+t+'</div>'; };
-  const cv=document.createElement('canvas'); cv.width=v.videoWidth; cv.height=v.videoHeight; cv.getContext('2d').drawImage(v,0,0); const image=shrink(cv,320,0.7);
-  say('Đang phân tích khuôn mặt…','ok'); let flag='', dmin=null;
+async function jCapture(auto){
+  const v=$('#jv'); if(!v||!v.videoWidth){ if(!auto) toast('Camera chưa sẵn sàng','err'); return; }
+  if(J.busy) return; J.busy=true; const btn=$('#jShot'); if(btn) btn.disabled=true; const say=(t,k)=>{ const m=$('#jmsg'); if(m) m.innerHTML='<div class="'+(k||'err')+'">'+t+'</div>'; };
+  const cv=document.createElement('canvas'); cv.width=v.videoWidth; cv.height=v.videoHeight; cv.getContext('2d').drawImage(v,0,0); const image=shrink(cv,480,0.75);
+  say('Đang kiểm tra khuôn mặt…','ok'); let flag='';
   try{
-    let dets; try{ await ensureFaceApi(); dets=await faceapi.detectAllFaces(cv,new faceapi.SsdMobilenetv1Options({minConfidence:0.5})).withFaceLandmarks().withFaceDescriptors(); }catch(e){ dets=null; flag='model_unavailable'; }
-    if(dets){
-      if(!dets.length){ say('Không thấy khuôn mặt. Hãy nhìn thẳng vào camera.'); btn.disabled=false; J.busy=false; return; }
-      if(dets.length>1){ say('Có nhiều hơn 1 khuôn mặt trong ảnh.'); btn.disabled=false; J.busy=false; return; }
-      const q=Array.from(dets[0].descriptor), st=J.roster.find(x=>x.id===J.sid), enrolled=st.face?Object.values(st.face):[];
-      if(!enrolled.length){ await C('roster').doc(J.sid).set({face:{d0:q},faceAt:Date.now()},{merge:true}); flag='enrolled'; }
-      else { dmin=Math.min.apply(null,enrolled.map(e=>dist(q,e))); const thr=J.doc.thr!=null?+J.doc.thr:0.5;
-        if(dmin>=thr){ jFail(); const left=6-J.tries; say(J.lock>Date.now()?'Khuôn mặt chưa khớp. Chờ 60 giây rồi thử lại.':'Khuôn mặt chưa khớp. Thử lại ('+left+' lần còn lại).'); btn.disabled=false; J.busy=false; return; } }
-    }
-    // ghi điểm danh
+    // Chỉ cần dò thấy có khuôn mặt là chấp nhận (không đối chiếu danh tính)
+    let n=null; try{ await ensureFaceApi(); n=(await faceapi.detectAllFaces(cv,faceOpts())).length; }catch(e){ n=null; flag='model_unavailable'; }
+    if(n===0){ say('Chưa thấy khuôn mặt. Hãy nhìn thẳng vào camera, đủ sáng và không che mặt.'); if(btn) btn.disabled=false; J.busy=false; J.hits=0; return; }
     const ref=C('attendance').doc(J.id), cur=await ref.get(), old=((cur.data()||{}).marks||{})[J.sid], ts=Date.now(), late=ts>times(J.doc).s.getTime()+(J.doc.late!=null?J.doc.late:10)*60000;
     if(!(old&&(old.s==='P'||old.s==='L'))){ const mark={s:late?'L':'P',t:ts,m:'online'}; if(flag) mark.f=flag; await ref.update({['marks.'+J.sid]:mark}); }
-    try{ await C('proofs').doc(J.id+'_'+J.sid).set({docId:J.id,sid:J.sid,img:image,ts,flag:flag||null,dist:dmin}); }catch(e){}
+    try{ await C('proofs').doc(J.id+'_'+J.sid).set({docId:J.id,sid:J.sid,img:image,ts,flag:flag||null}); }catch(e){}
     let link=null; try{ link=(await C('links').doc(J.id).get()).data(); }catch(e){}
     jStop(); J.step=3; const st=J.roster.find(x=>x.id===J.sid);
-    jShell('<div class="center"><div class="tick">'+ic('check')+'</div><h1>Điểm danh thành công</h1><div class="sub">'+esc(st.name)+' · '+fmtHM(ts)+(late?' (muộn)':'')+(flag==='enrolled'?'<br>Đã đăng ký khuôn mặt cho lần sau.':'')+'</div>'+(link&&link.url?'<a class="btn pri full" target="_blank" rel="noopener" href="'+esc(link.url)+'" style="text-decoration:none">'+ic('video')+' Vào phòng học</a>':'<div class="err" style="background:var(--ambs);color:#92400e">Giảng viên chưa cập nhật link phòng học.</div>')+'</div>');
-  }catch(e){ say('Lỗi: '+esc(e.message||e)); btn.disabled=false; }
+    jShell('<div class="center"><div class="tick">'+ic('check')+'</div><h1>Điểm danh thành công</h1><div class="sub">'+esc(st.name)+' · '+fmtHM(ts)+(late?' (muộn)':'')+'</div>'+(link&&link.url?'<a class="btn pri full" target="_blank" rel="noopener" href="'+esc(link.url)+'" style="text-decoration:none">'+ic('video')+' Vào phòng học</a>':'<div class="err" style="background:var(--ambs);color:#92400e">Giảng viên chưa cập nhật link phòng học.</div>')+'</div>');
+  }catch(e){ say('Lỗi: '+esc(e.message||e)); if(btn) btn.disabled=false; }
   J.busy=false;
 }
 
@@ -762,7 +962,7 @@ const gate=(ic,t,s,x)=>{ $('#app').innerHTML='<div class="authwrap"><div class="
 async function showLogin(msg){
   await loadBrand(); let inv=null; if(INV){ try{ inv=(await C('invites').doc(INV).get()).data(); }catch(e){} }
   const bad=INV&&(!inv||!inv.active||inv.exp<Date.now());
-  const fs=[['userCheck','Điểm danh nhanh, kể cả lớp online bằng FaceID'],['file','Điểm số, chuyên cần và báo cáo Excel'],['wallet','Theo dõi học phí, nhắc phụ huynh'],['shield','Phân quyền và duyệt tài khoản chặt chẽ']];
+  const fs=[['userCheck','Điểm danh nhanh, gộp lớp, lớp online tự điểm danh bằng ảnh khuôn mặt'],['file','Điểm số, chuyên cần và báo cáo Excel'],['wallet','Theo dõi học phí, nhắc phụ huynh'],['shield','Phân quyền và duyệt tài khoản chặt chẽ']];
   $('#app').innerHTML='<div class="lgs"><div class="lgs-l"><div class="lgs-brand">'+brandMark()+'<b>'+esc(BR.name)+'</b></div><h2>Quản lí lớp học<br>gọn gàng, chính xác.</h2><div class="lgs-f">'+fs.map(f=>'<div class="row">'+ic(f[0],18)+'<span>'+f[1]+'</span></div>').join('')+'</div></div><div class="lgs-r"><div class="authcard"><div class="logo">'+brandMark()+'</div><h1>Đăng nhập</h1><div class="sub">Dùng tài khoản Google đã được cấp quyền</div><div id="aerr"></div>'+(msg?'<div class="ok">'+esc(msg)+'</div>':'')+
   (bad?'<div class="err">Link mời không hợp lệ hoặc đã hết hạn. Hãy xin link mới.</div>':INV?'<div class="ok">Bạn được mời làm <b>'+esc(inv.role||'Trợ giảng')+'</b>. Đăng nhập Google để gửi yêu cầu, superadmin sẽ duyệt.</div>':'')+
   '<button class="btn gbtn full" id="gBtn" onclick="doGoogle()">'+GI+' Tiếp tục với Google</button><div class="center small muted mt16">Tài khoản mới chỉ tạo được khi có link mời từ superadmin.</div></div></div></div>';
@@ -821,7 +1021,7 @@ function vDash(){
   const ctr=S.settings.centerName||'Chuyên Địa lí cô Hải Hà';
   return '<div class="hero"><h2>Xin chào, '+esc(S.profile.name)+' '+ic('smile')+'</h2><div class="s">'+DOWN[now.getDay()]+', '+fmtD(td)+' · '+todays.length+' lớp hôm nay'+(bd.length?' · '+ic('gift')+' '+bd.length+' sinh nhật':'')+'</div></div>'+
   '<div class="grid g4">'+stat('Học sinh đang học',stu.length,'','grad','c1')+stat('Lớp học',cls.length,'','building','c3')+stat('Chuyên cần tháng '+mm,tot?Math.round(pr/tot*100)+'%':'—','','userCheck','c2')+(F?stat('Học phí đã thu ('+fm+')',money(paid),'/ '+money(due),'wallet','c4'):stat('Bài kiểm tra',Object.keys(S.tests).length,'','file','c4'))+'</div>'+
-  '<div class="grid g2 mt16"><div class="card"><div class="b mb12">Lớp học hôm nay</div>'+(todays.length?todays.map(c=>{ const d=S.att[c.id+'_'+td],n=d?Object.keys(d.marks||{}).length:0,sc=(c.schedule||[]).find(x=>x.dow===now.getDay());
+  '<div class="grid g2 mt16"><div class="card"><div class="b mb12">Lớp học hôm nay</div>'+(todays.length?todays.map(c=>{ const d=sessionFor(c.id,td),n=d?Object.keys(d.marks||{}).length:0,sc=(c.schedule||[]).find(x=>x.dow===now.getDay());
     return '<div class="row between urow"><div><b>'+esc(c.name)+'</b><div class="small muted">'+sc.start+' – '+sc.end+' · '+classStudents(c.id).length+' HS</div></div><div class="row">'+(n?'<span class="pill pill-grn">Đã điểm danh '+n+'</span>':'<span class="pill pill-gray">Chưa điểm danh</span>')+'<button class="btn sm pri" onclick="go(\'att\',{classId:\''+c.id+'\',date:\''+td+'\'})">Điểm danh</button></div></div>'; }).join(''):'<div class="empty">Hôm nay không có lớp theo lịch.</div>')+'</div>'+
   '<div class="card"><div class="b mb12">Lớp online sắp tới</div>'+(up.length?up.map(o=>'<div class="row between urow"><div><b>'+esc(o.title||className(o.classId))+'</b><div class="small muted">'+fmtD(o.date)+' · '+o.start+'–'+o.end+' · '+esc(className(o.classId))+'</div></div><span class="pill '+PH[phase(o)][1]+'">'+PH[phase(o)][0]+'</span></div>').join(''):'<div class="empty">Chưa có lớp online.</div>')+'<div class="mt12"><button class="btn sm" onclick="go(\'online\')">Quản lí lớp online '+ic('arrowR')+'</button></div></div>'+
   '<div class="card"><div class="b mb12">'+ic('alert')+' Chuyên cần thấp tháng '+mm+' (&lt; 80%)</div>'+(risk.length?risk.slice(0,8).map(s=>{ const a=per[s.id],r=Math.round(a.ok/a.n*100); return row(s,'Đi học '+a.ok+'/'+a.n+' buổi · '+r+'%','Chào anh/chị, em '+s.name+' tháng '+mm+' đi học '+a.ok+'/'+a.n+' buổi ('+r+'%). Nhờ anh/chị nhắc em đi học đầy đủ. Cảm ơn anh/chị! — '+ctr); }).join(''):'<div class="empty">Chưa có học sinh nào cần nhắc '+ic('check')+'</div>')+'</div>'+
@@ -831,7 +1031,7 @@ function vDash(){
 
 /* ---- Cài đặt, dữ liệu mẫu, nhật ký ---- */
 function vSettings(){ const st=S.settings||{}; setTimeout(loadLogs,0);
-  return '<h2 class="pt">Cài đặt</h2><div class="grid g2 mt16">'+brandCard()+'<div class="card"><div class="b mb12">Thông số hệ thống</div><div class="field"><label>Ngưỡng nhận diện khuôn mặt (nhỏ hơn = chặt hơn, mặc định 0.5)</label><input class="inp" id="stThr" type="number" step="0.05" min="0.3" max="0.7" value="'+(st.faceThreshold!=null?st.faceThreshold:0.5)+'"></div><div class="cols2"><div class="field"><label>Mở điểm danh trước (phút)</label><input class="inp" id="stEarly" type="number" value="'+(st.early!=null?st.early:15)+'"></div><div class="field"><label>Tính muộn sau (phút)</label><input class="inp" id="stLate" type="number" value="'+(st.late!=null?st.late:10)+'"></div></div><button class="btn pri" onclick="saveSettings()">Lưu cài đặt</button><div class="b mt16 mb12">Dữ liệu mẫu</div><button class="btn" onclick="seedDemo()">'+ic('database')+' Nạp 1 lớp + 3 học sinh mẫu</button></div>'+
+  return '<h2 class="pt">Cài đặt</h2><div class="grid g2 mt16">'+brandCard()+'<div class="card"><div class="b mb12">Thông số hệ thống</div><div class="cols2"><div class="field"><label>Mở điểm danh trước (phút)</label><input class="inp" id="stEarly" type="number" value="'+(st.early!=null?st.early:15)+'"></div><div class="field"><label>Tính muộn sau (phút)</label><input class="inp" id="stLate" type="number" value="'+(st.late!=null?st.late:10)+'"></div></div><button class="btn pri" onclick="saveSettings()">Lưu cài đặt</button><div class="b mt16 mb12">Dữ liệu mẫu</div><button class="btn" onclick="seedDemo()">'+ic('database')+' Nạp 1 lớp + 3 học sinh mẫu</button></div>'+
   '<div class="card"><div class="b mb12">Nhật ký hoạt động</div><div id="logBox" class="small muted">Đang tải…</div></div></div>'+
   '<div class="card mt16"><div class="b">Thiết lập Firebase (làm một lần)</div><ol class="small muted" style="margin:10px 0 10px 18px;line-height:1.8"><li><b>Authentication '+ic('arrowR')+' Sign-in method</b>: bật <b>Google</b>; thêm tên miền website vào <i>Authorized domains</i>.</li><li><b>Realtime Database '+ic('arrowR')+' Rules</b>: dán đoạn dưới '+ic('arrowR')+' Publish.</li><li>Tài khoản Google đầu tiên đăng nhập = <b>Superadmin</b>. Trợ giảng vào bằng link mời ở mục <b>Nhân sự</b>.</li></ol><div class="row between mb12"><span class="small b">Realtime Database Rules</span><button class="btn sm" onclick="copyText(RULES_RTDB)">Sao chép</button></div><pre class="code">'+esc(RULES_RTDB)+'</pre></div>';
 }
@@ -887,7 +1087,7 @@ function renderJoin(soft){
 }
 function jSearch(v){ const q=norm(v),b=$('#jRes'); if(!q){ b.innerHTML=''; return; }
   const r=J.roster.filter(s=>norm(s.name).includes(q)).slice(0,6);
-  b.innerHTML=r.length?'<div class="jr">'+r.map(s=>'<button class="jri" onclick="J.pick=\''+s.id+'\';renderJoin()"><span class="avatar">'+esc(givenName(s.name).charAt(0))+'</span><b>'+esc(s.name)+'</b>'+ic('arrowR')+'</button>').join('')+'</div>':'<div class="empty small">Không tìm thấy tên này. Kiểm tra lại chính tả hoặc báo trợ giảng.</div>'; }
+  b.innerHTML=r.length?'<div class="jr">'+r.map(s=>'<button class="jri" onclick="J.pick=\''+s.id+'\';renderJoin()"><span class="avatar">'+esc(givenName(s.name).charAt(0))+'</span><b>'+esc(s.name)+'</b>'+(J.cids&&J.cids.length>1?'<span class=\"small muted\">'+esc(jCls(s))+'</span>':'')+ic('arrowR')+'</button>').join('')+'</div>':'<div class="empty small">Không tìm thấy tên này. Kiểm tra lại chính tả hoặc báo trợ giảng.</div>'; }
 async function jVerifyInfo(){ const m=$('#jmsg'),say=t=>{ m.innerHTML='<div class="err">'+t+'</div>'; };
   if(Date.now()<J.lock){ say('Nhập sai quá nhiều lần, chờ '+Math.ceil((J.lock-Date.now())/1000)+' giây.'); return; }
   const sid=J.pick,dd=+val('jD'),mo=+val('jMo'),yy=+val('jY'),school=val('jSchool');
@@ -896,6 +1096,18 @@ async function jVerifyInfo(){ const m=$('#jmsg'),say=t=>{ m.innerHTML='<div clas
   if(await vhash(sid,yy+'-'+pad(mo)+'-'+pad(dd),school)!==st.vhash){ say(jFail('Thông tin chưa đúng. Kiểm tra lại ngày sinh và trường.')); return; }
   J.sid=sid; J.step=2; J.msg=''; J.tries=0; renderJoin(); }
 
+</script>
+<script>
+/* ===================== BỔ SUNG v3: điều hướng, lối tắt, bộ nhớ trạng thái ===================== */
+(function(){
+  const i=NAV.findIndex(n=>n[0]==='classes'); if(!NAV.some(n=>n[0]==='merge')) NAV.splice(i+1,0,['merge',ic('layers'),'Gộp lớp']);
+  const m=NAV.find(n=>n[0]==='members'); if(m) m[1]=ic('users');
+  S.P.onl={tab:'active',q:''}; S.P.mg={month:''}; S.P.att.q=''; S.P.att.f='';
+  const _vDash=vDash;
+  window.vDash=vDash=function(){ const h=_vDash(), td=dk(new Date());
+    const qa='<div class="qa"><button class="qbtn" onclick="go(\'att\',{date:\''+td+'\'})">'+ic('userCheck',18)+' Điểm danh hôm nay</button><button class="qbtn" onclick="newOnline()">'+ic('video',18)+' Tạo buổi online</button><button class="qbtn" onclick="go(\'merge\')">'+ic('layers',18)+' Gộp lớp</button><button class="qbtn" onclick="go(\'students\');editStudent()">'+ic('plus',18)+' Thêm học sinh</button></div>';
+    return h.replace('<div class="grid g4">',qa+'<div class="grid g4">'); };
+})();
 </script>
 </body>
 </html>
