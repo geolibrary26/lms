@@ -150,6 +150,30 @@ h2.pt{font-size:24px;letter-spacing:-.025em;color:#0f2137}
 .lgs-r{display:flex;align-items:center;justify-content:center;padding:24px}
 @media(min-width:861px){.lgs-r .logo{display:none}}
 @media(max-width:860px){.lgs{grid-template-columns:1fr}.lgs-l{display:none}}
+/* ===== TRANG VÀO LỚP ===== */
+.authcard .logo .bm,.authcard .logo .bl{width:84px;height:84px;border-radius:22px}.authcard .logo .bm .svg-ic{width:42px;height:42px}
+.lgs-brand .bm,.lgs-brand .bl{width:56px;height:56px;border-radius:16px}
+.jw{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(1200px 700px at 10% -20%,#1d3f63,#0f2137 45%,#071322)}
+.jc{width:100%;max-width:480px;background:#fff;border-radius:24px;padding:34px 30px 22px;box-shadow:0 30px 80px -24px rgba(0,0,0,.6)}
+.jc h1{text-align:center;font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:14px}
+.jc .sub{text-align:center;color:var(--soft);margin:6px 0 18px;line-height:1.7}
+.jl{display:flex;justify-content:center}.jl .bl,.jl .bm{width:112px;height:112px;border-radius:28px}.jl .bm .svg-ic{width:56px;height:56px}
+.jl .bl{padding:6px;border:1px solid var(--line);box-shadow:0 10px 28px -10px rgba(7,19,34,.3)}
+.jf{text-align:center;font-size:11.5px;color:var(--faint);margin-top:20px}
+.jst{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 22px}
+.jst>div{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--faint)}
+.jst span{width:24px;height:24px;border-radius:50%;background:#edf1f5;display:flex;align-items:center;justify-content:center;font-size:12px}
+.jst .on{color:var(--p2)}.jst .on span{background:var(--p);color:#fff}.jst .dn{color:var(--grn)}.jst .dn span{background:var(--grn);color:#fff}
+.jst i{width:28px;height:2px;background:var(--line)}
+.jq{text-align:center;font-size:18px;font-weight:800;margin-bottom:4px}
+.jsr{position:relative}.jsr .svg-ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.jsr .inp{padding:14px 14px 14px 46px;font-size:16px;border-radius:12px}
+.jr{margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.jri{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;text-align:left;background:#fff;border-bottom:1px solid var(--line);transition:.15s}
+.jri b{flex:1}.jri .svg-ic{color:var(--faint)}.jri:hover{background:#f0f6fc}.jri:last-child{border:0}
+.jas{display:flex;align-items:center;gap:12px;background:#f0f6fc;border:1px solid #cfe0f0;border-radius:12px;padding:12px 14px;margin-bottom:16px}
+.dob{display:grid;grid-template-columns:1fr 1fr 1.6fr;gap:10px}.dob .inp{text-align:center;font-size:18px;font-weight:700;padding:12px 6px}
+.warn{background:var(--ambs);color:#92400e;padding:10px 12px;border-radius:10px}
 </style>
 </head>
 <body>
@@ -841,6 +865,36 @@ function stuProfile(id){ const s=S.students[id]; if(!s) return; const m=S.attMon
   Object.values(S.att).forEach(d=>{ const x=(d.marks||{})[id]; if(x){ n++; if(x.s==='P'||x.s==='L') ok++; if(x.s==='A') ab++; } });
   const sc=(s.classIds||[]).map(cid=>{ let t=0,w=0; Object.values(S.tests).filter(x=>x.classId===cid).forEach(x=>{ const v=(x.scores||{})[id]; if(v!=null){ const k=+x.weight||1; t+=v/(+x.max||10)*10*k; w+=k; } }); return '<div class="row between urow"><span>'+esc(className(cid))+'</span><b>'+(w?(t/w).toFixed(2):'—')+'</b></div>'; }).join(''), f=can('canFees')?feeOf(id,S.feeMonth):null;
   modal(esc(s.name),'<div class="row wrap mb12"><span class="pill pill-teal">'+ic('calendar',13)+' '+(fmtD(s.dob)||'—')+'</span><span class="pill pill-gray">'+esc(s.school||'Chưa có trường')+'</span></div><div class="grid g3 mb12"><div class="card stat"><span class="si c2">'+ic('userCheck',22)+'</span><div><div class="l">Chuyên cần '+m.split('-').reverse().join('/')+'</div><div class="v">'+(n?Math.round(ok/n*100)+'%':'—')+'</div><div class="small muted">'+ok+'/'+n+' buổi · vắng '+ab+'</div></div></div>'+(f?'<div class="card stat"><span class="si c4">'+ic('wallet',22)+'</span><div><div class="l">Học phí '+S.feeMonth.split("-").reverse().join("/")+'</div><div class="v">'+money(f.paid)+'</div><div class="small muted">/ '+money(f.due)+'</div></div></div>':'')+'</div><div class="b mb12">Điểm trung bình theo lớp</div>'+(sc||'<div class="muted">Chưa có lớp.</div>')+'<div class="small muted mt12">SĐT HS: '+esc(s.phone||'—')+' · Phụ huynh: '+esc(s.parentPhone||'—')+'</div>','<button class="btn" onclick="closeModal()">Đóng</button><button class="btn pri" onclick="closeModal();editStudent(\''+id+'\')">'+ic('edit',14)+' Sửa</button>'); }
+
+/* ===================== TRANG HỌC SINH VÀO LỚP (thiết kế lại) ===================== */
+function jShell(inner){ $('#app').innerHTML='<div class="jw"><div class="jc">'+inner+'<div class="jf">'+esc(BR.name)+'</div></div></div>'; }
+function jErr(t){ jShell('<div class="center"><div class="jl">'+brandMark()+'</div><h1>'+esc(t)+'</h1></div>'); }
+function jSteps(n){ return '<div class="jst">'+['Tên','Xác minh','Xong'].map((t,i)=>'<div class="'+(i+1<n?'dn':i+1===n?'on':'')+'"><span>'+(i+1<n?ic('check',13):i+1)+'</span>'+t+'</div>').join('<i></i>')+'</div>'; }
+function jHead(n){ const d=J.doc,ph=phase(d); return '<div class="jl">'+brandMark()+'</div><h1>'+esc(d.title||'Lớp học online')+'</h1><div class="sub">'+esc(J.cls.name||'')+' · '+fmtD(d.date)+' · '+d.start+'–'+d.end+'<br><span class="pill '+PH[ph][1]+'" style="margin-top:8px">'+PH[ph][0]+'</span></div>'+jSteps(n||1); }
+const jWho=(p,x)=>'<div class="jas"><span class="avatar">'+esc(givenName(p.name).charAt(0))+'</span><div class="grow"><div class="small muted">Đăng nhập với tư cách</div><b>'+esc(p.name)+'</b></div>'+(x||'')+'</div>';
+function renderJoin(soft){
+  if(soft&&(J.pick||($('#jQ')&&$('#jQ').value)||(document.activeElement&&/INPUT|SELECT/.test(document.activeElement.tagName)))) return;
+  const d=J.doc,ph=phase(d); if(J.step===3) return;
+  if(ph==='upcoming'){ const t=new Date(times(d).s.getTime()-(d.early!=null?d.early:15)*60000); jShell(jHead(1)+'<div class="warn">Chưa đến giờ. Điểm danh mở lúc <b>'+fmtHM(t)+'</b>.</div>'); return; }
+  if(ph==='ended'){ jShell(jHead(1)+'<div class="err">Buổi học đã kết thúc.</div>'); return; }
+  const p=J.pick&&J.roster.find(x=>x.id===J.pick);
+  if(J.step===2&&p){ jShell(jHead(2)+jWho(p)+'<div class="cam" id="jCam"><video id="jv" autoplay playsinline muted></video><div class="oval"></div></div><div id="jmsg" class="mt12">'+(J.msg?'<div class="'+(J.msgKind||'err')+'">'+J.msg+'</div>':'')+'</div><button class="btn pri full mt8" id="jShot" onclick="jCapture()" disabled>'+ic('camera')+' Chụp & điểm danh</button><button class="btn full mt8" onclick="J.step=1;jStop();renderJoin()">'+ic('arrowL')+' Quay lại</button>'); jStartCam(); return; }
+  if(!p){ jShell(jHead(1)+'<div class="jq">Em tên là gì?</div><div class="small muted mb12 center">Gõ tên của em, sau đó chọn đúng tên trong danh sách hiện ra.</div><div class="jsr">'+ic('search',18)+'<input class="inp" id="jQ" placeholder="Nhập tên của em…" autocomplete="off" oninput="jSearch(this.value)"></div><div id="jRes"></div>'); $('#jQ').focus(); return; }
+  jShell(jHead(2)+jWho(p,'<button class="btn sm" onclick="J.pick=null;renderJoin()">Đổi</button>')+'<div id="jmsg"></div><div class="field"><label>Ngày sinh</label><div class="dob"><input class="inp" id="jD" placeholder="Ngày" maxlength="2" inputmode="numeric"><input class="inp" id="jMo" placeholder="Tháng" maxlength="2" inputmode="numeric"><input class="inp" id="jY" placeholder="Năm" maxlength="4" inputmode="numeric"></div></div><div class="field"><label>Trường đang học</label><input class="inp" id="jSchool" placeholder="VD: THCS Nguyễn Tất Thành" onkeydown="if(event.key===\'Enter\')jVerifyInfo()"></div><button class="btn pri full" onclick="jVerifyInfo()">Tiếp tục '+ic('arrowR')+'</button>');
+  const f=['jD','jMo','jY'].map(i=>document.getElementById(i)),L=[2,2,4];
+  f.forEach((e,i)=>{ e.oninput=()=>{ e.value=e.value.replace(/\D/g,'').slice(0,L[i]); if(i<2&&e.value.length===1&&+e.value>[3,1][i]) e.value='0'+e.value; if(i<2&&e.value.length===2) f[i+1].focus(); else if(i===2&&e.value.length===4) $('#jSchool').focus(); }; e.onkeydown=ev=>{ if(ev.key==='Backspace'&&!e.value&&i>0) f[i-1].focus(); }; });
+  f[0].focus();
+}
+function jSearch(v){ const q=norm(v),b=$('#jRes'); if(!q){ b.innerHTML=''; return; }
+  const r=J.roster.filter(s=>norm(s.name).includes(q)).slice(0,6);
+  b.innerHTML=r.length?'<div class="jr">'+r.map(s=>'<button class="jri" onclick="J.pick=\''+s.id+'\';renderJoin()"><span class="avatar">'+esc(givenName(s.name).charAt(0))+'</span><b>'+esc(s.name)+'</b>'+ic('arrowR')+'</button>').join('')+'</div>':'<div class="empty small">Không tìm thấy tên này. Kiểm tra lại chính tả hoặc báo trợ giảng.</div>'; }
+async function jVerifyInfo(){ const m=$('#jmsg'),say=t=>{ m.innerHTML='<div class="err">'+t+'</div>'; };
+  if(Date.now()<J.lock){ say('Nhập sai quá nhiều lần, chờ '+Math.ceil((J.lock-Date.now())/1000)+' giây.'); return; }
+  const sid=J.pick,dd=+val('jD'),mo=+val('jMo'),yy=+val('jY'),school=val('jSchool');
+  if(!(dd>=1&&dd<=31&&mo>=1&&mo<=12&&yy>=1980&&yy<=new Date().getFullYear())||!school){ say('Vui lòng nhập đủ ngày, tháng, năm sinh hợp lệ và tên trường.'); return; }
+  const st=J.roster.find(x=>x.id===sid); if(!st.vhash){ say('Học sinh này chưa có ngày sinh/trường trong hệ thống. Hãy báo trợ giảng.'); return; }
+  if(await vhash(sid,yy+'-'+pad(mo)+'-'+pad(dd),school)!==st.vhash){ say(jFail('Thông tin chưa đúng. Kiểm tra lại ngày sinh và trường.')); return; }
+  J.sid=sid; J.step=2; J.msg=''; J.tries=0; renderJoin(); }
 
 </script>
 </body>
