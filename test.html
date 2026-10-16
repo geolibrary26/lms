@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GeoLibrary Database · v4</title>
+<title>GeoLibrary Database</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Crect width=%2724%27 height=%2724%27 rx=%275%27 fill=%27%232563a8%27/%3E%3Ccircle cx=%2712%27 cy=%2712%27 r=%276%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/%3E%3Cpath d=%27M6 12h12%27 stroke=%27white%27 stroke-width=%272%27/%3E%3C/svg%3E">
@@ -1261,8 +1261,37 @@ async function jLegacyLoad(){ let id=JOIN; const d0=await C('attendance').doc(id
     _rj0(soft); };
   window.startData=startData=function(){ _sd0(); const p=S.profile; if(p&&p.role!=='superadmin'&&p.expiresAt) setInterval(()=>{ if(Date.now()>p.expiresAt) location.reload(); },60000); };
 })();
+/* ---------- sao chép thông báo điểm danh cho phụ huynh ---------- */
+let AM={cid:'',date:''};
+function amCtx(cid,date){ const d=sessionFor(cid,date)||{}; return {classes:d.id?sessClassIds(d):[cid],marks:d.marks||{},studs:d.id?sessionStudents(d):classStudents(cid)}; }
+function amBuild(cid,date,sel){ const c=amCtx(cid,date), studs=c.studs.filter(s=>!sel||(s.classIds||[]).includes(sel)), E=[], N=[];
+  studs.forEach(s=>{ const m=c.marks[s.id]; if(m&&m.s==='E') E.push(s.name); else if(!m) N.push(s.name); else if(m.s==='A') N.push(s.name+' (vắng)'); });
+  const L=(sel?[sel]:c.classes).map(className).join(' + '), now=new Date(), lst=a=>a.length?a.map(n=>'- '+n).join('\n'):'Không có';
+  return L.toUpperCase()+' - THÔNG BÁO ĐIỂM DANH HỌC SINH ('+fmtHM(now)+' '+fmtD(dk(now))+')\n'+
+   'Kính gửi Quý Phụ huynh học sinh lớp '+L+',\n'+
+   'Tổ Trợ giảng xin thông báo sĩ số lớp trong buổi học ngày '+fmtD(date)+' như sau:\n'+
+   '1. Học sinh xin phép nghỉ:\n'+lst(E)+'\n'+
+   '2. Các em chưa điểm danh:\n'+lst(N)+'\n'+
+   '3. Các em còn lại đã điểm danh có mặt tại lớp đầy đủ.\n'+
+   '📞 Mọi thông tin cần hỗ trợ, Quý Phụ huynh vui lòng liên hệ Tổ Trợ giảng.\n'+
+   'Trân trọng,\nTổ Trợ giảng.'; }
+function amOpen(cid,date){ AM={cid,date}; const c=amCtx(cid,date);
+  if(c.classes.length<2){ copyText(amBuild(cid,date,null)); return; }
+  modal(ic('copy',18)+' Sao chép thông báo điểm danh',
+   '<div class="field"><label>Chọn lớp để gửi thông báo</label>'+
+   '<label class="chk"><input type="radio" name="amSel" value="" checked onchange="amRefresh()"> Tất cả các lớp trong buổi ('+c.classes.map(className).map(esc).join(' + ')+')</label>'+
+   c.classes.map(k=>'<label class="chk"><input type="radio" name="amSel" value="'+k+'" onchange="amRefresh()"> '+esc(className(k))+'</label>').join('')+'</div>'+
+   '<div class="field"><label>Nội dung (có thể sửa trước khi sao chép)</label><textarea class="inp" id="amT" rows="14" style="font-family:inherit;line-height:1.5"></textarea></div>',
+   '<button class="btn" onclick="closeModal()">Đóng</button><button class="btn pri" onclick="copyText($(\'#amT\').value)">'+ic('copy',14)+' Sao chép</button>',true);
+  amRefresh(); }
+function amRefresh(){ const r=document.querySelector('input[name=amSel]:checked'); $('#amT').value=amBuild(AM.cid,AM.date,r&&r.value?r.value:null); }
+(function(){ const _va2=vAtt, _oc=onlCard;
+  window.vAtt=vAtt=function(){ let h=_va2(); try{ const p=S.P.att, btn='<button class="btn" onclick="amOpen(\''+p.classId+'\',\''+p.date+'\')">'+ic('copy')+' Sao chép thông báo</button>';
+    const k='<button class="btn pri" onclick="editSession('; if(h.indexOf(k)>=0) h=h.replace(k,btn+k); }catch(e){} return h; };
+  window.onlCard=onlCard=function(o){ let h=_oc(o); const k='<button class="btn sm" onclick="exportSession(';
+    return h.indexOf(k)>=0?h.replace(k,'<button class="btn sm" onclick="amOpen(\''+o.classId+'\',\''+o.date+'\')">'+ic('copy',14)+' Thông báo</button>'+k):h; };
+})();
 
 </script>
-<div style="position:fixed;right:10px;bottom:6px;font-size:11px;color:#64748b;background:rgba(255,255,255,.85);padding:2px 8px;border-radius:8px;z-index:50;pointer-events:none">Phiên bản v4 · 16/10/2026</div>
 </body>
 </html>
