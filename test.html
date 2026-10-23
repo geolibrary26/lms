@@ -287,6 +287,41 @@ body{background:#eef2f9}
 .pv{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}.pv .avatar{width:54px;height:54px;font-size:22px}
 .lg2{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--soft);margin-top:8px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== v6: bảng màu hài hòa (navy + 1 màu nhấn) · sửa icon · sửa nút mất màu ===== */
+:root{--ac:#2f7ec7;--ac2:#1f5f9e;--nav-accent:#4aa3e8}
+/* nút: --ac trước đây chỉ có trong .main nên nút trong popup bị mất nền -> luôn có màu */
+.btn.pri,.btn.pri:hover{background:linear-gradient(135deg,#2f7ec7,#1f5f9e)!important;color:#fff!important;border-color:transparent!important}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.pri .svg-ic{color:#fff}
+.btn{color:var(--ink)}
+.btn.red{color:#c0405a;background:#fff}.btn.red:hover{background:#fde8ed;color:#a82f49;border-color:#c0405a}
+.btn:disabled{opacity:.55}
+.md .btn:not(.pri):not(.red){background:#fff;color:#0f2137;border-color:#cfd9e4}
+.seg button{color:#4a5b6d}.seg button.on{color:#1a4a7a}
+.pill{font-weight:700}
+/* sidebar: 1 tông xanh, icon đồng nhất, mục đang chọn dùng màu nhấn duy nhất */
+.side{background:linear-gradient(190deg,#15324f,#0d2137 58%,#0a1a2b)}
+.nav{--nc:#8fb3d6!important;display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:8px 12px!important;margin:0 0 3px!important;border-radius:11px;color:#c3d4e6;font-size:13.5px;font-weight:500;text-align:left;width:100%;position:relative}
+.nav i{flex:none!important;width:34px!important;height:34px!important;margin:0!important;padding:0;display:flex!important;align-items:center;justify-content:center;border-radius:10px;background:rgba(143,179,214,.14)!important;color:#9cc0e3!important}
+.nav .svg-ic{width:18px;height:18px;margin:0;opacity:1}
+.nav:hover{background:rgba(255,255,255,.07)!important;color:#fff}
+.nav:hover i{transform:none;background:rgba(143,179,214,.24)!important}
+.nav.on{background:linear-gradient(90deg,rgba(74,163,232,.30),rgba(74,163,232,.04))!important;color:#fff;font-weight:600;box-shadow:inset 3px 0 0 var(--nav-accent)!important;padding:8px 12px!important}
+.nav.on i{background:var(--nav-accent)!important;color:#fff!important}
+.nav span,.nav b{flex:1}
+/* thẻ thống kê & nút nhanh: gom về 2 tông xanh + 1 xanh lá/hổ phách nhẹ */
+.c1{background:linear-gradient(135deg,#2f7ec7,#1f5f9e);color:#fff}
+.c2{background:linear-gradient(135deg,#1f9d8a,#167a6b);color:#fff}
+.c3{background:linear-gradient(135deg,#5b6fd6,#3f4fb0);color:#fff}
+.c4{background:linear-gradient(135deg,#e0a03a,#c47a1a);color:#fff}
+.qbtn .svg-ic,.qbtn:nth-child(n) .svg-ic{color:#2f7ec7!important}
+.hero{background:linear-gradient(120deg,#0f2f57,#1f5f9e 60%,#2f7ec7)}
+.hero:before{background:radial-gradient(circle,rgba(74,163,232,.28),transparent 70%)}
+.me .av{background:linear-gradient(135deg,#2f7ec7,#1f5f9e)}
+.tbt b{color:#1a4a7a}.tb:after{background:linear-gradient(90deg,#2f7ec7,transparent 70%)}
+.tbl th{background:#eef4fa;color:#2a4a6b}
+.main{--ac:#2f7ec7}
 </style>
 </head>
 <body>
@@ -434,7 +469,7 @@ function copyText(t){ (navigator.clipboard?navigator.clipboard.writeText(t):Prom
 function exportXlsx(name,rows){ const ws=XLSX.utils.aoa_to_sheet(rows), wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Sheet1'); XLSX.writeFile(wb,name+'.xlsx'); }
 const mapDocs = s => { const o={}; s.forEach(d=>{ o[d.id]=Object.assign({id:d.id},d.data()); }); return o; };
 const baseUrl = () => location.href.split(/[?#]/)[0];
-const joinLink = id => baseUrl()+'?join='+encodeURIComponent(id);
+let joinLink = id => baseUrl()+'?join='+encodeURIComponent(id);
 function shrink(cv,w,q){ const c=document.createElement('canvas'); c.width=w; c.height=Math.round(cv.height*w/cv.width); c.getContext('2d').drawImage(cv,0,0,c.width,c.height); return c.toDataURL('image/jpeg',q); }
 function times(d){ return { s:new Date(d.date+'T'+(d.start||'00:00')), e:new Date(d.date+'T'+(d.end||'23:59')) }; }
 function phase(d){ const t=times(d), n=Date.now(), early=(d.early!=null?d.early:15)*60000; if(n<t.s-early) return 'upcoming'; if(n<t.s) return 'open'; if(n<=t.e) return 'live'; if(n<=t.e.getTime()+30*60000) return 'grace'; return 'ended'; }
