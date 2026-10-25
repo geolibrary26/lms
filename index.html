@@ -470,7 +470,7 @@ function exportXlsx(name,rows){ const ws=XLSX.utils.aoa_to_sheet(rows), wb=XLSX.
 const mapDocs = s => { const o={}; s.forEach(d=>{ o[d.id]=Object.assign({id:d.id},d.data()); }); return o; };
 const baseUrl = () => location.href.split(/[?#]/)[0];
 let joinLink = id => baseUrl()+'?join='+encodeURIComponent(id);
-function shrink(cv,w,q){ const c=document.createElement('canvas'); c.width=w; c.height=Math.round(cv.height*w/cv.width); c.getContext('2d').drawImage(cv,0,0,c.width,c.height); return c.toDataURL('image/jpeg',q); }
+function shrink(cv,w,q){ w=Math.min(w,cv.width); const c=document.createElement('canvas'); c.width=w; c.height=Math.round(cv.height*w/cv.width); const x=c.getContext('2d'); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high'; x.drawImage(cv,0,0,c.width,c.height); return c.toDataURL('image/jpeg',q); }
 function times(d){ return { s:new Date(d.date+'T'+(d.start||'00:00')), e:new Date(d.date+'T'+(d.end||'23:59')) }; }
 function phase(d){ const t=times(d), n=Date.now(), early=(d.early!=null?d.early:15)*60000; if(n<t.s-early) return 'upcoming'; if(n<t.s) return 'open'; if(n<=t.e) return 'live'; if(n<=t.e.getTime()+30*60000) return 'grace'; return 'ended'; }
 const PH = { upcoming:['Sắp diễn ra','pill-gray'], open:['Mở điểm danh','pill-blue'], live:['Đang diễn ra','pill-live'], grace:['Vừa kết thúc','pill-amber'], ended:['Đã kết thúc','pill-gray'] };
@@ -984,7 +984,7 @@ function renderJoin(soft){
 }
 function jStop(){ if(J.timer){ clearInterval(J.timer); J.timer=null; } if(J.stream){ J.stream.getTracks().forEach(t=>t.stop()); J.stream=null; } }
 async function jStartCam(){
-  try{ jStop(); J.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false}); const v=$('#jv'); if(!v) return; v.srcObject=J.stream; v.play().catch(()=>{}); const b=$('#jShot'); if(b) b.disabled=false; const mm0=$('#jmsg'); if(mm0&&mm0.querySelector('.jcode')) mm0.innerHTML='';
+  try{ jStop(); J.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:960},frameRate:{ideal:30}},audio:false}); const v=$('#jv'); if(!v) return; v.srcObject=J.stream; v.play().catch(()=>{}); const b=$('#jShot'); if(b) b.disabled=false; const mm0=$('#jmsg'); if(mm0&&mm0.querySelector('.jcode')) mm0.innerHTML='';
     const cam=$('#jCam'); if(cam) cam.insertAdjacentHTML('beforeend','<div class="fbadge" id="jFace">Đang tìm khuôn mặt…</div>');
     J.hits=0; ensureFaceApi().then(()=>{ if(J.stream) J.timer=setInterval(jTick,800); }).catch(()=>{ const f=$('#jFace'); if(f) f.textContent='Bấm “Chụp & điểm danh”'; });
   }catch(e){ jCamFail(e); }
@@ -1010,7 +1010,7 @@ async function jVerifyInfo(){
 async function jCapture(auto){
   const v=$('#jv'); if(!v||!v.videoWidth){ if(!auto) toast('Camera chưa sẵn sàng','err'); return; }
   if(J.busy) return; J.busy=true; const btn=$('#jShot'); if(btn) btn.disabled=true; const say=(t,k)=>{ const m=$('#jmsg'); if(m) m.innerHTML='<div class="'+(k||'err')+'">'+t+'</div>'; };
-  const cv=document.createElement('canvas'); cv.width=v.videoWidth; cv.height=v.videoHeight; cv.getContext('2d').drawImage(v,0,0); const image=shrink(cv,320,0.6);
+  const cv=document.createElement('canvas'); cv.width=v.videoWidth; cv.height=v.videoHeight; cv.getContext('2d').drawImage(v,0,0); const image=shrink(cv,960,0.85);
   say('Đang kiểm tra khuôn mặt…','ok'); let flag='';
   try{
     // Chỉ cần dò thấy có khuôn mặt là chấp nhận (không đối chiếu danh tính)
@@ -1315,7 +1315,7 @@ function jDone(ts,late,url){ jStop(); J.step=3; const st=J.roster.find(x=>x.id==
 async function jCaptureNew(auto){
   const v=$('#jv'); if(!v||!v.videoWidth){ if(!auto) toast('Camera chưa sẵn sàng','err'); return; }
   if(J.busy) return; J.busy=true; const btn=$('#jShot'); if(btn) btn.disabled=true; const say=(t,k)=>{ const m=$('#jmsg'); if(m) m.innerHTML='<div class="'+(k||'err')+'">'+t+'</div>'; };
-  const cv=document.createElement('canvas'); cv.width=v.videoWidth; cv.height=v.videoHeight; cv.getContext('2d').drawImage(v,0,0); const image=shrink(cv,320,0.6);
+  const cv=document.createElement('canvas'); cv.width=v.videoWidth; cv.height=v.videoHeight; cv.getContext('2d').drawImage(v,0,0); const image=shrink(cv,960,0.85);
   say('Đang kiểm tra khuôn mặt…','ok'); let flag='';
   try{
     let n=null; try{ await ensureFaceApi(); n=(await faceapi.detectAllFaces(cv,faceOpts())).length; }catch(e){ n=null; flag='model_unavailable'; }
