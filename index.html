@@ -556,7 +556,7 @@ function setP(k,f,v){ S.P[k][f]=v; render(); }
 function render(){
   const nav=$('#nav'); if(!nav) return;
   nav.innerHTML=navList().map(n=>'<button class="nav '+(S.view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')"><i>'+n[1]+'</i>'+n[2]+'</button>').join('');
-  const V={members:vMembers,codes:vCodes,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,merge:vMerge,settings:vSettings};
+  const V={members:vMembers,codes:vCodes,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,merge:vMerge,photos:vPhotos,settings:vSettings};
   $('#main').innerHTML=V[S.view]();
 }
 const classOpts = (sel,all) => (all?'<option value="">Tất cả lớp</option>':'')+activeClasses().map(c=>'<option value="'+c.id+'" '+(c.id===sel?'selected':'')+'>'+esc(c.name)+'</option>').join('');
@@ -1044,7 +1044,7 @@ S.invites={};
 NAV.splice(NAV.length-1,0,['members','👥','Nhân sự']);
 const isSA=()=>S.profile&&S.profile.role==='superadmin';
 const can=k=>isSA()||(S.profile&&S.profile[k]===true);
-const navList=()=>NAV.filter(n=>n[0]==='fees'?can('canFees'):(n[0]==='settings'||n[0]==='members')?isSA():true);
+const navList=()=>NAV.filter(n=>n[0]==='fees'?can('canFees'):(n[0]==='settings'||n[0]==='members'||n[0]==='photos')?isSA():true);
 const inviteLink=c=>baseUrl()+'?invite='+c;
 const GI='<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
 const gate=(ic,t,s,x)=>{ $('#app').innerHTML='<div class="authwrap"><div class="authcard center"><div class="logo">'+ic+'</div><h1>'+t+'</h1><div class="sub">'+s+'</div>'+(x||'')+'<button class="btn full mt8" onclick="logout()">Đăng xuất</button></div></div>'; };
@@ -1383,8 +1383,8 @@ function amRefresh(){ const r=document.querySelector('input[name=amSel]:checked'
 <script>
 /* ===== v4: toàn màn hình, tìm kiếm chung, quản lý học sinh nâng cao, ổn định hơn ===== */
 (function(){
-const NC={dash:'#60a5fa',att:'#34d399',report:'#22d3ee',classes:'#a78bfa',merge:'#e879f9',students:'#fb923c',scores:'#fb7185',fees:'#fbbf24',online:'#f87171',members:'#2dd4bf',settings:'#94a3b8'};
-const AC={dash:'#2563a8',att:'#059669',report:'#0891b2',classes:'#7c3aed',merge:'#c026d3',students:'#ea580c',scores:'#e11d48',fees:'#d97706',online:'#dc2626',members:'#0d9488',settings:'#475569'};
+const NC={dash:'#60a5fa',att:'#34d399',report:'#22d3ee',classes:'#a78bfa',merge:'#e879f9',students:'#fb923c',scores:'#fb7185',fees:'#fbbf24',online:'#f87171',photos:'#f472b6',members:'#2dd4bf',settings:'#94a3b8'};
+const AC={dash:'#2563a8',att:'#059669',report:'#0891b2',classes:'#7c3aed',merge:'#c026d3',students:'#ea580c',scores:'#e11d48',fees:'#d97706',online:'#dc2626',photos:'#db2777',members:'#0d9488',settings:'#475569'};
 const hh=id=>{let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))>>>0;return h;};
 const CC=['pill-blue','pill-pur','pill-grn','pill-amber','pill-pink','pill-cyan'], ccl=id=>CC[hh(id)%CC.length];
 const rateCol=r=>r==null?'#cbd5e1':r>=.9?'#16a34a':r>=.8?'#65a30d':r>=.6?'#d97706':'#dc2626';
@@ -1395,7 +1395,7 @@ function paint(force){
   const nav=$('#nav'),main=$('#main'); if(!nav||!main) return;
   const nh=navList().map(n=>'<button class="nav '+(S.view===n[0]?'on':'')+'" style="--nc:'+(NC[n[0]]||'#60a5fa')+'" onclick="go(\''+n[0]+'\')"><i>'+n[1]+'</i>'+n[2]+'</button>').join('');
   if(nav.innerHTML!==nh) nav.innerHTML=nh;
-  const V={members:vMembers,codes:vCodes,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,merge:vMerge,settings:vSettings};
+  const V={members:vMembers,codes:vCodes,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,merge:vMerge,photos:vPhotos,settings:vSettings};
   let h; try{ h=V[S.view](); }catch(e){ console.error(e); h='<div class="card empty">Không hiển thị được trang này.<div class="mt12"><button class="btn pri" onclick="go(\'dash\')">Về Tổng quan</button></div></div>'; }
   const vc=S.view!==lastV; if(!force&&!vc&&h===last) return;
   const sy=window.scrollY, sc=[...main.querySelectorAll('.scroll')].map(e=>[e.scrollTop,e.scrollLeft]);
@@ -1692,27 +1692,129 @@ async function delCode(id){ if(!confirm('Xoá mã '+id+'? Học sinh sẽ không
 </script>
 
 <script>
-/* ===================== DUNG LƯỢNG ẢNH ĐIỂM DANH: kiểm tra & xoá ảnh cũ ===================== */
+/* ===================== TAB "ẢNH ĐIỂM DANH ONLINE": tải về (ZIP chia thư mục) + dọn dung lượng ===================== */
+const JSZ_URLS=['https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','https://unpkg.com/jszip@3.10.1/dist/jszip.min.js'];
+async function ensureZip(){ if(window.JSZip) return; for(const u of JSZ_URLS){ try{ await new Promise((res,rej)=>{ const e=document.createElement('script'); e.src=u; e.onload=res; e.onerror=rej; document.head.appendChild(e); }); if(window.JSZip) return; }catch(x){} } throw new Error('Không tải được thư viện nén ZIP, hãy kiểm tra mạng'); }
+const zslug=(t,max)=>{ let r=String(t==null?'':t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,''); return max?r.slice(0,max).replace(/-+$/,''):r; };
+const hm=ts=>fmtHM(ts).replace(':','h');
+const csvE=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+const csvT=rows=>'\ufeff'+rows.map(r=>r.map(csvE).join(',')).join('\r\n');
+const STL={P:'co-mat',L:'muon',E:'xin-phep',A:'vang'}, STN={P:'Có mặt',L:'Muộn',E:'Xin phép',A:'Vắng'};
+const PTYPE={ onl:{dir:'1-Buoi-online',name:'Buổi online'}, fix:{dir:'2-Buoi-co-dinh',name:'Buổi cố định'}, oth:{dir:'3-Khac',name:'Khác (buổi đã xoá / không xác định)'} };
 const fmtMB=b=>b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+let PL=null; // bộ nhớ đệm kết quả lần tải gần nhất
+
+/* ---- dung lượng & dọn ảnh cũ ---- */
 async function proofStats(){
   const box=$('#pfStat'); if(!box) return; box.innerHTML='<span class="muted">Đang tải dữ liệu ảnh…</span>';
-  try{ const sn=await rdb.ref('proofs').get(); let n=0,b=0,photos=0; const cut=Date.now()-(+val('pfDays')||90)*864e5; let on=0,ob=0;
+  try{ const sn=await rdb.ref('proofs').get(); let n=0,b=0,photos=0; const days=+val('pfDays')||90, cut=Date.now()-days*864e5; let on=0,ob=0;
     sn.forEach(c=>{ const v=c.val()||{}, l=(v.img||'').length; n++; b+=l; if(l) photos++; if(v.ts&&v.ts<cut){ on++; ob+=l; } });
-    box.innerHTML='<b>'+photos+'</b> ảnh · dung lượng khoảng <b>'+fmtMB(b)+'</b> (gói miễn phí Firebase: 1 GB)<br><span class="muted">Cũ hơn '+(+val('pfDays')||90)+' ngày: '+on+' bản ghi · '+fmtMB(ob)+'</span>'; }
+    box.innerHTML='<b>'+photos+'</b> ảnh · dung lượng khoảng <b>'+fmtMB(b)+'</b> (gói miễn phí Firebase: 1 GB)<br><span class="muted">Cũ hơn '+days+' ngày: '+on+' bản ghi · '+fmtMB(ob)+'</span>'; }
   catch(e){ box.innerHTML='<span style="color:var(--red)">Lỗi: '+esc(e.message||e)+'</span>'; } }
 async function proofClean(){
   const days=+val('pfDays')||90, cut=Date.now()-days*864e5, box=$('#pfStat');
   try{ const sn=await rdb.ref('proofs').orderByChild('ts').endAt(cut).get(), keys=[]; sn.forEach(c=>{ keys.push(c.key); });
     if(!keys.length){ toast('Không có ảnh nào cũ hơn '+days+' ngày','ok'); return; }
-    if(!confirm('Xoá ảnh vào lớp của '+keys.length+' lượt điểm danh cũ hơn '+days+' ngày?\nDữ liệu điểm danh (có mặt/muộn/vắng) vẫn được giữ, chỉ mất ảnh. Không thể khôi phục.')) return;
+    if(!confirm('Xoá ảnh vào lớp của '+keys.length+' lượt điểm danh cũ hơn '+days+' ngày?\nDữ liệu điểm danh (có mặt/muộn/vắng) vẫn được giữ, chỉ mất ảnh. Không thể khôi phục.\n\nBạn đã tải ảnh về máy chưa?')) return;
     for(let i=0;i<keys.length;i+=100){ const up={}; keys.slice(i,i+100).forEach(k=>{ up['proofs/'+k]=null; }); await rdb.ref().update(up); }
     try{ log('xoá '+keys.length+' ảnh điểm danh cũ hơn '+days+' ngày'); }catch(e){}
-    toast('Đã xoá '+keys.length+' ảnh','ok'); if(box) proofStats(); }
+    PL=null; toast('Đã xoá '+keys.length+' ảnh','ok'); if(box) proofStats(); }
   catch(e){ toast('Lỗi: '+(e.message||e),'err'); } }
-(function(){ const _vs=vSettings;
-  window.vSettings=vSettings=function(){ const h=_vs(), k='<div class="card"><div class="b mb12">Nhật ký hoạt động</div>';
-    const card='<div class="card"><div class="b mb12">'+ic('camera',16)+' Ảnh điểm danh online</div><div class="small muted mb12">Mỗi ảnh lưu trong database và chiếm dung lượng. Xoá ảnh cũ để tiết kiệm; điểm danh vẫn được giữ.</div><div class="row wrap" style="gap:8px"><select class="inp" id="pfDays" style="width:auto"><option value="30">Cũ hơn 30 ngày</option><option value="60">Cũ hơn 60 ngày</option><option value="90" selected>Cũ hơn 90 ngày</option><option value="180">Cũ hơn 180 ngày</option></select><button class="btn" onclick="proofStats()">Kiểm tra dung lượng</button><button class="btn red" onclick="proofClean()">'+ic('trash',14)+' Xoá ảnh cũ</button></div><div id="pfStat" class="small mt12"></div></div>';
-    return h.indexOf(k)>=0?h.replace(k,card+k):h; }; })();
+
+/* ---- đọc & phân loại dữ liệu theo bộ lọc ---- */
+function dlRangeChange(){ const c=$('#dlCustom'); if(c) c.style.display=val('dlRange')==='custom'?'flex':'none'; }
+function dlOpts(){
+  const sel=val('dlRange'); let from='',to='',label='toan-bo-du-lieu';
+  if(sel==='custom'){ from=val('dlFrom'); to=val('dlTo'); if(!from||!to||to<from){ toast('Chọn đủ "từ ngày" và "đến ngày" hợp lệ','err'); return null; } label=from+'_den_'+to; }
+  else if(sel!=='all'){ const n=+sel; to=dk(new Date()); from=dk(new Date(Date.now()-(n-1)*864e5)); label=n+'-ngay-gan-nhat'; }
+  return {from,to,label,type:val('dlType')||'all',cls:val('dlClass')||'',layout:val('dlLayout')||'month'};
+}
+async function proofLoad(o,say){
+  const key=[o.from,o.to,o.type,o.cls].join('|');
+  if(PL&&PL.key===key&&Date.now()-PL.t<180000) return PL.sess;
+  say('Đang tải dữ liệu ảnh từ hệ thống…');
+  let ref=rdb.ref('proofs');
+  if(o.from) ref=ref.orderByChild('ts').startAt(new Date(o.from+'T00:00').getTime()-2*864e5).endAt(new Date(o.to+'T23:59').getTime()+2*864e5);
+  const sn=await ref.get(), items=[]; sn.forEach(c=>{ const v=c.val(); if(v&&v.docId) items.push(v); });
+  const byDoc={}; items.forEach(v=>{ (byDoc[v.docId]=byDoc[v.docId]||[]).push(v); });
+  const ids=Object.keys(byDoc), docs={};
+  for(let i=0;i<ids.length;i+=8){ say('Đang đọc thông tin '+Math.min(i+8,ids.length)+'/'+ids.length+' buổi học…'); await Promise.all(ids.slice(i,i+8).map(async id=>{ try{ docs[id]=(await rdb.ref('attendance/'+id).get()).val(); }catch(e){ docs[id]=null; } })); }
+  const sess=[];
+  ids.forEach(id=>{ const d=docs[id]||null, m=id.match(/(\d{4}-\d{2}-\d{2})$/), date=(d&&d.date)||(m&&m[1])||dk(new Date(byDoc[id][0].ts));
+    if(o.from&&(date<o.from||date>o.to)) return;
+    const cids=d?[d.classId].concat(d.merged||[]).filter(Boolean):[id.split('_')[0]];
+    const type=!d?'oth':d.online?'onl':'fix';
+    if(o.type==='online'&&type!=='onl') return; if(o.type==='fixed'&&type!=='fix') return;
+    if(o.cls&&!cids.includes(o.cls)) return;
+    const cn=cids.map(c=>(S.classes[c]&&S.classes[c].name)||c), tm=d&&d.start?d.start.replace(':','h'):'', ttl=d&&d.online&&d.title?zslug(d.title,40):'';
+    const folder=zslug(date+'_'+(tm?tm+'_':'')+cn.map(x=>zslug(x)).join('+')+(ttl?'_'+ttl:''),90);
+    sess.push({id,d,date,type,cids,cn,title:(d&&d.title)||'',folder,list:byDoc[id].sort((a,b)=>a.ts-b.ts)}); });
+  sess.sort((a,b)=>(PTYPE[a.type].dir+a.date+a.folder).localeCompare(PTYPE[b.type].dir+b.date+b.folder));
+  PL={key,t:Date.now(),sess}; return sess;
+}
+function sessPath(x,layout){
+  const base=PTYPE[x.type].dir;
+  if(layout==='class') return base+'/'+(zslug(x.cn[0]||'khong-ro',40)||'khong-ro')+'/'+x.folder;
+  return base+'/'+x.date.slice(0,7)+'/'+x.folder;
+}
+const sumSess=l=>{ let s=l.length,p=0,c=0; l.forEach(x=>x.list.forEach(v=>{ if(v.img) p++; else c++; })); return {s,p,c}; };
+
+/* ---- xem trước ---- */
+async function proofPreview(){
+  const o=dlOpts(); if(!o) return; const box=$('#dlStat'), say=t=>{ if(box) box.innerHTML=t; }, btn=$('#dlBtn'), pb=$('#dlPrev'); if(btn) btn.disabled=true; if(pb) pb.disabled=true;
+  try{ const sess=await proofLoad(o,say); if(!sess.length){ say('<span class="muted">Không có ảnh nào trong khoảng này.</span>'); return; }
+    const rows=['onl','fix','oth'].map(t=>{ const r=sumSess(sess.filter(x=>x.type===t)); return r.s?'<tr><td>'+PTYPE[t].name+'</td><td class="right">'+r.s+'</td><td class="right">'+r.p+'</td><td class="right">'+r.c+'</td></tr>':''; }).join(''), tt=sumSess(sess);
+    say('<div class="scroll"><table class="tbl"><thead><tr><th>Loại</th><th class="right">Số buổi</th><th class="right">Số ảnh</th><th class="right">Vào bằng mã (không ảnh)</th></tr></thead><tbody>'+rows+'<tr><td><b>Tổng</b></td><td class="right"><b>'+tt.s+'</b></td><td class="right"><b>'+tt.p+'</b></td><td class="right"><b>'+tt.c+'</b></td></tr></tbody></table></div>'); }
+  catch(e){ say('<span style="color:var(--red)">Lỗi: '+esc(e.message||e)+'</span>'); }
+  finally{ if(btn) btn.disabled=false; if(pb) pb.disabled=false; } }
+
+/* ---- tải về ---- */
+async function proofDownload(){
+  const o=dlOpts(); if(!o) return; const btn=$('#dlBtn'), pb=$('#dlPrev'), box=$('#dlStat'), say=t=>{ if(box) box.innerHTML=t; };
+  if(btn) btn.disabled=true; if(pb) pb.disabled=true;
+  try{
+    say('Đang tải thư viện nén…'); await ensureZip();
+    const sess=await proofLoad(o,say);
+    if(!sess.length){ say('<span class="muted">Không có ảnh nào trong khoảng này.</span>'); return; }
+    sess.forEach(x=>{ x.path=sessPath(x,o.layout); });
+    // chia phần: mỗi file ZIP tối đa ~1500 ảnh / ~80 MB, không cắt đôi một buổi học
+    const parts=[]; let cur=[],cnt=0,sz=0; sess.forEach(x=>{ let n=0,b=0; x.list.forEach(v=>{ if(v.img){ n++; b+=v.img.length; } }); if(cur.length&&(cnt+n>1500||sz+b>8e7)){ parts.push(cur); cur=[]; cnt=0; sz=0; } cur.push(x); cnt+=n; sz+=b; }); if(cur.length) parts.push(cur);
+    const today=dk(new Date()), tf={all:'tat-ca',online:'online',fixed:'co-dinh'}[o.type]+(o.cls?'_'+zslug((S.classes[o.cls]||{}).name||o.cls,30):''); let total=0, noImg=0;
+    for(let pi=0;pi<parts.length;pi++){
+      say('Đang nén phần '+(pi+1)+'/'+parts.length+'…'); const zip=new JSZip(), idx=[['Loại buổi','Ngày','Lớp','Tiêu đề','Số ảnh','Số học sinh vào bằng mã (không ảnh)','Thư mục']];
+      for(const x of parts[pi]){ const marks=(x.d&&x.d.marks)||{}, used={}, rows=[['STT','Họ tên','Trạng thái','Giờ vào lớp','Hình thức','Tên file ảnh']]; let ni=0,nc=0;
+        x.list.forEach((v,i)=>{ const st=S.students[v.sid]||{}, nm=st.name||v.sid, mk_=(marks[v.sid]||{}).s; let fn='';
+          if(v.img){ fn=x.date+'_'+zslug(nm)+'_'+hm(v.ts)+'_'+(STL[mk_]||'khong-ro'); if(used[fn]) fn+='_'+zslug(v.sid,5); used[fn]=1; fn+='.jpg'; zip.file(x.path+'/'+fn,v.img.replace(/^data:image\/\w+;base64,/,''),{base64:true}); ni++; total++; } else { nc++; noImg++; }
+          rows.push([i+1,nm,STN[mk_]||'',fmtHM(v.ts),v.img?'Ảnh khuôn mặt':'Mã log-in',fn]); });
+        zip.file(x.path+'/DANH-SACH.csv',csvT(rows)); idx.push([PTYPE[x.type].name,fmtD(x.date),x.cn.join(' + '),x.title,ni,nc,x.path]); }
+      zip.file('MUC-LUC.csv',csvT(idx));
+      zip.file('DOC-ME.txt','ẢNH ĐIỂM DANH — '+((S.settings&&S.settings.centerName)||'')+'\r\nKhoảng thời gian: '+(o.from?fmtD(o.from)+' → '+fmtD(o.to):'toàn bộ dữ liệu')+'\r\nXuất lúc: '+fmtD(today)+' '+fmtHM(Date.now())+(parts.length>1?'\r\nPhần '+(pi+1)+'/'+parts.length+' (mỗi buổi học nằm trọn trong một phần)':'')+'\r\n\r\nCấu trúc thư mục:\r\n  1-Buoi-online / '+(o.layout==='class'?'<lớp>':'<năm-tháng>')+' / <ngày>_<giờ>_<lớp>_<tiêu đề buổi> / <ngày>_<Ho-Ten>_<giờ vào>_<trạng thái>.jpg\r\n  2-Buoi-co-dinh / '+(o.layout==='class'?'<lớp>':'<năm-tháng>')+' / <ngày>_<giờ>_<lớp> / ...\r\n  3-Khac: ảnh của buổi học đã bị xoá hoặc không xác định\r\nTrong mỗi buổi có DANH-SACH.csv (mở bằng Excel). MUC-LUC.csv liệt kê toàn bộ buổi học.\r\nTên file không dấu, bắt đầu bằng ngày để dễ tìm kiếm / sắp xếp và không lỗi font khi giải nén.\r\n');
+      const blob=await zip.generateAsync({type:'blob',compression:'STORE'},m=>say('Đang nén phần '+(pi+1)+'/'+parts.length+'… '+Math.round(m.percent)+'%'));
+      const name='Anh-diem-danh_'+tf+'_'+o.label+'_xuat-'+today+(parts.length>1?'_phan-'+(pi+1)+'-'+parts.length:'')+'.zip', a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),20000);
+      if(pi<parts.length-1) await new Promise(r=>setTimeout(r,900)); }
+    say('<span style="color:var(--grn)"><b>Đã tải xong:</b></span> '+total+' ảnh · '+sess.length+' buổi học · '+parts.length+' file ZIP'+(noImg?' · '+noImg+' học sinh vào bằng mã (không có ảnh, vẫn có trong DANH-SACH.csv)':'')+(parts.length>1?'<br><span class="muted">Nếu trình duyệt hỏi, hãy cho phép tải nhiều file.</span>':''));
+    try{ log('tải ảnh điểm danh về máy ('+(o.from?fmtD(o.from)+'–'+fmtD(o.to):'toàn bộ')+', '+total+' ảnh)'); }catch(e){}
+  }catch(e){ say('<span style="color:var(--red)">Lỗi: '+esc(e.message||e)+'</span>'); }
+  finally{ if(btn) btn.disabled=false; if(pb) pb.disabled=false; } }
+
+/* ---- giao diện tab ---- */
+function vPhotos(){
+  const cls=activeClasses().map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');
+  const dl='<div class="card mb16"><div class="b mb12">'+ic('download',16)+' Tải ảnh điểm danh về máy</div>'+
+    '<div class="small muted mb12">File ZIP tự chia thư mục: <b>Buổi online</b> / <b>Buổi cố định</b> → tháng (hoặc lớp) → từng buổi học. Tên file bắt đầu bằng ngày, có họ tên, giờ vào lớp và trạng thái để dễ tìm. Mỗi buổi kèm danh sách Excel (CSV).</div>'+
+    '<div class="grid g4" style="gap:10px">'+
+      '<div class="field"><label>Khoảng thời gian</label><select class="inp" id="dlRange" onchange="dlRangeChange()"><option value="7">7 ngày gần nhất</option><option value="30" selected>30 ngày gần nhất</option><option value="60">60 ngày gần nhất</option><option value="90">90 ngày gần nhất</option><option value="180">180 ngày gần nhất</option><option value="365">1 năm gần nhất</option><option value="all">Toàn bộ dữ liệu (không giới hạn ngày)</option><option value="custom">Tuỳ chọn khoảng ngày…</option></select></div>'+
+      '<div class="field"><label>Loại buổi học</label><select class="inp" id="dlType"><option value="all">Tất cả (online + cố định)</option><option value="online">Chỉ buổi online</option><option value="fixed">Chỉ buổi cố định</option></select></div>'+
+      '<div class="field"><label>Lớp</label><select class="inp" id="dlClass"><option value="">Tất cả lớp</option>'+cls+'</select></div>'+
+      '<div class="field"><label>Cách chia thư mục</label><select class="inp" id="dlLayout"><option value="month">Loại → Tháng → Buổi</option><option value="class">Loại → Lớp → Buổi</option></select></div>'+
+    '</div>'+
+    '<div class="row wrap" id="dlCustom" style="display:none;gap:8px;margin-bottom:10px"><input class="inp" id="dlFrom" type="date" style="width:auto"><span class="muted">đến</span><input class="inp" id="dlTo" type="date" style="width:auto"></div>'+
+    '<div class="row wrap" style="gap:8px"><button class="btn" id="dlPrev" onclick="proofPreview()">'+ic('search',14)+' Xem trước số lượng</button><button class="btn pri" id="dlBtn" onclick="proofDownload()">'+ic('download',14)+' Tải về (.zip)</button></div>'+
+    '<div id="dlStat" class="small mt12"></div></div>';
+  const cl='<div class="card"><div class="b mb12">'+ic('camera',16)+' Dung lượng &amp; dọn ảnh cũ</div><div class="small muted mb12">Mỗi ảnh lưu trong database và chiếm dung lượng. Nên tải ảnh về máy (thẻ bên trên) trước khi xoá. Điểm danh (có mặt/muộn/vắng) vẫn được giữ, chỉ mất ảnh.</div><div class="row wrap" style="gap:8px"><select class="inp" id="pfDays" style="width:auto"><option value="30">Cũ hơn 30 ngày</option><option value="60">Cũ hơn 60 ngày</option><option value="90" selected>Cũ hơn 90 ngày</option><option value="180">Cũ hơn 180 ngày</option></select><button class="btn" onclick="proofStats()">Kiểm tra dung lượng</button><button class="btn red" onclick="proofClean()">'+ic('trash',14)+' Xoá ảnh cũ</button></div><div id="pfStat" class="small mt12"></div></div>';
+  return pageHead('Ảnh điểm danh online','Tải toàn bộ ảnh học sinh vào lớp về máy theo từng buổi học, hoặc dọn dung lượng ảnh cũ.')+dl+cl;
+}
+(function(){ if(!NAV.some(n=>n[0]==='photos')){ const i=NAV.findIndex(n=>n[0]==='settings'); NAV.splice(i>=0?i:NAV.length,0,['photos',ic('camera'),'Ảnh điểm danh online']); } })();
 </script>
 
 </body>
