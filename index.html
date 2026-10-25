@@ -1597,7 +1597,7 @@ S.codes={};
 
 /* ---------- phía học sinh ---------- */
 function jCodeBox(){
-  return '<div class="jcode"><div class="jct">'+ic('lock',16)+' Không dùng được camera? Nhập Mã log-in</div><div class="small muted mb8">Mã do trợ giảng cung cấp. Nhập đúng mã là điểm danh được ngay, không cần camera.</div><div id="jcmsg"></div><input class="inp" id="jCode" placeholder="NHẬP MÃ LOG-IN" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="32" onkeydown="if(event.key===\'Enter\')jCodeCheckin()"><button class="btn pri full mt8" id="jCodeBtn" onclick="jCodeCheckin()">'+ic('check',16)+' Điểm danh bằng mã</button></div>';
+  return '<div class="jcode"><div class="jct">'+ic('lock',16)+' Nhập Mã Log-in</div><div class="small muted mb8">Mã do trợ giảng cung cấp. Hãy liên hệ trợ giảng để lấy Log-in Code.</div><div id="jcmsg"></div><input class="inp" id="jCode" placeholder="NHẬP MÃ LOG-IN" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="32" onkeydown="if(event.key===\'Enter\')jCodeCheckin()"><button class="btn pri full mt8" id="jCodeBtn" onclick="jCodeCheckin()">'+ic('check',16)+' Xác nhận</button></div>';
 }
 function jCamFail(e){
   const m=$('#jmsg'); if(!m) return;
@@ -1609,7 +1609,7 @@ function jCamFail(e){
   else if(noApi||window.isSecureContext===false) t='Trình duyệt này không mở được camera (trang cần chạy trên https). Hãy mở link bằng Chrome hoặc Safari.';
   m.innerHTML='<div class="err">'+t+'</div>'+
     '<button class="btn full" id="jRetry" onclick="jRetryCam()">'+ic('refresh',16)+' Xin lại quyền camera</button>'+
-    '<div class="jtip mt8">Nếu trình duyệt không hỏi lại: bấm biểu tượng ổ khoá cạnh thanh địa chỉ → chọn <b>Cho phép Camera</b>, rồi bấm nút trên. Đang mở link trong Zalo/Facebook? Hãy mở bằng Chrome hoặc Safari.</div>'+jCodeBox();
+    '<div class="jtip mt8">Nếu trình duyệt không hỏi lại: nhấn biểu tượng ổ khoá cạnh thanh địa chỉ → chọn <b>Cho phép Camera</b>, rồi bấm nút trên. Nếu bạn đang truy cập trên Zalo/Facebook, hãy mở bằng Chrome hoặc Safari.</div>'+jCodeBox();
   const c=$('#jCode'); if(c&&keep) c.value=keep;
   const sh=$('#jShot'); if(sh) sh.disabled=true;
   try{ if(navigator.permissions&&navigator.permissions.query&&!J.pq){ navigator.permissions.query({name:'camera'}).then(p=>{ J.pq=p; p.onchange=()=>{ if(p.state==='granted'&&J.step===2&&!J.stream) jStartCam(); }; }).catch(()=>{}); } }catch(x){}
