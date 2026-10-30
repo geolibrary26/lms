@@ -556,7 +556,7 @@ function setP(k,f,v){ S.P[k][f]=v; render(); }
 function render(){
   const nav=$('#nav'); if(!nav) return;
   nav.innerHTML=navList().map(n=>'<button class="nav '+(S.view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')"><i>'+n[1]+'</i>'+n[2]+'</button>').join('');
-  const V={members:vMembers,codes:vCodes,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,merge:vMerge,settings:vSettings};
+  const V={members:vMembers,codes:vCodes,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,photos:vPhotos,merge:vMerge,settings:vSettings};
   $('#main').innerHTML=V[S.view]();
 }
 const classOpts = (sel,all) => (all?'<option value="">Tất cả lớp</option>':'')+activeClasses().map(c=>'<option value="'+c.id+'" '+(c.id===sel?'selected':'')+'>'+esc(c.name)+'</option>').join('');
@@ -1395,7 +1395,7 @@ function paint(force){
   const nav=$('#nav'),main=$('#main'); if(!nav||!main) return;
   const nh=navList().map(n=>'<button class="nav '+(S.view===n[0]?'on':'')+'" style="--nc:'+(NC[n[0]]||'#60a5fa')+'" onclick="go(\''+n[0]+'\')"><i>'+n[1]+'</i>'+n[2]+'</button>').join('');
   if(nav.innerHTML!==nh) nav.innerHTML=nh;
-  const V={members:vMembers,codes:vCodes,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,merge:vMerge,settings:vSettings};
+  const V={members:vMembers,codes:vCodes,dash:vDash,att:vAtt,report:vRep,classes:vClasses,students:vStudents,scores:vScores,fees:vFees,online:vOnline,photos:vPhotos,merge:vMerge,settings:vSettings};
   let h; try{ h=V[S.view](); }catch(e){ console.error(e); h='<div class="card empty">Không hiển thị được trang này.<div class="mt12"><button class="btn pri" onclick="go(\'dash\')">Về Tổng quan</button></div></div>'; }
   const vc=S.view!==lastV; if(!force&&!vc&&h===last) return;
   const sy=window.scrollY, sc=[...main.querySelectorAll('.scroll')].map(e=>[e.scrollTop,e.scrollLeft]);
@@ -1719,16 +1719,16 @@ async function proofClean(){
 /* ===================== TẢI ẢNH ĐIỂM DANH VỀ MÁY (ZIP, chia thư mục) ===================== */
 const JSZ_URLS=['https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','https://unpkg.com/jszip@3.10.1/dist/jszip.min.js'];
 async function ensureZip(){ if(window.JSZip) return; for(const u of JSZ_URLS){ try{ await new Promise((res,rej)=>{ const e=document.createElement('script'); e.src=u; e.onload=res; e.onerror=rej; document.head.appendChild(e); }); if(window.JSZip) return; }catch(x){} } throw new Error('Không tải được thư viện nén ZIP, hãy kiểm tra mạng'); }
-const zslug=(t,max)=>{ let r=String(t==null?'':t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,''); return max?r.slice(0,max).replace(/-+$/,''):r; };
+const zslug=(t,max)=>{ let r=String(t==null?'':t).replace(/[\\\/:*?"<>|#]+/g,'-').replace(/\s+/g,' ').trim(); return max?r.slice(0,max).trim():r; };
 const hm=ts=>fmtHM(ts).replace(':','h');
 const csvE=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
 const csvT=rows=>'\ufeff'+rows.map(r=>r.map(csvE).join(',')).join('\r\n');
-const STL={P:'co-mat',L:'muon',E:'xin-phep',A:'vang'}, STN={P:'Có mặt',L:'Muộn',E:'Xin phép',A:'Vắng'};
+const STL={P:'Có mặt',L:'Muộn',E:'Xin phép',A:'Vắng'}, STN={P:'Có mặt',L:'Muộn',E:'Xin phép',A:'Vắng'};
 function dlRangeChange(){ const c=$('#dlCustom'); if(c) c.style.display=val('dlRange')==='custom'?'flex':'none'; }
 async function proofDownload(){
-  const btn=$('#dlBtn'), box=$('#dlStat'), say=t=>{ if(box) box.innerHTML=t; }, sel=val('dlRange'); let from='',to='',label='toan-bo-du-lieu';
-  if(sel==='custom'){ from=val('dlFrom'); to=val('dlTo'); if(!from||!to||to<from){ toast('Chọn đủ "từ ngày" và "đến ngày" hợp lệ','err'); return; } label=from+'_den_'+to; }
-  else if(sel!=='all'){ const n=+sel; to=dk(new Date()); from=dk(new Date(Date.now()-(n-1)*864e5)); label=n+'-ngay-gan-nhat'; }
+  const btn=$('#dlBtn'), box=$('#dlStat'), say=t=>{ if(box) box.innerHTML=t; }, sel=val('dlRange'); let from='',to='',label='toàn bộ dữ liệu';
+  if(sel==='custom'){ from=val('dlFrom'); to=val('dlTo'); if(!from||!to||to<from){ toast('Chọn đủ "từ ngày" và "đến ngày" hợp lệ','err'); return; } label=from+' đến '+to; }
+  else if(sel!=='all'){ const n=+sel; to=dk(new Date()); from=dk(new Date(Date.now()-(n-1)*864e5)); label=n+' ngày gần nhất'; }
   if(btn) btn.disabled=true;
   try{
     say('Đang tải thư viện nén…'); await ensureZip();
@@ -1742,9 +1742,9 @@ async function proofDownload(){
     const sess=[];
     ids.forEach(id=>{ const d=docs[id]||null, m=id.match(/(\d{4}-\d{2}-\d{2})$/), date=(d&&d.date)||(m&&m[1])||dk(new Date(byDoc[id][0].ts));
       if(from&&(date<from||date>to)) return;
-      const type=d&&d.online?'1-Lop-online':d?'2-Lop-co-dinh':'3-Khac', cids=d?[d.classId].concat(d.merged||[]).filter(Boolean):[id.split('_')[0]], cn=cids.map(c=>(S.classes[c]&&S.classes[c].name)||c);
+      const type=d&&d.online?'Lớp online':d?'Lớp cố định':'Khác', cids=d?[d.classId].concat(d.merged||[]).filter(Boolean):[id.split('_')[0]], cn=cids.map(c=>(S.classes[c]&&S.classes[c].name)||c);
       const tm=d&&d.start?d.start.replace(':','h'):'', ttl=d&&d.online&&d.title?zslug(d.title,40):'';
-      const folder=zslug(date+'_'+(tm?tm+'_':'')+cn.map(x=>zslug(x)).join('+')+(ttl?'_'+ttl:''),90);
+      const folder=zslug([date,tm,cn.join(' + '),ttl].filter(Boolean).join(' · '),90);
       sess.push({id,d,date,type,cn,title:(d&&d.title)||'',folder,path:type+'/'+date.slice(0,7)+'/'+folder,list:byDoc[id].sort((a,b)=>a.ts-b.ts)}); });
     if(!sess.length){ say('<span class="muted">Không có buổi học nào trong khoảng này.</span>'); return; }
     sess.sort((a,b)=>(a.type+a.date+a.folder).localeCompare(b.type+b.date+b.folder));
@@ -1755,13 +1755,13 @@ async function proofDownload(){
       say('Đang nén phần '+(pi+1)+'/'+parts.length+'…'); const zip=new JSZip(), idx=[['Loại buổi','Ngày','Lớp','Tiêu đề','Số ảnh','Số học sinh vào bằng mã (không ảnh)','Thư mục']];
       for(const x of parts[pi]){ const marks=(x.d&&x.d.marks)||{}, used={}, rows=[['STT','Họ tên','Trạng thái','Giờ vào lớp','Hình thức','Tên file ảnh']]; let ni=0,nc=0;
         x.list.forEach((v,i)=>{ const st=S.students[v.sid]||{}, nm=st.name||v.sid, mk_=(marks[v.sid]||{}).s; let fn='';
-          if(v.img){ fn=zslug(nm)+'_'+hm(v.ts)+'_'+(STL[mk_]||'khong-ro'); if(used[fn]) fn+='_'+zslug(v.sid,5); used[fn]=1; fn+='.jpg'; zip.file(x.path+'/'+fn,v.img.replace(/^data:image\/\w+;base64,/,''),{base64:true}); ni++; total++; } else { nc++; noImg++; }
+          if(v.img){ fn=zslug(nm)+' · '+hm(v.ts)+' · '+(STL[mk_]||'chưa rõ'); if(used[fn]) fn+=' ('+zslug(v.sid,5)+')'; used[fn]=1; fn+='.jpg'; zip.file(x.path+'/'+fn,v.img.replace(/^data:image\/\w+;base64,/,''),{base64:true}); ni++; total++; } else { nc++; noImg++; }
           rows.push([i+1,nm,STN[mk_]||'',fmtHM(v.ts),v.img?'Ảnh khuôn mặt':(v.driveId?'Ảnh đã lưu trên Google Drive':'Mã log-in'),fn]); });
-        zip.file(x.path+'/DANH-SACH.csv',csvT(rows)); idx.push([x.type.replace(/^\d-/,''),fmtD(x.date),x.cn.join(' + '),x.title,ni,nc,x.path]); }
-      zip.file('MUC-LUC.csv',csvT(idx));
-      zip.file('DOC-ME.txt','ẢNH ĐIỂM DANH — '+((S.settings&&S.settings.centerName)||'')+'\r\nKhoảng thời gian: '+(from?fmtD(from)+' → '+fmtD(to):'toàn bộ dữ liệu')+'\r\nXuất lúc: '+fmtD(today)+' '+fmtHM(Date.now())+(parts.length>1?'\r\nPhần '+(pi+1)+'/'+parts.length+' (mỗi buổi học nằm trọn trong một phần)':'')+'\r\n\r\nCấu trúc thư mục:\r\n  1-Lop-online / <năm-tháng> / <ngày>_<giờ>_<lớp>_<tiêu đề buổi> / <Ho-Ten>_<giờ vào>_<trạng thái>.jpg\r\n  2-Lop-co-dinh / <năm-tháng> / <ngày>_<lớp> / ...\r\n  3-Khac: ảnh của buổi học đã bị xoá hoặc không xác định\r\nTrong mỗi buổi có DANH-SACH.csv (mở bằng Excel). MUC-LUC.csv liệt kê toàn bộ buổi học.\r\nTên file không dấu để dễ tìm kiếm và không lỗi font khi giải nén.\r\n');
+        zip.file(x.path+'/Danh sách.csv',csvT(rows)); idx.push([x.type.replace(/^\d-/,''),fmtD(x.date),x.cn.join(' + '),x.title,ni,nc,x.path]); }
+      zip.file('Mục lục.csv',csvT(idx));
+      zip.file('Đọc me.txt','ẢNH ĐIỂM DANH — '+((S.settings&&S.settings.centerName)||'')+'\r\nKhoảng thời gian: '+(from?fmtD(from)+' → '+fmtD(to):'toàn bộ dữ liệu')+'\r\nXuất lúc: '+fmtD(today)+' '+fmtHM(Date.now())+(parts.length>1?'\r\nPhần '+(pi+1)+'/'+parts.length+' (mỗi buổi học nằm trọn trong một phần)':'')+'\r\n\r\nCấu trúc thư mục:\r\n  Lớp online / <năm-tháng> / <ngày> · <giờ> · <lớp> · <tiêu đề buổi> / <Họ tên> · <giờ vào> · <trạng thái>.jpg\r\n  Lớp cố định / <năm-tháng> / <ngày> · <lớp> / ...\r\n  Khác: ảnh của buổi học đã bị xoá hoặc không xác định\r\nTrong mỗi buổi có Danh sách.csv (mở bằng Excel). Mục lục.csv liệt kê toàn bộ buổi học.\r\nTên file viết tiếng Việt có dấu, giữ dấu cách cho dễ đọc.\r\n');
       const blob=await zip.generateAsync({type:'blob',compression:'STORE'},m=>say('Đang nén phần '+(pi+1)+'/'+parts.length+'… '+Math.round(m.percent)+'%'));
-      const name='Anh-diem-danh_'+label+'_xuat-'+today+(parts.length>1?'_phan-'+(pi+1)+'-'+parts.length:'')+'.zip', a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),20000);
+      const name='Ảnh điểm danh - '+label+' - xuất '+today+(parts.length>1?' - phần '+(pi+1)+' của '+parts.length:'')+'.zip', a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),20000);
       if(pi<parts.length-1) await new Promise(r=>setTimeout(r,900)); }
     say('<span style="color:var(--grn)"><b>Đã tải xong:</b></span> '+total+' ảnh · '+sess.length+' buổi học · '+parts.length+' file ZIP'+(noImg?' · '+noImg+' học sinh vào bằng mã (không có ảnh, vẫn có trong DANH-SACH.csv)':'')+(parts.length>1?'<br><span class="muted">Nếu trình duyệt hỏi, hãy cho phép tải nhiều file.</span>':''));
     try{ log('tải ảnh điểm danh về máy ('+(from?fmtD(from)+'–'+fmtD(to):'toàn bộ')+', '+total+' ảnh)'); }catch(e){}
@@ -1814,8 +1814,8 @@ function spRenderPhotos(){ const box=$('#spPh'); if(!box||box.dataset.sid!==SP.i
 function spShowPhoto(i){ const v=(SP.photos||[])[i]; if(!v) return; if(!v.img){ toast('Lần này em điểm danh bằng Mã log-in nên không có ảnh','ok'); return; } const d=(ATTALL||{})[v.docId]||{}; lightbox(v.img,((S.students[SP.id]||{}).name||'')+' · '+fmtD(d.date||dk(new Date(v.ts)))+' '+fmtHM(v.ts),null); }
 async function spZip(){ const L=(SP.photos||[]).filter(v=>v.img); if(!L.length) return; const st=S.students[SP.id]||{};
   try{ toast('Đang nén ảnh…'); await ensureZip(); const z=new JSZip(), used={};
-    L.forEach(v=>{ const d=(ATTALL||{})[v.docId]||{}, mk_=((d.marks||{})[SP.id]||{}).s; let fn=(d.date||dk(new Date(v.ts)))+'_'+hm(v.ts)+'_'+zslug(spCls(d)||'lop',30)+'_'+(STL[mk_]||'khong-ro'); if(used[fn]) fn+='_'+zslug(v.docId.slice(-6)); used[fn]=1; z.file(fn+'.jpg',v.img.replace(/^data:image\/\w+;base64,/,''),{base64:true}); });
-    const blob=await z.generateAsync({type:'blob',compression:'STORE'}), a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Anh-diem-danh_'+zslug(st.name||SP.id)+'.zip'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),20000);
+    L.forEach(v=>{ const d=(ATTALL||{})[v.docId]||{}, mk_=((d.marks||{})[SP.id]||{}).s; let fn=(d.date||dk(new Date(v.ts)))+' · '+hm(v.ts)+' · '+zslug(spCls(d)||'lớp',30)+' · '+(STL[mk_]||'chưa rõ'); if(used[fn]) fn+=' ('+zslug(v.docId.slice(-6))+')'; used[fn]=1; z.file(fn+'.jpg',v.img.replace(/^data:image\/\w+;base64,/,''),{base64:true}); });
+    const blob=await z.generateAsync({type:'blob',compression:'STORE'}), a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Ảnh điểm danh - '+zslug(st.name||SP.id)+'.zip'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),20000);
   }catch(e){ toast('Lỗi: '+(e.message||e),'err'); } }
 function spCopyMsg(){ const s=S.students[SP.id]; if(!s) return; const mo=mk(new Date()), rows=(SP.rows||[]).filter(r=>r.m&&r.date.startsWith(mo)), ok=rows.filter(r=>r.m.s==='P'||r.m.s==='L').length, n=rows.length;
   copyText('Chào anh/chị, em '+s.name+' tháng '+mo.split('-').reverse().join('/')+' đi học '+ok+'/'+n+' buổi'+(n?' ('+Math.round(ok/n*100)+'%)':'')+'. Cảm ơn anh/chị! — '+((S.settings&&S.settings.centerName)||'')); }
@@ -1846,5 +1846,30 @@ window.stuProfile=stuProfile=function(id){
 
 
 
+
+<script>
+/* ===================== TAB "ẢNH ĐIỂM DANH ONLINE" (độc lập, mọi nhân sự đều xem được) ===================== */
+(function(){ S.P.px={month:mk(new Date()),classId:'',q:''};
+  if(!NAV.some(n=>n[0]==='photos')){ const i=NAV.findIndex(n=>n[0]==='att'); NAV.splice(i+1,0,['photos',ic('camera'),'Ảnh điểm danh online']); } })();
+function pxSessions(){ const p=S.P.px,q=norm(p.q||'');
+  return Object.values(sessAll()).filter(d=>d.date&&d.date.startsWith(p.month)&&(d.online||joinedN(d)>0)&&(!p.classId||inSess(d,p.classId))&&(!q||norm((d.title||'')+' '+sessClassNames(d)).includes(q))).sort((a,b)=>(b.date+(b.start||'')).localeCompare(a.date+(a.start||''))); }
+function pxList(){ const l=pxSessions();
+  return l.length?'<div class="grid g3">'+l.map(o=>{ const tot=sessionStudents(o).length,n=joinedN(o),pct=tot?Math.round(n/tot*100):0,ph=o.online?phase(o):'ended';
+    return '<div class="card oc ph-'+ph+'"><div class="row between"><span class="pill '+(o.online?PH[ph][1]:'pill-teal')+'">'+(o.online?PH[ph][0]:'Lớp online cố định')+'</span><span class="small muted">'+wdOf(o.date)+', '+fmtD(o.date)+'</span></div><div class="b mt8" style="font-size:16px">'+esc(o.title||sessClassNames(o))+'</div><div class="small muted mt8 row wrap" style="gap:6px">'+(o.start?ic('clock',13)+' '+o.start+'–'+o.end+' ':'')+ctags(o)+'</div><div class="row between mt12 small"><span>Đã vào lớp <b>'+n+'/'+tot+'</b></span><b>'+pct+'%</b></div><div class="bar mt8"><div style="width:'+pct+'%"></div></div><div class="row wrap mt12"><button class="btn sm pri" onclick="viewProofs(\''+o.id+'\')">'+ic('camera',14)+' Xem ảnh</button><button class="btn sm" onclick="pxZip(\''+o.id+'\')">'+ic('download',14)+' Tải ZIP</button><button class="btn sm" onclick="go(\'att\',{classId:\''+o.classId+'\',date:\''+o.date+'\'})">Điểm danh</button></div></div>'; }).join('')+'</div>':'<div class="card empty"><div class="emptyic">'+ic('camera',34)+'</div>Không có buổi online nào trong tháng này.</div>'; }
+function pxSearch(v){ S.P.px.q=v; const b=$('#pxList'); if(b) b.innerHTML=pxList(); }
+function vPhotos(){ const p=S.P.px; ensureAtt(p.month); const l=pxSessions(); let joined=0; l.forEach(o=>joined+=joinedN(o));
+  return pageHead('Ảnh điểm danh online','Ảnh học sinh chụp khi vào lớp online. Bấm “Xem ảnh” để xem từng buổi, hoặc “Tải ZIP” để tải về máy.')+
+  '<div class="minis"><div class="mini b"><b>'+l.length+'</b><span>Buổi trong tháng</span></div><div class="mini g"><b>'+joined+'</b><span>Lượt vào lớp</span></div></div>'+
+  '<div class="toolbar tbcard"><input class="inp" type="month" value="'+p.month+'" onchange="setP(\'px\',\'month\',this.value)"><select class="inp" onchange="setP(\'px\',\'classId\',this.value)">'+classOpts(p.classId,true)+'</select><div class="jsr" style="min-width:220px;flex:1;max-width:320px">'+ic('search',16)+'<input class="inp" style="padding:9px 12px 9px 40px;font-size:14px" placeholder="Tìm buổi học…" value="'+esc(p.q||'')+'" oninput="pxSearch(this.value)"></div></div><div id="pxList">'+pxList()+'</div>'; }
+async function pxZip(id){ const o=S.onl[id]||S.att[id]; if(!o) return;
+  try{ toast('Đang chuẩn bị ảnh…'); await ensureZip(); const sn=await C('proofs').where('docId','==',id).get(), L=sn.docs.map(x=>x.data()).sort((a,b)=>a.ts-b.ts), z=new JSZip(), used={}, links=[], marks=o.marks||{}; let n=0;
+    L.forEach(v=>{ const nm=(S.students[v.sid]||{}).name||v.sid, s=(marks[v.sid]||{}).s;
+      if(v.img){ let fn=zslug(nm)+' · '+hm(v.ts)+' · '+(STL[s]||'chưa rõ'); used[fn]=(used[fn]||0)+1; if(used[fn]>1) fn+=' ('+used[fn]+')'; z.file(fn+'.jpg',v.img.replace(/^data:image\/\w+;base64,/,''),{base64:true}); n++; }
+      else if(v.driveUrl) links.push(nm+' · '+hm(v.ts)+': '+v.driveUrl); });
+    if(links.length) z.file('Ảnh trên Google Drive.txt',links.join('\r\n'));
+    if(!n&&!links.length){ toast('Buổi này chưa có ảnh','err'); return; }
+    const blob=await z.generateAsync({type:'blob',compression:'STORE'}), a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Ảnh điểm danh - '+zslug(o.title||sessClassNames(o),60)+' - '+fmtD(o.date).replace(/\//g,'-')+'.zip'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),20000);
+    toast('Đã tải '+n+' ảnh','ok'); }catch(e){ toast('Lỗi: '+(e.message||e),'err'); } }
+</script>
 </body>
 </html>
