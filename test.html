@@ -2077,11 +2077,13 @@ const GEM={models:[],checked:false};
 const lsGet=k=>{ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } };
 const lsSet=(k,v)=>{ try{ v?localStorage.setItem(k,v):localStorage.removeItem(k); }catch(e){} };
 const gemKey=()=>lsGet('geoai_gkey')||((S.settings&&S.settings.geminiKey)||'');
-const gemModel=()=>{ const m=lsGet('geoai_gmodel')||(S.settings&&S.settings.geminiModel)||''; return m&&!/^claude/.test(m)?m:'gemini-2.5-flash'; };
+const DEF='gemini-3.8-flash';
+const LEGACY=/^gemini-(1\.\d|2\.0|2\.5)-flash$/;
+const gemModel=()=>{ const m=lsGet('geoai_gmodel')||(S.settings&&S.settings.geminiModel)||''; return m&&!/^claude/.test(m)&&!LEGACY.test(m)?m:DEF; };
 function sync(){ GCFG.proxy=''; GCFG.key=gemKey(); GCFG.model=gemModel(); }
 function errMsg(j,st){ const m=(j&&j.error&&j.error.message)||('Lỗi HTTP '+st);
   if(st===503||/high demand/i.test(m)) return 'Máy chủ Gemini miễn phí đang quá tải (nhiều người dùng cùng lúc). App đã tự thử lại nhiều model nhưng chưa được — hãy chờ vài phút rồi bấm chấm lại, hoặc thử vào giờ khác.';
-  if(st===429) return /per.?day|daily/i.test(m)?'Đã hết hạn mức miễn phí trong NGÀY (reset lúc 14h–15h giờ Việt Nam). Hãy chờ hoặc đổi model khác.':'Đang vượt hạn mức miễn phí theo phút. Hãy chờ khoảng 1 phút rồi chấm lại.';
+  if(st===429) return /per.?day|daily/i.test(m)?'Đã hết hạn mức miễn phí trong NGÀY (reset lúc 14h–15h giờ Việt Nam). App đã thử hết các model khác nhưng đều hết hạn mức; hãy chờ hoặc dùng key khác.':'Đang vượt hạn mức miễn phí theo phút. Hãy chờ khoảng 1 phút rồi chấm lại.';
   if(/API key not valid|API_KEY_INVALID/i.test(m)) return 'API key Gemini không đúng. Hãy tạo lại key tại aistudio.google.com/apikey.';
   if(st===403) return 'Key bị từ chối (403): '+m;
   return m; }
@@ -2089,8 +2091,9 @@ async function listModels(key){
   const r=await fetch(BASE+'/models?pageSize=200&key='+encodeURIComponent(key)), j=await r.json().catch(()=>({}));
   if(!r.ok) throw new Error(errMsg(j,r.status));
   const ver=n=>{ const m=n.match(/gemini-(\d+(?:\.\d+)?)/); return m?parseFloat(m[1]):0; };
-  const l=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')&&/gemini-[\d.]+-flash/.test(m.name)&&!/(tts|image|audio|live|embed|robot|lite|exp|latest|computer)/.test(m.name)).map(m=>m.name.replace('models/',''));
-  l.sort((a,b)=>(/preview/.test(a)-/preview/.test(b))||ver(b)-ver(a)||a.localeCompare(b));
+  const rank=n=>/lite/.test(n)?1:/pro/.test(n)?2:0;
+  const l=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')&&/^models\/gemini-/.test(m.name)&&!/(tts|image|audio|live|embed|robot|exp|latest|computer|vision|aqa|learnlm|thinking)/.test(m.name)).map(m=>m.name.replace('models/',''));
+  l.sort((a,b)=>(/preview/.test(a)-/preview/.test(b))||ver(b)-ver(a)||rank(a)-rank(b)||a.localeCompare(b));
   GEM.models=l; GEM.checked=true; return l; }
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 /* ---- tiến độ hiển thị khi AI đang chạy ---- */
@@ -2143,12 +2146,17 @@ gCall=window.gCall=async function(content,system){
   const kind=kindOf(content), parts=content.map(b=>b.type==='text'?{text:b.text}:(b.type==='image'||b.type==='document')?{inlineData:{mimeType:b.source.media_type,data:b.source.data}}:null).filter(Boolean);
   const call={kind:kind,stage:'send',chars:0,exp:KIND[kind][1],size:'0',t0:Date.now(),last:Date.now(),note:'',done:false,stop:false,ctl:null,model:'',lim:0};
   PG.calls=PG.calls.filter(c=>!c.done); PG.calls.push(call);
-  let model=gemModel(), repicked=false, think=true, switched=false, ns=false; const tried=new Set(), ovl=new Set();
+  let model=gemModel(), think=true, switched=false, persist=false, ns=false, waits=0; const bad=new Set();
+  const pickNext=async()=>{ let l=GEM.models; if(!l.length){ try{ l=await listModels(key); }catch(x){ l=[]; } }
+    return [DEF].concat(l).concat(['gemini-flash-latest','gemini-flash-lite-latest']).find(m=>!bad.has(m)&&m!==model); };
+  const hop=async(why,sticky)=>{ bad.add(model); const nx=await pickNext(); if(!nx) return false;
+    call.stage='wait'; call.note='model '+model+' '+why+' — chuyển sang '+nx+'…'; model=nx; switched=true; if(sticky) persist=true; await wait(1200); return true; };
+  const coolDown=async(msg)=>{ bad.clear(); call.stage='wait'; for(let s=15;s>0;s--){ if(call.stop) throw new Error('Đã dừng theo yêu cầu.'); call.note=msg+' — tự thử lại sau '+s+' giây…'; await wait(1000); } };
   const mk=()=>{ const gc={maxOutputTokens:24000,temperature:0.2,responseMimeType:'application/json'};
     if(think){ if(/gemini-2\.5/.test(model)) gc.thinkingConfig={thinkingBudget:kind==='grade'?4096:kind==='extract'?2048:0}; else if(/gemini-[3-9]/.test(model)) gc.thinkingConfig={thinkingLevel:kind==='grade'?'low':'minimal'}; }
     return JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:parts}],generationConfig:gc}); };
   try{
-    for(let at=0;at<8;at++){
+    for(let at=0;at<60;at++){
       call.model=model; call.lim=window.GEM_LIM||40000; const body=mk(); call.size=(body.length/1048576).toFixed(1); call.stage='send'; call.chars=0; call.t0=Date.now(); call.last=Date.now();
       const ctl=new AbortController(); call.ctl=ctl; let timedOut=false;
       const wd=setInterval(()=>{ if(Date.now()-call.last>(call.stage==='write'?60000:call.stage==='send'?call.lim:(ns?240000:150000))){ timedOut=true; ctl.abort(); } },2000);
@@ -2156,26 +2164,23 @@ gCall=window.gCall=async function(content,system){
       try{ res=ns?await nonStream(model,key,body,call,ctl):await streamGem(model,key,body,call,ctl); }
       catch(e){ clearInterval(wd); if(call.stop) throw new Error('Đã dừng theo yêu cầu.');
         if(timedOut&&call.stage==='send'&&!ns){ ns=true; call.stage='wait'; call.note='chế độ stream không phản hồi — chuyển sang chế độ chờ trọn gói…'; await wait(800); continue; }
-        if(timedOut&&(call.stage==='send'||ns)&&at<3){ tried.add(model); let l=GEM.models; if(!l.length){ try{ l=await listModels(key); }catch(x){ l=[]; } }
-          const nx=['gemini-2.5-flash'].concat(l).find(m=>!tried.has(m));
-          if(nx){ call.stage='wait'; call.note='model '+model+' không phản hồi — đang thử model '+nx+'…'; model=nx; switched=true; await wait(1500); continue; } }
+        if(timedOut&&(call.stage==='send'||ns)){ ns=false; if(await hop('không phản hồi',false)) continue; }
         if(timedOut) throw new Error('Gemini không phản hồi quá lâu. Hãy thử lại, hoặc giảm số trang/ảnh gửi lên.'); throw new Error('Mất kết nối khi gọi Gemini: '+(e.message||e)); }
       clearInterval(wd);
       if(res.ok){
         if(!res.text) throw new Error(res.block?'Gemini từ chối xử lý bài này ('+res.block+'). Hãy thử chụp lại ảnh rõ hơn.':'Gemini không trả về nội dung (lý do: '+(res.fin||'không rõ')+'). Hãy thử lại.');
         if(res.fin==='MAX_TOKENS') throw new Error('Kết quả quá dài nên bị cắt. Hãy thử lại hoặc chia nhỏ bài.');
-        if(switched){ lsSet('geoai_gmodel',model); toast('Model cũ phản hồi chậm, đã chuyển sang '+model,'ok'); } return res.text; }
+        if(switched){ if(persist) lsSet('geoai_gmodel',model); toast('Model trước không dùng được, đã tự chuyển sang '+model,'ok'); } return res.text; }
       const msg=(res.j&&res.j.error&&res.j.error.message)||'';
       if(res.status===400&&think&&/think/i.test(msg)){ think=false; continue; }
-      if(res.status===404&&!repicked){ repicked=true; try{ const l=await listModels(key); if(l.length){ model=l.find(x=>x===gemModel())||l[0]; lsSet('geoai_gmodel',model); continue; } }catch(e){} }
-      const busyHi=res.status===503||/high demand|overloaded|try again later|UNAVAILABLE/i.test(msg);
-      if(busyHi&&at<7){
-        ovl.add(model); let l=GEM.models; if(!l.length){ try{ l=await listModels(key); }catch(x){ l=[]; } }
-        const nx=['gemini-2.5-flash','gemini-2.0-flash','gemini-2.5-flash-lite'].concat(l).find(m=>!ovl.has(m));
-        if(nx){ call.stage='wait'; call.note='model '+model+' đang quá tải (nhiều người dùng) — chuyển sang '+nx+'…'; model=nx; await wait(2500); continue; }
-        ovl.clear(); call.stage='wait'; for(let s=15;s>0;s--){ if(call.stop) throw new Error('Đã dừng theo yêu cầu.'); call.note='tất cả model Gemini miễn phí đang quá tải — tự thử lại sau '+s+' giây…'; await wait(1000); } continue; }
-      if(res.status===429&&at<5&&!/per.?day|daily/i.test(msg)){
-        call.stage='wait'; for(let s=20*(at+1);s>0;s--){ if(call.stop) throw new Error('Đã dừng theo yêu cầu.'); call.note='đang vượt hạn mức miễn phí theo phút — tự thử lại sau '+s+' giây…'; await wait(1000); } continue; }
+      const gone=res.status===404||/no longer available|not found|is not supported/i.test(msg);
+      if(gone){ if(await hop('không còn khả dụng',true)) continue; }
+      const busyHi=res.status===503||res.status===500||/high demand|overloaded|try again later|UNAVAILABLE/i.test(msg);
+      if(busyHi){ if(await hop('đang quá tải',false)) continue; if(waits++<6){ await coolDown('tất cả model Gemini đang quá tải'); continue; } }
+      if(res.status===429){
+        const daily=/per.?day|daily/i.test(msg);
+        if(await hop(daily?'hết hạn mức trong ngày':'vượt hạn mức',false)) continue;
+        if(!daily&&waits++<5){ bad.clear(); call.stage='wait'; for(let s=20*waits;s>0;s--){ if(call.stop) throw new Error('Đã dừng theo yêu cầu.'); call.note='tất cả model đang vượt hạn mức theo phút — tự thử lại sau '+s+' giây…'; await wait(1000); } continue; } }
       throw new Error(errMsg(res.j,res.status)); }
     throw new Error('Không gọi được Gemini sau nhiều lần thử.');
   } finally{ call.done=true; } };
@@ -2183,7 +2188,7 @@ gCall=window.gCall=async function(content,system){
 window.gemSave=async function(){
   const nk=val('gKey2'), key=nk||gemKey(); if(!key){ toast('Hãy dán API key Gemini','err'); return; }
   const btn=$('#gemBtn'); if(btn) btn.disabled=true;
-  try{ const l=await listModels(key); let m=val('gModel2')||gemModel(); if(l.length&&!l.includes(m)) m=l.find(x=>x==='gemini-2.5-flash')||l[0];
+  try{ const l=await listModels(key); let m=val('gModel2')||gemModel(); if(l.length&&!l.includes(m)) m=l.find(x=>x===DEF)||l[0];
     lsSet('geoai_gkey',nk||lsGet('geoai_gkey')||(S.settings&&S.settings.geminiKey)||''); lsSet('geoai_gmodel',m);
     const sh=$('#gemShare'); if(isSA()&&sh){ if(sh.checked) await C('settings').doc('main').set({geminiKey:key,geminiModel:m},{merge:true}); else await C('settings').doc('main').update({geminiKey:FV.delete(),geminiModel:FV.delete()}); }
     sync(); toast('Key hợp lệ — đã lưu. Dùng model '+m,'ok'); }
