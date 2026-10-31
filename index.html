@@ -2538,7 +2538,7 @@ window.vGrade=function(){ let h=_vg3();
 const kqShell=inner=>{ document.body.classList.add('kq-body'); document.getElementById('app').innerHTML='<div class="kqpub">'+inner+'</div>'; };
 const kqHead=()=>'<div class="row" style="gap:12px;position:relative"><div class="kqlogo">'+((typeof BR!=='undefined'&&BR.logo)?'<img src="'+esc(BR.logo)+'" alt="">':'◎')+'</div><div class="kqcn">'+esc((typeof BR!=='undefined'&&BR.name)||'')+'</div></div>';
 function kqErr(t,m){ kqShell('<div class="kqerrc"><div style="font-size:42px">'+ic('alert',42)+'</div><h1>'+esc(t)+'</h1><div class="muted">'+esc(m||'')+'</div></div>'); }
-function kqShowResult(p,tok,back){ KQ.cur=p; KQ.tok=tok; document.title='Kết quả '+(p.name||'')+' · '+(p.title||'');
+async function kqShowResult(p,tok,back){ if(p.examCode){ try{ const nv=(await rdb.ref('pubexam/'+p.examCode+'/meta/note').get()).val(); if(nv!==null&&nv!==undefined) p.gn=nv; }catch(e){} } KQ.cur=p; KQ.tok=tok; document.title='Kết quả '+(p.name||'')+' · '+(p.title||'');
   kqShell('<div class="kqact kqnoprint">'+(back?'<button class="btn" onclick="kqBack()">← Tra cứu bạn khác</button>':'')+'<span class="grow"></span><button class="btn pri" onclick="kqPdf(KQ.cur,this)">'+ic('download',15)+' Tải PDF</button><button class="btn" onclick="window.print()">In</button><button class="btn" onclick="copyText(kqLink(KQ.tok))">'+ic('copy',14)+' Sao chép link</button></div>'+kqPage(p)); window.scrollTo(0,0); }
 async function kqBootResult(tok){ kqShell('<div class="kqload">Đang tải kết quả…</div>');
   try{ const p=(await rdb.ref('pubres/'+tok).get()).val(); if(!p) return kqErr('Không tìm thấy kết quả','Link có thể bị nhập sai hoặc đã được giáo viên thu hồi. Vui lòng liên hệ giáo viên.'); kqShowResult(p,tok,false); }
@@ -2609,7 +2609,7 @@ async function kqPublishTest(tid){ const t=S.tests[tid]; if(!t) return; const ti
     prep.forEach(({x,key,old})=>{ const tok=(x.detail&&x.r.pub&&x.r.pub.token)||old||kqTok(), pub=kqPubFor(t,x,code); if(x.detail) nd++; else nm++;
       up['pubres/'+tok]=pub; up['pubexam/'+code+'/idx/'+key]=tok; if(old&&old!==tok) up['pubres/'+old]=null;
       if(x.detail){ x.r.pub={token:tok,code,key,idx:true,ts:pub.ts}; dirty.push(x.r); } });
-    up['pubexam/'+code+'/meta/title']=title; up['pubexam/'+code+'/meta/center']=kqCenter(); up['pubexam/'+code+'/meta/date']=t.date||''; up['pubexam/'+code+'/meta/ts']=Date.now(); if(!m||m.open==null) up['pubexam/'+code+'/meta/open']=true;
+    up['pubexam/'+code+'/meta/title']=title; up['pubexam/'+code+'/meta/center']=kqCenter(); up['pubexam/'+code+'/meta/date']=t.date||''; up['pubexam/'+code+'/meta/note']=t.pubNote||''; up['pubexam/'+code+'/meta/ts']=Date.now(); if(!m||m.open==null) up['pubexam/'+code+'/meta/open']=true;
     await rdb.ref().update(up); if(dirty.length){ try{ await IDB.set('results',G.results); }catch(e){} } delete KQ.meta[code];
     toast('Đã công khai '+ok.length+' học sinh ('+nd+' có phiếu chi tiết AI, '+nm+' chỉ có điểm)'+(rows.length>ok.length?' · '+(rows.length-ok.length)+' HS thiếu thông tin':''),'ok');
     kqTestOpen(tid);
@@ -2620,7 +2620,7 @@ async function kqRevokeTest(tid){ const t=S.tests[tid]; if(!t||!t.pubCode) retur
     G.results.forEach(r=>{ if(r.pub&&r.pub.code===code) r.pub=null; }); up['pubexam/'+code+'/meta']=null; await rdb.ref().update(up); try{ await IDB.set('results',G.results); }catch(e){} delete KQ.meta[code];
     toast('Đã thu hồi','ok'); kqTestOpen(tid); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
 async function kqTestToggle(tid,open){ const t=S.tests[tid]; if(!t||!t.pubCode) return; try{ await rdb.ref('pubexam/'+t.pubCode+'/meta/open').set(!!open); delete KQ.meta[t.pubCode]; toast(open?'Đã mở tra cứu':'Đã đóng tra cứu','ok'); kqTestOpen(tid); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
-async function kqTestNote(tid,v){ try{ await C('tests').doc(tid).update({pubNote:String(v||'').trim()||FV.delete()}); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
+async function kqTestNote(tid,v){ try{ await C('tests').doc(tid).update({pubNote:String(v||'').trim()||FV.delete()}); const t0=S.tests[tid]; if(t0&&t0.pubCode&&(await rdb.ref('pubexam/'+t0.pubCode+'/meta/title').get()).exists()){ await rdb.ref('pubexam/'+t0.pubCode+'/meta/note').set(String(v||'').trim()); toast('Đã lưu — học sinh thấy ngay trên phiếu','ok'); } }catch(e){ toast('Lỗi: '+e.message,'err'); } }
 async function kqTestCopy(tid,sid){ const t=S.tests[tid], st=S.students[sid]; if(!t||!st||!t.pubCode){ toast('Chưa công khai điểm bài này','err'); return; }
   try{ const key=await kqKey(st.name,st.dob,st.school), tok=(await rdb.ref('pubexam/'+t.pubCode+'/idx/'+key).get()).val(); if(!tok){ toast('Học sinh này chưa được công khai — hãy bấm “Công khai điểm” trước','err'); return; } copyText(kqLink(tok)); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
 async function kqTestPdf(tid,sid,btn){ const t=S.tests[tid]; if(!t) return; const x=kqTestRows(t).find(r=>r.sid===sid); if(!x) return; await kqPdf(kqPubFor(t,x,t.pubCode||null),btn); }
