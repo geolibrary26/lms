@@ -1934,7 +1934,14 @@ const G_SYS='Bạn là giáo viên Địa lí chuyên giàu kinh nghiệm, chấ
 async function gExtract(){ if(!G.exam.barem.length){ toast('Hãy tải hướng dẫn chấm trước','err'); return; } G.busy='Đang phân tích hướng dẫn chấm…'; G.msg=''; render();
   try{ const c=[]; if(G.exam.de.length) c.push(...gBlocks(G.exam.de,'ĐỀ BÀI:')); c.push(...gBlocks(G.exam.barem,'HƯỚNG DẪN CHẤM:'));
     c.push({type:'text',text:'Chuyển TOÀN BỘ hướng dẫn chấm thành barem có cấu trúc, không bỏ sót câu/ý nào, tách tới từng gạch đầu dòng/ý nhỏ có điểm riêng (nếu barem chỉ ghi điểm chung cho một nhóm ý thì giữ nguyên thành một ý, không tự chia điểm). Giữ đúng điểm của hướng dẫn chấm. Tổng điểm đề là '+G.exam.maxScore+'. Mỗi "noi_dung" phải nêu cụ thể đáp án cần đạt (số liệu, địa danh, khái niệm, mức độ yêu cầu) để chấm không cần xem lại barem gốc. Ghi thêm "ghi_chu" nếu barem có quy định riêng (điểm tối đa nếu thiếu, cách trừ điểm, cho điểm ý khác). Trả về JSON: {"tong_diem":number,"cau":[{"id":"1","ten":"Câu 1 (tóm tắt)","y":[{"id":"1.1","noi_dung":"...","diem_toi_da":number,"ghi_chu":""}]}]}'});
-    const r=gJson(await gCall(c,G_SYS,8000)); r.cau=(r.cau||[]).map((x,i)=>({id:String(x.id||i+1).trim(),ten:x.ten||'',y:(x.y||[]).map((y,j)=>({id:String(y.id||(x.id+'.'+(j+1))).trim(),noi_dung:y.noi_dung||'',ghi_chu:y.ghi_chu||'',diem_toi_da:+y.diem_toi_da||0}))})); G.exam.rubric=r; G.exam.rubricOk=false; await gSaveExam(); toast('Đã phân tích xong — hãy kiểm tra barem rồi tick xác nhận','ok'); }
+    const raw=await gCall(c,G_SYS,8000); let r=gJson(raw);
+    const arr=x=>Array.isArray(x)?x:null;
+    let cs=arr(r.cau)||arr(r.câu)||arr(r.cau_hoi)||arr(r.questions)||arr(r.barem)||arr(r.data)||arr(r.items)||(()=>{ for(const k in r){ if(arr(r[k])&&r[k].length&&typeof r[k][0]==='object') return r[k]; } return null; })()||(arr(r)?r:null);
+    if(!cs&&r&&typeof r==='object'){ const o=Object.values(r).find(v=>v&&typeof v==='object'&&arr(v.cau)); if(o) cs=o.cau; }
+    cs=(cs||[]).map((x,i)=>{ if(!x.y){ const yy=arr(x.ys)||arr(x.cac_y)||arr(x.y_chinh)||arr(x.noi_dung_y)||arr(x.parts)||arr(x.items)||arr(x.y_nho); if(yy) x.y=yy; else if(x.noi_dung||x.diem_toi_da!=null||x.diem!=null) x.y=[{id:x.id,noi_dung:x.noi_dung||x.ten,diem_toi_da:x.diem_toi_da!=null?x.diem_toi_da:x.diem,ghi_chu:x.ghi_chu}]; } return x; });
+    r.cau=cs;
+    if(!r.cau.length||!r.cau.some(x=>(x.y||[]).length)) throw new Error('AI chưa tách được barem (kết quả rỗng). Hãy bấm “Phân tích barem” lần nữa; nếu vẫn lỗi, tải lại ảnh hướng dẫn chấm rõ hơn (chụp thẳng, đủ sáng, từng trang riêng) hoặc dùng file PDF.');
+    r.cau=(r.cau||[]).map((x,i)=>({id:String(x.id||i+1).trim(),ten:x.ten||'',y:(x.y||[]).map((y,j)=>({id:String(y.id||(x.id+'.'+(j+1))).trim(),noi_dung:y.noi_dung||'',ghi_chu:y.ghi_chu||'',diem_toi_da:+y.diem_toi_da||0}))})); if(!r.cau.some(c=>c.y.some(y=>y.diem_toi_da>0))) throw new Error('AI trả về barem nhưng không có điểm cho từng ý. Hãy bấm phân tích lại.'); G.exam.rubric=r; G.exam.rubricOk=false; await gSaveExam(); toast('Đã phân tích xong — hãy kiểm tra barem rồi tick xác nhận','ok'); }
   catch(e){ G.msg=e.message||String(e); } G.busy=''; render(); }
 function gRub(ci,yi,f,v){ const y=G.exam.rubric.cau[ci].y[yi]; y[f]=f==='diem_toi_da'?(parseFloat(v)||0):v; G.exam.rubricOk=false; gSaveExam(); render(); }
 function gRubOk(v){ G.exam.rubricOk=v; gSaveExam(); render(); }
@@ -2119,7 +2126,7 @@ gCall=window.gCall=async function(content,system){
   PG.calls=PG.calls.filter(c=>!c.done); PG.calls.push(call);
   let model=gemModel(), repicked=false, think=true, switched=false, ns=false; const tried=new Set();
   const mk=()=>{ const gc={maxOutputTokens:24000,temperature:0.2,responseMimeType:'application/json'};
-    if(think){ if(/gemini-2\.5/.test(model)) gc.thinkingConfig={thinkingBudget:kind==='grade'?4096:0}; else if(/gemini-[3-9]/.test(model)) gc.thinkingConfig={thinkingLevel:kind==='grade'?'low':'minimal'}; }
+    if(think){ if(/gemini-2\.5/.test(model)) gc.thinkingConfig={thinkingBudget:kind==='grade'?4096:kind==='extract'?2048:0}; else if(/gemini-[3-9]/.test(model)) gc.thinkingConfig={thinkingLevel:kind==='grade'?'low':'minimal'}; }
     return JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:parts}],generationConfig:gc}); };
   try{
     for(let at=0;at<4;at++){
