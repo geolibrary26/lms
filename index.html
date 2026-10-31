@@ -2325,9 +2325,9 @@ window.vGrade=vGrade=function(){ sync(); let h=_vg(); const key='<div class="car
 .kqy{border:1px solid #e3eaef;border-left:5px solid #d97706;border-radius:12px;padding:11px 14px;background:#fcfdfd}
 .kqy.ok{border-left-color:#16a34a;background:#f6fdf8}
 .kqy.lo{border-left-color:#dc2626;background:#fff8f8}
-.kqyh{display:flex;gap:10px;align-items:flex-start}
+.kqyh{display:flex;gap:10px;align-items:center;justify-content:space-between}
 .kqid{background:#0b2b2a;color:#fff;border-radius:7px;padding:1px 8px;font-size:12px;font-weight:800;flex:none;margin-top:1px}
-.kqnd{flex:1;font-weight:600;font-size:13.5px;min-width:0;word-break:break-word}
+.kqnd{font-weight:600;font-size:13.5px;line-height:1.55;margin-top:8px;min-width:0;overflow-wrap:anywhere;word-break:break-word}
 .kqsc{font-size:13px;color:#5b6b7a;white-space:nowrap;font-weight:600}
 .kqsc b{font-size:18px;color:#0f1f2e;font-weight:800}
 .kqy.ok .kqsc b{color:#15803d}.kqy.lo .kqsc b{color:#b91c1c}
@@ -2391,12 +2391,12 @@ function kqBlocks(p){
     '<div class="kqtt">'+esc(p.title||'Bài kiểm tra')+'</div><div class="kqh2">'+(p.date?'<span class="kqchip">Ngày kiểm tra: '+esc(fmtD(p.date))+'</span>':'')+(p.cls?'<span class="kqchip">Lớp '+esc(p.cls)+'</span>':'')+(p.ma?'<span class="kqchip">Mã đề '+esc(p.ma)+'</span>':'')+'</div></section>');
   const info=[['Họ và tên',p.name],['Ngày sinh',p.dob],['Trường',p.school],['Lớp',p.cls]].filter(x=>x[1]);
   B.push('<section class="kqb kqsum"><div class="kqinfo">'+info.map(x=>'<div><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></div>').join('')+
-    ((p.scale&&+p.scale!==+p.max&&p.max)?'<div class="kqscale">Quy đổi theo thang '+fmtN(p.scale)+': <b>'+fmtN(p.tong/p.max*p.scale)+' điểm</b></div>':'')+'</div>'+
+    ((p.scale&&+p.scale!==+p.max&&p.max)?'<div class="kqscale">Quy đổi theo thang '+fmtN(p.scale)+': <b>'+fmtN(p.tong/p.max*p.scale)+' điểm</b></div>':'')+(p.avg!=null?'<div class="kqscale kqavg">Điểm trung bình của lớp: <b>'+fmtN(p.avg)+'</b> / '+fmtN(p.avgMax||p.scale||p.max)+(p.avgN?' ('+p.avgN+' học sinh)':'')+'</div>':'')+'</div>'+
     '<div class="kqring"><svg viewBox="0 0 120 120" width="132" height="132"><circle cx="60" cy="60" r="50" fill="none" stroke="#e3efed" stroke-width="11"/><circle cx="60" cy="60" r="50" fill="none" stroke="'+col+'" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+(Math.min(100,pct)/100*314.16).toFixed(1)+' 314.16" transform="rotate(-90 60 60)"/></svg>'+
     '<div class="kqrc"><b style="color:'+col+'">'+fmtN(p.tong)+'</b><span>/ '+fmtN(p.max)+' điểm</span></div></div></section>');
   cau.forEach((c,ci)=>{ const ys=arr(c.y), cp=c.max?Math.min(100,c.diem/c.max*100):0, bc=cp>=99.9?'#16a34a':cp<=0?'#dc2626':'#d97706';
     const head='<div class="kqch">'+(ci===0?'<div class="kqsec">Chi tiết từng câu, từng ý</div>':'')+'<div class="kqch1"><b>'+esc(c.ten||('Câu '+c.id))+'</b><span class="kqpill">'+fmtN(c.diem)+' / '+fmtN(c.max)+'</span></div><div class="kqpb"><i style="width:'+cp+'%;background:'+bc+'"></i></div></div>';
-    const yh=y=>{ const k=y.diem>=y.max?'ok':(y.diem<=0?'lo':'mid'); return '<div class="kqy '+k+'"><div class="kqyh"><span class="kqid">'+esc(y.id)+'</span><div class="kqnd">'+esc(y.nd)+'</div><div class="kqsc"><b>'+fmtN(y.diem)+'</b> / '+fmtN(y.max)+'</div></div>'+
+    const yh=y=>{ const k=y.diem>=y.max?'ok':(y.diem<=0?'lo':'mid'); return '<div class="kqy '+k+'"><div class="kqyh"><span class="kqid">Ý '+esc(y.id)+'</span><div class="kqsc"><b>'+fmtN(y.diem)+'</b> / '+fmtN(y.max)+'</div></div><div class="kqnd">'+esc(y.nd)+'</div>'+
       (y.ok?'<div class="kqok">✓ '+nl(y.ok)+'</div>':'')+(y.lose?'<div class="kqlose">✗ Mất điểm: '+nl(y.lose)+'</div>':'')+'</div>'; };
     if(!ys.length) B.push('<section class="kqb">'+head+'</section>');
     ys.forEach((y,yi)=>B.push('<section class="kqb">'+(yi===0?head:'')+yh(y)+'</section>'));
@@ -2405,7 +2405,7 @@ function kqBlocks(p){
   if(p.gn) B.push('<section class="kqb" style="padding-top:6px"><div class="kqbox" style="background:#fffbeb;border-color:#f3e2b3"><div class="kqbt" style="color:#b45309">Nhận xét chung / Lời nhắn của giáo viên</div><div>'+nl(p.gn)+'</div></div></section>');
   const g=arr(p.manh), r=arr(p.cai);
   if(g.length||r.length) B.push('<section class="kqb" style="padding-top:6px"><div class="kq2"><div class="kqbox kqg"><div class="kqbt">Điểm mạnh</div>'+(g.length?g.map(x=>'<div class="kqli"><span>'+esc(x)+'</span></div>').join(''):'<div class="muted">—</div>')+'</div><div class="kqbox kqr"><div class="kqbt" style="color:#b91c1c">Cần cải thiện</div>'+(r.length?r.map(x=>'<div class="kqli"><span>'+esc(x)+'</span></div>').join(''):'<div class="muted">—</div>')+'</div></div></section>');
-  B.push('<section class="kqb kqnote">'+(p.manual?'Kết quả do giáo viên chấm':'Kết quả được chấm với sự hỗ trợ của AI theo barem của giáo viên')+' · Cập nhật '+kqWhen(p.ts)+'. Mọi thắc mắc về điểm số, em vui lòng liên hệ giáo viên'+(p.center?' — '+esc(p.center):'')+'.</section>');
+  B.push('<section class="kqb kqnote">'+'Cập nhật '+kqWhen(p.ts)+'. Mọi thắc mắc về điểm số, em vui lòng liên hệ giáo viên'+(p.center?' — '+esc(p.center):'')+'.</section>');
   return B;
 }
 const kqPage=p=>'<div class="kq kq-web">'+kqBlocks(p).join('')+'</div>';
@@ -2538,7 +2538,7 @@ window.vGrade=function(){ let h=_vg3();
 const kqShell=inner=>{ document.body.classList.add('kq-body'); document.getElementById('app').innerHTML='<div class="kqpub">'+inner+'</div>'; };
 const kqHead=()=>'<div class="row" style="gap:12px;position:relative"><div class="kqlogo">'+((typeof BR!=='undefined'&&BR.logo)?'<img src="'+esc(BR.logo)+'" alt="">':'◎')+'</div><div class="kqcn">'+esc((typeof BR!=='undefined'&&BR.name)||'')+'</div></div>';
 function kqErr(t,m){ kqShell('<div class="kqerrc"><div style="font-size:42px">'+ic('alert',42)+'</div><h1>'+esc(t)+'</h1><div class="muted">'+esc(m||'')+'</div></div>'); }
-async function kqShowResult(p,tok,back){ if(p.examCode){ try{ const nv=(await rdb.ref('pubexam/'+p.examCode+'/meta/note').get()).val(); if(nv!==null&&nv!==undefined) p.gn=nv; }catch(e){} } KQ.cur=p; KQ.tok=tok; document.title='Kết quả '+(p.name||'')+' · '+(p.title||'');
+async function kqShowResult(p,tok,back){ if(p.examCode){ try{ const mv=(await rdb.ref('pubexam/'+p.examCode+'/meta').get()).val()||{}; if(mv.note!==undefined&&mv.note!==null) p.gn=mv.note; if(mv.avg!=null){ p.avg=+mv.avg; p.avgMax=+mv.max||0; p.avgN=+mv.n||0; } }catch(e){} } KQ.cur=p; KQ.tok=tok; document.title='Kết quả '+(p.name||'')+' · '+(p.title||'');
   kqShell('<div class="kqact kqnoprint">'+(back?'<button class="btn" onclick="kqBack()">← Tra cứu bạn khác</button>':'')+'<span class="grow"></span><button class="btn pri" onclick="kqPdf(KQ.cur,this)">'+ic('download',15)+' Tải PDF</button><button class="btn" onclick="window.print()">In</button><button class="btn" onclick="copyText(kqLink(KQ.tok))">'+ic('copy',14)+' Sao chép link</button></div>'+kqPage(p)); window.scrollTo(0,0); }
 async function kqBootResult(tok){ kqShell('<div class="kqload">Đang tải kết quả…</div>');
   try{ const p=(await rdb.ref('pubres/'+tok).get()).val(); if(!p) return kqErr('Không tìm thấy kết quả','Link có thể bị nhập sai hoặc đã được giáo viên thu hồi. Vui lòng liên hệ giáo viên.'); kqShowResult(p,tok,false); }
@@ -2609,7 +2609,7 @@ async function kqPublishTest(tid){ const t=S.tests[tid]; if(!t) return; const ti
     prep.forEach(({x,key,old})=>{ const tok=(x.detail&&x.r.pub&&x.r.pub.token)||old||kqTok(), pub=kqPubFor(t,x,code); if(x.detail) nd++; else nm++;
       up['pubres/'+tok]=pub; up['pubexam/'+code+'/idx/'+key]=tok; if(old&&old!==tok) up['pubres/'+old]=null;
       if(x.detail){ x.r.pub={token:tok,code,key,idx:true,ts:pub.ts}; dirty.push(x.r); } });
-    up['pubexam/'+code+'/meta/title']=title; up['pubexam/'+code+'/meta/center']=kqCenter(); up['pubexam/'+code+'/meta/date']=t.date||''; up['pubexam/'+code+'/meta/note']=t.pubNote||''; up['pubexam/'+code+'/meta/ts']=Date.now(); if(!m||m.open==null) up['pubexam/'+code+'/meta/open']=true;
+    up['pubexam/'+code+'/meta/title']=title; up['pubexam/'+code+'/meta/center']=kqCenter(); up['pubexam/'+code+'/meta/date']=t.date||''; up['pubexam/'+code+'/meta/note']=t.pubNote||''; { const a0=kqAvgOf(t); up['pubexam/'+code+'/meta/avg']=a0?a0.avg:null; up['pubexam/'+code+'/meta/n']=a0?a0.n:null; up['pubexam/'+code+'/meta/max']=+t.max||10; } up['pubexam/'+code+'/meta/ts']=Date.now(); if(!m||m.open==null) up['pubexam/'+code+'/meta/open']=true;
     await rdb.ref().update(up); if(dirty.length){ try{ await IDB.set('results',G.results); }catch(e){} } delete KQ.meta[code];
     toast('Đã công khai '+ok.length+' học sinh ('+nd+' có phiếu chi tiết AI, '+nm+' chỉ có điểm)'+(rows.length>ok.length?' · '+(rows.length-ok.length)+' HS thiếu thông tin':''),'ok');
     kqTestOpen(tid);
@@ -2643,13 +2643,15 @@ async function kqSaveNx(tid,sid){ const t=S.tests[tid], x=t&&kqTestRows(t).find(
     else { const cm={nx:g('nxT'),manh:lines(g('nxM')),cai:lines(g('nxC'))}, empty=!cm.nx&&!cm.manh.length&&!cm.cai.length; await C('tests').doc(tid).update({['comments.'+sid]:empty?FV.delete():cm}); t3=Object.assign({},t,{comments:Object.assign({},t.comments||{},{[sid]:empty?undefined:cm})}); }
     let upd=false; if(t.pubCode&&x.okInfo){ const key=await kqKey(x.st.name,x.st.dob,x.st.school), old=(await rdb.ref('pubexam/'+t.pubCode+'/idx/'+key).get()).val(); if(old){ const x2=kqTestRows(t3).find(r=>r.sid===sid); await rdb.ref('pubres/'+old).set(kqPubFor(t3,x2,t.pubCode)); upd=true; } }
     toast('Đã lưu nhận xét'+(upd?' và cập nhật phiếu của học sinh':''),'ok'); kqTestOpen(tid); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
+function kqAvgOf(t){ const v=Object.values(t.scores||{}).filter(x=>x!==null&&x!==undefined&&x!==''&&!isNaN(+x)).map(Number); return v.length?{avg:rd2(v.reduce((a,b)=>a+b,0)/v.length),n:v.length}:null; }
+async function kqSyncAvg(tid){ const t=S.tests[tid]; if(!t||!t.pubCode) return; try{ if(!(await rdb.ref('pubexam/'+t.pubCode+'/meta/title').get()).exists()) return; const a=kqAvgOf(t), b='pubexam/'+t.pubCode+'/meta/'; await rdb.ref().update({[b+'avg']:a?a.avg:null,[b+'n']:a?a.n:null,[b+'max']:+t.max||10}); }catch(e){} }
 async function kqSetCmt(tid,sid,patch){ const t=S.tests[tid], cm=Object.assign({},(t.comments&&t.comments[sid])||{},patch), empty=!cm.nx&&!arr(cm.manh).length&&!arr(cm.cai).length;
   await C('tests').doc(tid).update({['comments.'+sid]:empty?FV.delete():cm}); const t3=Object.assign({},t,{comments:Object.assign({},t.comments||{},{[sid]:empty?undefined:cm})}), x=kqTestRows(t3).find(r=>r.sid===sid);
   if(t.pubCode&&x&&x.okInfo){ const key=await kqKey(x.st.name,x.st.dob,x.st.school), old=(await rdb.ref('pubexam/'+t.pubCode+'/idx/'+key).get()).val(); if(old){ await rdb.ref('pubres/'+old).set(kqPubFor(t3,x,t.pubCode)); return true; } } return false; }
 function kqCmt(tid,sid){ const t=S.tests[tid], st=S.students[sid]; if(!t||!st) return; const cm=(t.comments&&t.comments[sid])||{}, sc=(t.scores||{})[sid];
   modal('Nhận xét — '+esc(st.name),'<div class="small muted mb12">'+esc(t.title)+' · '+(sc!=null?'điểm '+sc+'/'+(t.max||10):'chưa có điểm')+(cm.src==='ai'?' · nhận xét do AI chấm (sửa được)':'')+'</div><div class="field"><label>Nhận xét cá nhân của '+esc(st.name)+'</label><textarea class="inp" rows="6" id="cmT" placeholder="Nhập nhận xét riêng cho học sinh…">'+esc(cm.nx||'')+'</textarea></div><div class="field"><label>Nhận xét chung / Lời nhắn cho cả lớp (bài này — dùng chung mọi học sinh)</label><textarea class="inp" rows="3" id="cmG" placeholder="VD: Điểm đã làm tròn đến 0,25. Em thắc mắc xin liên hệ giáo viên.">'+esc(t.pubNote||'')+'</textarea></div>'+(t.pubCode?'<div class="small muted mt8">Bài này đã có link tra cứu: lưu sẽ cập nhật luôn phiếu của học sinh nếu đã công khai.</div>':'<div class="small muted mt8">Nhận xét sẽ hiện kèm điểm khi bạn công khai điểm bài này.</div>'),'<button class="btn" onclick="closeModal()">Huỷ</button><button class="btn pri" onclick="kqCmtSave(\''+tid+'\',\''+sid+'\')">Lưu</button>',true); setTimeout(()=>{ const e=document.getElementById('cmT'); if(e) e.focus(); },60); }
 async function kqCmtSave(tid,sid){ const e=document.getElementById('cmT'); if(!e) return; try{ const g=document.getElementById('cmG'); if(g&&g.value.trim()!==(S.tests[tid].pubNote||'')) await kqTestNote(tid,g.value); const upd=await kqSetCmt(tid,sid,{nx:e.value.trim(),src:'gv'}); closeModal(); toast('Đã lưu nhận xét'+(upd?' và cập nhật phiếu của học sinh':''),'ok'); if(S.view==='scores') render(); }catch(x){ toast('Lỗi: '+x.message,'err'); } }
-Object.assign(window,{kqCmt,kqCmtSave,kqScoresCard,kqEditNx,kqSaveNx,kqTestOpen,kqPublishTest,kqRevokeTest,kqTestToggle,kqTestNote,kqTestCopy,kqTestPdf,kqPdf,kqPdfRec,kqPreview,kqShare,kqRevoke,kqPublishAll,kqToggleOpen,kqSetCode,kqSearch,kqDobMask,kqBack,kqLink});
+Object.assign(window,{kqSyncAvg,kqCmt,kqCmtSave,kqScoresCard,kqEditNx,kqSaveNx,kqTestOpen,kqPublishTest,kqRevokeTest,kqTestToggle,kqTestNote,kqTestCopy,kqTestPdf,kqPdf,kqPdfRec,kqPreview,kqShare,kqRevoke,kqPublishAll,kqToggleOpen,kqSetCode,kqSearch,kqDobMask,kqBack,kqLink});
 })();
 </script>
 <script>
@@ -2813,6 +2815,9 @@ window.vScores=function(){ return vScores2()+kqScoresCard(); };
 const _gs9=window.gSave;
 window.gSave=async function(){ const rs=await _gs9.apply(this,arguments); try{ const r=G.res, sid=G.cur.sid, cid=G.exam.classId, title=(G.exam.title||'').trim(), t=r&&sid&&Object.values(S.tests).find(x=>x.classId===cid&&x.title===title);
   if(t&&t.scores&&t.scores[sid]!=null){ const ex=(t.comments&&t.comments[sid])||{}; if(!ex.nx||ex.src==='ai') await C('tests').doc(t.id).update({['comments.'+sid]:{nx:r.nhan_xet_chung||'',manh:r.diem_manh||[],cai:r.can_cai_thien||[],src:'ai'}}); } }catch(e){} return rs; };
+</script>
+<script>
+const _ss9=window.saveScore; if(_ss9) window.saveScore=async function(tid){ const r=await _ss9.apply(this,arguments); setTimeout(()=>{ try{ window.kqSyncAvg&&kqSyncAvg(tid); }catch(e){} },700); return r; };
 </script>
 </body>
 
