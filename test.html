@@ -2067,27 +2067,70 @@ async function listModels(key){
   l.sort((a,b)=>(/preview/.test(a)-/preview/.test(b))||ver(b)-ver(a)||a.localeCompare(b));
   GEM.models=l; GEM.checked=true; return l; }
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
+/* ---- tiến độ hiển thị khi AI đang chạy ---- */
+const PG={calls:[],T0:0};
+const fmtT=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+const KIND={extract:['Đọc đề & barem',7000],read:['Đọc bài làm',6000],grade:['Chấm điểm',5000]};
+const kindOf=c=>{ const t=c.filter(b=>b.type==='text').map(b=>b.text).join('\n'); return /Chuyển TOÀN BỘ hướng dẫn chấm/.test(t)?'extract':/Nhiệm vụ: \(1\) đọc thông tin/.test(t)?'read':'grade'; };
+window.gemAbort=function(){ PG.calls.forEach(c=>{ c.stop=true; try{ c.ctl&&c.ctl.abort(); }catch(e){} }); toast('Đang dừng…'); };
+setInterval(()=>{
+  if(!G.busy){ PG.T0=0; return; } if(!PG.T0) PG.T0=Date.now();
+  const d=document.getElementById('gBusyD'), bar=document.getElementById('gBusyB'); if(!d) return;
+  const now=Date.now(), tot=(now-PG.T0)/1000, act=PG.calls.filter(c=>!c.done), lines=[], pc=[];
+  act.forEach((c,i)=>{ const s=(now-c.t0)/1000, pre=(act.length>1?'Lượt '+(i+1)+' · ':'')+KIND[c.kind][0]+': '; let t,p;
+    if(c.stage==='send'){ t='đang gửi '+c.size+' MB lên Gemini…'; p=3; }
+    else if(c.stage==='think'){ t='Gemini đang đọc và suy nghĩ… '+Math.round(s)+' giây'+(s>45?' (dữ liệu lớn nên lâu hơn bình thường, bạn cứ chờ)':''); p=Math.min(30,5+s*0.5); }
+    else if(c.stage==='write'){ t='Gemini đang viết kết quả — đã nhận '+c.chars.toLocaleString('vi-VN')+' ký tự'; p=30+Math.min(65,c.chars/c.exp*65); }
+    else { t=c.note||'đang chờ…'; p=5; }
+    lines.push(esc(pre+t)); pc.push(p); });
+  if(!act.length){ lines.push('Đang xử lý kết quả…'); pc.push(97); }
+  d.innerHTML=lines.join('<br>')+'<br><span style="opacity:.75">Tổng thời gian: '+fmtT(tot)+'</span>';
+  if(bar) bar.style.width=Math.round(pc.reduce((x,y)=>x+y,0)/pc.length)+'%';
+},400);
+/* ---- đọc luồng trả về của Gemini (SSE) ---- */
+async function streamGem(model,key,body,call,ctl){
+  const r=await fetch(BASE+'/models/'+model+':streamGenerateContent?alt=sse&key='+encodeURIComponent(key),{method:'POST',headers:{'content-type':'application/json'},body:body,signal:ctl.signal});
+  if(!r.ok){ const j=await r.json().catch(()=>({})); return {ok:false,status:r.status,j:j}; }
+  call.stage='think'; call.last=Date.now(); call.t0=Date.now();
+  const rd=r.body.getReader(), dec=new TextDecoder(); let buf='',text='',fin='',block='';
+  for(;;){ const o=await rd.read(); if(o.done) break; call.last=Date.now(); buf+=dec.decode(o.value,{stream:true}); let i;
+    while((i=buf.indexOf('\n'))>=0){ const line=buf.slice(0,i).replace(/\r$/,''); buf=buf.slice(i+1); if(line.indexOf('data:')!==0) continue; const s=line.slice(5).trim(); if(!s||s==='[DONE]') continue;
+      let j; try{ j=JSON.parse(s); }catch(e){ continue; }
+      if(j.error) return {ok:false,status:j.error.code||500,j:j};
+      if(j.promptFeedback&&j.promptFeedback.blockReason) block=j.promptFeedback.blockReason;
+      const c=(j.candidates||[])[0]; if(c){ ((c.content&&c.content.parts)||[]).forEach(p=>{ if(p.text&&!p.thought){ text+=p.text; call.stage='write'; call.chars=text.length; } }); if(c.finishReason) fin=c.finishReason; } } }
+  return {ok:true,text:text,fin:fin,block:block}; }
 /* ---- gọi Gemini thay cho Claude ---- */
 gCall=window.gCall=async function(content,system){
   const key=gemKey(); if(!key) throw new Error('Chưa có API key Gemini miễn phí. Vào mục “Cấu hình AI” ở cuối trang Chấm bài AI để dán key (lấy miễn phí tại aistudio.google.com/apikey).');
-  const parts=content.map(b=>b.type==='text'?{text:b.text}:(b.type==='image'||b.type==='document')?{inlineData:{mimeType:b.source.media_type,data:b.source.data}}:null).filter(Boolean);
-  let model=gemModel(), repicked=false;
-  for(let at=0;at<4;at++){
-    const r=await fetch(BASE+'/models/'+model+':generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts}],generationConfig:{maxOutputTokens:24000,temperature:0.2,responseMimeType:'application/json'}})});
-    const j=await r.json().catch(()=>({}));
-    if(r.ok){
-      const c=(j.candidates||[])[0];
-      if(!c){ throw new Error('Gemini từ chối xử lý bài này'+(j.promptFeedback&&j.promptFeedback.blockReason?' ('+j.promptFeedback.blockReason+')':'')+'. Hãy thử chụp lại ảnh rõ hơn.'); }
-      const t=((c.content&&c.content.parts)||[]).filter(p=>!p.thought&&p.text).map(p=>p.text).join('');
-      if(!t) throw new Error('Gemini không trả về nội dung (lý do: '+(c.finishReason||'không rõ')+'). Hãy thử lại.');
-      if(c.finishReason==='MAX_TOKENS') throw new Error('Kết quả quá dài nên bị cắt. Hãy thử lại hoặc chia nhỏ bài.');
-      return t; }
-    if(r.status===404&&!repicked){ repicked=true; try{ const l=await listModels(key); if(l.length){ model=l.find(x=>x===gemModel())||l[0]; lsSet('geoai_gmodel',model); continue; } }catch(e){} }
-    if((r.status===429||r.status===503)&&at<3&&!/per.?day|daily/i.test((j.error&&j.error.message)||'')){
-      const sec=20*(at+1); for(let s=sec;s>0;s--){ G.busy='Hạn mức miễn phí theo phút — tự thử lại sau '+s+' giây…'; render(); await wait(1000); } continue; }
-    throw new Error(errMsg(j,r.status)); }
-  throw new Error('Không gọi được Gemini sau nhiều lần thử.'); };
+  const kind=kindOf(content), parts=content.map(b=>b.type==='text'?{text:b.text}:(b.type==='image'||b.type==='document')?{inlineData:{mimeType:b.source.media_type,data:b.source.data}}:null).filter(Boolean);
+  const call={kind:kind,stage:'send',chars:0,exp:KIND[kind][1],size:'0',t0:Date.now(),last:Date.now(),note:'',done:false,stop:false,ctl:null};
+  PG.calls=PG.calls.filter(c=>!c.done); PG.calls.push(call);
+  let model=gemModel(), repicked=false, think=true;
+  const mk=()=>{ const gc={maxOutputTokens:24000,temperature:0.2,responseMimeType:'application/json'};
+    if(think){ if(/gemini-2\.5/.test(model)) gc.thinkingConfig={thinkingBudget:kind==='grade'?4096:0}; else if(/gemini-[3-9]/.test(model)) gc.thinkingConfig={thinkingLevel:kind==='grade'?'low':'minimal'}; }
+    return JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:parts}],generationConfig:gc}); };
+  try{
+    for(let at=0;at<4;at++){
+      const body=mk(); call.size=(body.length/1048576).toFixed(1); call.stage='send'; call.chars=0; call.t0=Date.now(); call.last=Date.now();
+      const ctl=new AbortController(); call.ctl=ctl; let timedOut=false;
+      const wd=setInterval(()=>{ if(Date.now()-call.last>(call.stage==='write'?60000:180000)){ timedOut=true; ctl.abort(); } },2000);
+      let res;
+      try{ res=await streamGem(model,key,body,call,ctl); }
+      catch(e){ clearInterval(wd); if(call.stop) throw new Error('Đã dừng theo yêu cầu.'); if(timedOut) throw new Error('Gemini không phản hồi quá lâu. Hãy thử lại, hoặc giảm số trang/ảnh gửi lên.'); throw new Error('Mất kết nối khi gọi Gemini: '+(e.message||e)); }
+      clearInterval(wd);
+      if(res.ok){
+        if(!res.text) throw new Error(res.block?'Gemini từ chối xử lý bài này ('+res.block+'). Hãy thử chụp lại ảnh rõ hơn.':'Gemini không trả về nội dung (lý do: '+(res.fin||'không rõ')+'). Hãy thử lại.');
+        if(res.fin==='MAX_TOKENS') throw new Error('Kết quả quá dài nên bị cắt. Hãy thử lại hoặc chia nhỏ bài.');
+        return res.text; }
+      const msg=(res.j&&res.j.error&&res.j.error.message)||'';
+      if(res.status===400&&think&&/think/i.test(msg)){ think=false; continue; }
+      if(res.status===404&&!repicked){ repicked=true; try{ const l=await listModels(key); if(l.length){ model=l.find(x=>x===gemModel())||l[0]; lsSet('geoai_gmodel',model); continue; } }catch(e){} }
+      if((res.status===429||res.status===503)&&at<3&&!/per.?day|daily/i.test(msg)){
+        call.stage='wait'; for(let s=20*(at+1);s>0;s--){ if(call.stop) throw new Error('Đã dừng theo yêu cầu.'); call.note='đang vượt hạn mức miễn phí theo phút — tự thử lại sau '+s+' giây…'; await wait(1000); } continue; }
+      throw new Error(errMsg(res.j,res.status)); }
+    throw new Error('Không gọi được Gemini sau nhiều lần thử.');
+  } finally{ call.done=true; } };
 /* ---- lưu cấu hình ---- */
 window.gemSave=async function(){
   const nk=val('gKey2'), key=nk||gemKey(); if(!key){ toast('Hãy dán API key Gemini','err'); return; }
@@ -2118,6 +2161,7 @@ const _vg=vGrade;
 G.dual=false;
 window.vGrade=vGrade=function(){ sync(); let h=_vg(); const key='<div class="card"><div class="b mb12">Cấu hình AI</div>', i=h.lastIndexOf(key);
   if(i>=0) h=h.slice(0,i)+card()+'</div>';
+  h=h.replace('<div class="card mb12"><span class="gspin"></span><b>','<div class="card mb12" style="position:sticky;top:70px;z-index:25"><span class="gspin"></span><b>').replace(/(<span class="gspin"><\/span><b>[^<]*<\/b>)<\/div>/,'$1<div id="gBusyD" class="small mt8" style="color:var(--soft);line-height:1.6"></div><div class="bar mt8"><div id="gBusyB" style="width:3%"></div></div><button class="btn sm red mt8" onclick="gemAbort()">Dừng</button></div>');
   return h.replace(/Chưa cấu hình AI\. Superadmin cần dán link máy chủ trung gian ở mục “Cấu hình AI” bên dưới\./,'Chưa có API key Gemini miễn phí — làm theo 3 bước ở mục “Cấu hình AI” bên dưới (mất ~1 phút).'); };
 })();
 </script>
