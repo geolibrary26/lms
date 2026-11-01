@@ -3207,7 +3207,7 @@ function appScoreMap(){
           if(P.manh&&P.manh.length) r.mh=P.manh.slice(0,10).map(v=>String(v).slice(0,400)); if(P.cai&&P.cai.length) r.ci=P.cai.slice(0,10).map(v=>String(v).slice(0,400));
           if(P.cau&&P.cau.length) r.cau=P.cau.map(c=>({i:c.id,t:String(c.ten||'').slice(0,120),d:c.diem,m:c.max,y:(c.y||[]).map(y=>({i:y.id,n:String(y.nd||'').slice(0,700),d:y.diem,m:y.max,o:String(y.ok||'').slice(0,600),l:String(y.lose||'').slice(0,600)}))})); }
         else if(cm){ if(cm.manh&&cm.manh.length) r.mh=cm.manh.slice(0,10).map(v=>String(v).slice(0,400)); if(cm.cai&&cm.cai.length) r.ci=cm.cai.slice(0,10).map(v=>String(v).slice(0,400)); } }catch(e){}
-      if(t.pubNote) r.g=String(t.pubNote).slice(0,1000);
+      if(t.pubNote) r.g=String(t.pubNote).slice(0,1000); if(t.pubCode) r.pc=t.pubCode;
       out[sid+'/'+t.id]=r;
     });
   });
