@@ -341,7 +341,7 @@ const firebaseConfig = {
   measurementId: "G-8EKD60ETS9",
   databaseURL: "https://csdl-dl-nthh-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
-firebase.initializeApp(firebaseConfig);
+const fbApp=firebase.initializeApp(firebaseConfig,'lms'); /* tên app riêng: tách phiên đăng nhập khỏi app học sinh (cùng domain github.io) */
 const ICX = {
   video:`<path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>`,
   users:`<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
@@ -423,7 +423,7 @@ arrowL:`<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"
 arrowR:`<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
 frown:`<circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>`});
 const ic=(n,s)=>'<svg class="svg-ic" viewBox="0 0 24 24" width="'+(s||16)+'" height="'+(s||16)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICX[n]||'')+'</svg>';
-const auth=firebase.auth(),rdb=firebase.database();
+const auth=fbApp.auth(),rdb=fbApp.database();
 const FV={delete:()=>({__del:1})};
 const fixE=x=>({code:/permission/i.test((x&&x.message)||'')?'permission-denied':(x&&x.code),message:x&&x.message});
 const flat=(o,p,out)=>{for(const k in o){const v=o[k],q=p+'/'+k.replace(/\./g,'/');if(v&&v.__del)out[q]=null;else if(v&&typeof v==='object'&&!Array.isArray(v))flat(v,q,out);else if(v!==undefined)out[q]=v;}return out;};
