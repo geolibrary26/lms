@@ -710,6 +710,7 @@ async function editSession(id,classId,date){
    '<div class="cols2"><div class="field"><label>Ngày</label><input class="inp" id="ssDate" type="date" value="'+date+'" '+(id?'disabled':'')+'></div><div></div><div class="field"><label>Bắt đầu</label><input class="inp" id="ssStart" type="time" value="'+(d.start||sch.start||'18:00')+'"></div><div class="field"><label>Kết thúc</label><input class="inp" id="ssEnd" type="time" value="'+(d.end||sch.end||'19:30')+'"></div></div>'+
    '<div class="field"><label>Link phòng học (Google Meet / Zoom / Teams…)</label><input class="inp" id="ssUrl" placeholder="https://meet.google.com/…" value="'+esc(link.url||c.onlineUrl||'')+'"></div>'+
    '<div class="cols2"><div class="field"><label>Mở điểm danh trước (phút)</label><input class="inp" id="ssEarly" type="number" value="'+(d.early!=null?d.early:(S.settings.early!=null?S.settings.early:15))+'"></div><div class="field"><label>Tính muộn sau (phút)</label><input class="inp" id="ssLate" type="number" value="'+(d.late!=null?d.late:(S.settings.late!=null?S.settings.late:10))+'"></div></div>'+
+   '<label style="display:flex;gap:8px;align-items:flex-start;margin:2px 0 12px"><input type="checkbox" id="ssApp" '+(d.hideApp?'':'checked')+' style="margin-top:3px"><span><b>Hiển thị trên app học sinh (APPHS)</b><br><span class="small muted">Học sinh của lớp sẽ thấy buổi này trong app và bấm vào để điểm danh rồi vào phòng học. Bỏ tick để chỉ dùng link điểm danh riêng.</span></span></label>'+
    '<div class="small muted">Học sinh vào bằng link, chọn tên, nhập ngày sinh + trường rồi đưa mặt vào camera. Hệ thống thấy có khuôn mặt là tự điểm danh và lưu ảnh để trợ giảng xem lại.</div>',
    (id?'<button class="btn red" onclick="delSession(\''+id+'\')">Huỷ buổi online</button>':'')+'<button class="btn" onclick="closeModal()">Đóng</button><button class="btn pri" onclick="saveSession(\''+id+'\')">Lưu</button>');
 }
@@ -722,7 +723,7 @@ async function saveSession(oldId){
   try{
     const host=sessionFor(cid,date); if(host&&host.id!==id&&(host.merged||[]).includes(cid)) throw new Error('Lớp này đang được gộp vào buổi của lớp '+className(host.classId)+' ngày này. Hãy chọn lớp đó làm lớp chính.');
     await applyMerge(cid,date,list);
-    await C('attendance').doc(id).set({classId:cid,date,online:true,title:val('ssTitle'),start:val('ssStart'),end:val('ssEnd'),early:+val('ssEarly')||0,late:+val('ssLate')||0,createdBy:S.profile.name},{merge:true});
+    await C('attendance').doc(id).set({classId:cid,date,online:true,title:val('ssTitle'),start:val('ssStart'),end:val('ssEnd'),early:+val('ssEarly')||0,late:+val('ssLate')||0,createdBy:S.profile.name,hideApp:($('#ssApp')&&!$('#ssApp').checked)?true:FV.delete()},{merge:true});
     await C('links').doc(id).set({url,platform:url?new URL(url).hostname.replace(/^www\./,''):''});
     closeModal(); toast('Đã lưu buổi online','ok'); if(S.view==='att'){ S.P.att.classId=cid; S.P.att.date=date; render(); }
   }catch(e){ toast(e.message||String(e),'err'); }
