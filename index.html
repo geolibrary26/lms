@@ -433,7 +433,7 @@ function Q(col,fl){const q={
  _r(){let r=rdb.ref(col),a=fl[0];if(a){if(a[1]==='=='&&typeof a[2]!=='object')r=r.orderByChild(a[0]).equalTo(a[2]);else if(a[1]==='>='){r=r.orderByChild(a[0]).startAt(a[2]);const b=fl.find(x=>x[0]===a[0]&&x[1]==='<=');if(b)r=r.endAt(b[2]);}}return r;},
  _s(s){const docs=[];s.forEach(c=>{const d=c.val()||{};if(fl.every(([f,o,v])=>{const x=d[f];return o==='=='?x===v:o==='>='?x>=v:o==='<='?x<=v:o==='array-contains'?(x||[]).includes(v):true;})){docs.push({id:c.key,data:()=>d});}});return{docs,size:docs.length,forEach:f=>docs.forEach(f)};},
  get:async()=>q._s(await q._r().get()),
- onSnapshot:(f,e)=>{const r=q._r(),h=r.on('value',s=>f(q._s(s)),x=>e&&e(fixE(x)));return()=>r.off('value',h);}};return q;}
+ onSnapshot:(f,e)=>{const r=q._r(),h=r.on('value',s=>f(q._s(s)),x=>{ if(e){ const er=fixE(x); try{ er.col=col; }catch(_){} e(er); } });return()=>r.off('value',h);}};return q;}
 const C=col=>Object.assign(Q(col,[]),{doc:id=>{const p=col+'/'+id,r=()=>rdb.ref(p);return{
  get:async()=>wrapDoc(await r().get()),
  set:(d,o)=>o&&o.merge?rdb.ref().update(flat(d,p,{})):r().set(JSON.parse(JSON.stringify(d))),
@@ -501,7 +501,7 @@ const activeClasses = () => Object.values(S.classes).filter(c=>c.active!==false)
 const classStudents = cid => Object.values(S.students).filter(s=>s.active!==false && (s.classIds||[]).includes(cid)).sort(byName);
 const className = id => (S.classes[id]&&S.classes[id].name)||'—';
 function schedText(c){ return (c.schedule||[]).map(x=>DOW[x.dow]+' '+x.start+'-'+x.end).join(' · ') || 'Chưa có lịch'; }
-function listen(q,fn){ unsubs.push(q.onSnapshot(s=>{ fn(s); softRender(); }, e=>{ console.error(e); if(e.code==='permission-denied') toast('Thiếu quyền Firestore — xem mục Cài đặt để dán Rules','err'); })); }
+function listen(q,fn){ unsubs.push(q.onSnapshot(s=>{ fn(s); softRender(); }, e=>{ console.error(e); if(e.code==='permission-denied') toast('Thiếu quyền đọc nhánh “'+(e.col||'dữ liệu')+'” — vào Cài đặt → Thiết lập Firebase, dán lại Realtime Database Rules rồi bấm Publish ['+(e.code||'')+' '+String(e.message||'').slice(0,160)+'] UID đang đăng nhập: '+((typeof auth!=='undefined'&&auth.currentUser)?auth.currentUser.uid+' · '+(auth.currentUser.email||'(không email)')+(auth.currentUser.isAnonymous?' · ẩn danh':''):'chưa đăng nhập'),'err'); })); }
 function ensureAtt(m){ if(S.attMonth===m) return; if(attUnsub) attUnsub(); S.attMonth=m; S.att={}; attUnsub=C('attendance').where('date','>=',m+'-01').where('date','<=',m+'-31').onSnapshot(s=>{ S.att=mapDocs(s); softRender(); },e=>console.error(e)); }
 function ensureFees(m){ if(S.feeKey===m) return; if(feeUnsub) feeUnsub(); S.feeKey=m; S.fees={}; const [y,mo]=m.split('-').map(Number); const d=new Date(y,mo-6,1); const from=mk(d);
   feeUnsub=C('fees').where('month','>=',from).where('month','<=',m).onSnapshot(s=>{ S.fees=mapDocs(s); softRender(); },e=>console.error(e)); }
