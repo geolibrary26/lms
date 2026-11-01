@@ -2741,7 +2741,7 @@ async function gdSweep(manual){
 }
 (function(){ const _gl=window.gLoad; window.gLoad=async function(){ await _gl.apply(this,arguments); setTimeout(()=>{ try{ if(S.profile&&KS.ready) gdSweep(false); }catch(e){} },4000); }; })();
 /* quản trị viên chạy tay trong Console nếu cần lưu bù các bài chấm cũ: gdBackfill() */
-async function gdBackfill(){ if(!isSA()){ console.warn('Chỉ superadmin'); return; } if(!GD.loaded) await gdLoadMap(); const L=G.results.filter(r=>r&&r.res&&!(GD.map[r.id]&&GD.map[r.id].id)); console.log('Cần lưu bù',L.length,'bài'); for(const r of L){ await gdArchive(r.id,true); } console.log('Xong'); }
+async function gdBackfill(all){ if(!isSA()){ console.warn('Chỉ superadmin'); return; } if(!GD.loaded) await gdLoadMap(); const L=G.results.filter(r=>r&&r.res&&(all||!(GD.map[r.id]&&GD.map[r.id].id))); console.log('Cần lưu bù',L.length,'bài'); for(const r of L){ await gdArchive(r.id,true); } console.log('Xong'); }
 
 Object.assign(window,{gdArchive,gdBackfill,gdSweep,kqSyncAvg,kqCmt,kqCmtSave,kqScoresCard,kqEditNx,kqSaveNx,kqTestOpen,kqPublishTest,kqRevokeTest,kqTestToggle,kqTestNote,kqTestCopy,kqTestPdf,kqPdf,kqPdfRec,kqPreview,kqShare,kqRevoke,kqPublishAll,kqToggleOpen,kqSetCode,kqSearch,kqDobMask,kqBack,kqLink});
 })();
