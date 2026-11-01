@@ -501,7 +501,7 @@ const activeClasses = () => Object.values(S.classes).filter(c=>c.active!==false)
 const classStudents = cid => Object.values(S.students).filter(s=>s.active!==false && (s.classIds||[]).includes(cid)).sort(byName);
 const className = id => (S.classes[id]&&S.classes[id].name)||'—';
 function schedText(c){ return (c.schedule||[]).map(x=>DOW[x.dow]+' '+x.start+'-'+x.end).join(' · ') || 'Chưa có lịch'; }
-function listen(q,fn){ unsubs.push(q.onSnapshot(s=>{ fn(s); softRender(); }, e=>{ console.error(e); if(e.code==='permission-denied') toast('Thiếu quyền đọc nhánh “'+(e.col||'dữ liệu')+'” — vào Cài đặt → Thiết lập Firebase, dán lại Realtime Database Rules rồi bấm Publish ['+(e.code||'')+' '+String(e.message||'').slice(0,160)+'] UID đang đăng nhập: '+((typeof auth!=='undefined'&&auth.currentUser)?auth.currentUser.uid+' · '+(auth.currentUser.email||'(không email)')+(auth.currentUser.isAnonymous?' · ẩn danh':''):'chưa đăng nhập'),'err'); })); }
+function listen(q,fn){ unsubs.push(q.onSnapshot(s=>{ fn(s); softRender(); }, e=>{ console.error(e); if(e.code==='permission-denied'&&typeof auth!=='undefined'&&auth.currentUser) toast('Thiếu quyền đọc nhánh “'+(e.col||'dữ liệu')+'” — vào Cài đặt → Thiết lập Firebase, dán lại Realtime Database Rules rồi bấm Publish ['+(e.code||'')+' '+String(e.message||'').slice(0,160)+'] UID đang đăng nhập: '+((typeof auth!=='undefined'&&auth.currentUser)?auth.currentUser.uid+' · '+(auth.currentUser.email||'(không email)')+(auth.currentUser.isAnonymous?' · ẩn danh':''):'chưa đăng nhập'),'err'); })); }
 function ensureAtt(m){ if(S.attMonth===m) return; if(attUnsub) attUnsub(); S.attMonth=m; S.att={}; attUnsub=C('attendance').where('date','>=',m+'-01').where('date','<=',m+'-31').onSnapshot(s=>{ S.att=mapDocs(s); softRender(); },e=>console.error(e)); }
 function ensureFees(m){ if(S.feeKey===m) return; if(feeUnsub) feeUnsub(); S.feeKey=m; S.fees={}; const [y,mo]=m.split('-').map(Number); const d=new Date(y,mo-6,1); const from=mk(d);
   feeUnsub=C('fees').where('month','>=',from).where('month','<=',m).onSnapshot(s=>{ S.fees=mapDocs(s); softRender(); },e=>console.error(e)); }
@@ -529,7 +529,7 @@ async function doSignup(){
     SIGNING=false; bootStaff(u);
   }catch(e){ SIGNING=false; aerr(e); b.disabled=false; }
 }
-function logout(){ unsubs.forEach(f=>f()); unsubs=[]; if(attUnsub) attUnsub(); if(feeUnsub) feeUnsub(); attUnsub=feeUnsub=null; S.attMonth=null; S.feeKey=null; auth.signOut(); }
+function logout(){ window.__manualOut=true; unsubs.forEach(f=>f()); unsubs=[]; if(attUnsub) attUnsub(); if(feeUnsub) feeUnsub(); attUnsub=feeUnsub=null; S.attMonth=null; S.feeKey=null; auth.signOut(); }
 
 async function bootStaff(u){
   try{ const d=await C('users').doc(u.uid).get(); S.profile=d.exists?Object.assign({id:u.uid},d.data()):null; }catch(e){ S.profile=null; toast('Không đọc được hồ sơ — kiểm tra Firestore Rules','err'); }
@@ -1034,7 +1034,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   { const _q=new URLSearchParams(location.search); if(_q.get('kq')||_q.get('tracuu')){ bootPublic(); return; } }
   if(JOIN){ bootJoin(); return; }
   $('#app').innerHTML='<div class="authwrap"><div class="center muted">Đang tải…</div></div>';
-  auth.onAuthStateChanged(u=>{ if(SIGNING) return; if(!u){ showLogin(); return; } bootStaff(u); });
+  auth.onAuthStateChanged(u=>{ if(SIGNING) return; if(!u){ if(S.profile&&!window.__manualOut){ console.warn('[AUTH] Phiên đăng nhập bị Firebase kết thúc lúc '+new Date().toLocaleString('vi-VN')); showLogin(); try{ toast('Phiên đăng nhập đã kết thúc (do Firebase/trình duyệt) — hãy đăng nhập lại','err'); }catch(e){} S.profile=null; return; } showLogin(); return; } bootStaff(u); });
 });
 </script>
 <script>
@@ -3205,7 +3205,7 @@ function appScoreMap(){
       const cm=t.comments&&t.comments[sid], nx=cm&&cm.nx; if(nx) r.n=String(nx).slice(0,1500);
       try{ const x=rowsBy&&rowsBy[sid]; if(x&&x.detail){ const P=kqPubFor(t,x,''); if(P.nx) r.n=String(P.nx).slice(0,1500);
           if(P.manh&&P.manh.length) r.mh=P.manh.slice(0,10).map(v=>String(v).slice(0,400)); if(P.cai&&P.cai.length) r.ci=P.cai.slice(0,10).map(v=>String(v).slice(0,400));
-          if(P.cau&&P.cau.length) r.cau=P.cau.map(c=>({i:c.id,t:String(c.ten||'').slice(0,120),d:c.diem,m:c.max,y:(c.y||[]).map(y=>({i:y.id,n:String(y.nd||'').slice(0,300),d:y.diem,m:y.max,o:String(y.ok||'').slice(0,400),l:String(y.lose||'').slice(0,400)}))})); }
+          if(P.cau&&P.cau.length) r.cau=P.cau.map(c=>({i:c.id,t:String(c.ten||'').slice(0,120),d:c.diem,m:c.max,y:(c.y||[]).map(y=>({i:y.id,n:String(y.nd||'').slice(0,700),d:y.diem,m:y.max,o:String(y.ok||'').slice(0,600),l:String(y.lose||'').slice(0,600)}))})); }
         else if(cm){ if(cm.manh&&cm.manh.length) r.mh=cm.manh.slice(0,10).map(v=>String(v).slice(0,400)); if(cm.cai&&cm.cai.length) r.ci=cm.cai.slice(0,10).map(v=>String(v).slice(0,400)); } }catch(e){}
       if(t.pubNote) r.g=String(t.pubNote).slice(0,1000);
       out[sid+'/'+t.id]=r;
