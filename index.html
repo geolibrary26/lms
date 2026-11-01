@@ -2660,7 +2660,90 @@ async function kqSetCmt(tid,sid,patch){ const t=S.tests[tid], cm=Object.assign({
 function kqCmt(tid,sid){ const t=S.tests[tid], st=S.students[sid]; if(!t||!st) return; const cm=(t.comments&&t.comments[sid])||{}, sc=(t.scores||{})[sid];
   modal('Nhận xét — '+esc(st.name),'<div class="small muted mb12">'+esc(t.title)+' · '+(sc!=null?'điểm '+sc+'/'+(t.max||10):'chưa có điểm')+(cm.src==='ai'?' · nhận xét do AI chấm (sửa được)':'')+'</div><div class="field"><label>Nhận xét cá nhân của '+esc(st.name)+'</label><textarea class="inp" rows="6" id="cmT" placeholder="Nhập nhận xét riêng cho học sinh…">'+esc(cm.nx||'')+'</textarea></div><div class="field"><label>Nhận xét chung / Lời nhắn cho cả lớp (bài này — dùng chung mọi học sinh)</label><textarea class="inp" rows="3" id="cmG" placeholder="VD: Điểm đã làm tròn đến 0,25. Em thắc mắc xin liên hệ giáo viên.">'+esc(t.pubNote||'')+'</textarea></div>'+(t.pubCode?'<div class="small muted mt8">Bài này đã có link tra cứu: lưu sẽ cập nhật luôn phiếu của học sinh nếu đã công khai.</div>':'<div class="small muted mt8">Nhận xét sẽ hiện kèm điểm khi bạn công khai điểm bài này.</div>'),'<button class="btn" onclick="closeModal()">Huỷ</button><button class="btn pri" onclick="kqCmtSave(\''+tid+'\',\''+sid+'\')">Lưu</button>',true); setTimeout(()=>{ const e=document.getElementById('cmT'); if(e) e.focus(); },60); }
 async function kqCmtSave(tid,sid){ const e=document.getElementById('cmT'); if(!e) return; try{ const g=document.getElementById('cmG'); if(g&&g.value.trim()!==(S.tests[tid].pubNote||'')) await kqTestNote(tid,g.value); const upd=await kqSetCmt(tid,sid,{nx:e.value.trim(),src:'gv'}); closeModal(); toast('Đã lưu nhận xét'+(upd?' và cập nhật phiếu của học sinh':''),'ok'); if(S.view==='scores') render(); }catch(x){ toast('Lỗi: '+x.message,'err'); } }
-Object.assign(window,{kqSyncAvg,kqCmt,kqCmtSave,kqScoresCard,kqEditNx,kqSaveNx,kqTestOpen,kqPublishTest,kqRevokeTest,kqTestToggle,kqTestNote,kqTestCopy,kqTestPdf,kqPdf,kqPdfRec,kqPreview,kqShare,kqRevoke,kqPublishAll,kqToggleOpen,kqSetCode,kqSearch,kqDobMask,kqBack,kqLink});
+/* ===================== LƯU TRỮ BÀI CHẤM AI: PDF (báo cáo từng câu + ảnh bài làm) → Google Drive · dọn ảnh trên Firebase sau 90 ngày ===================== */
+const GD={cfg:null,map:{},loaded:false,loading:false,busy:{},hinted:false,days:90};
+const gdEl=id=>{ const e=document.getElementById(id); return e?String(e.value||'').trim():''; };
+async function gdCfg(force){ if(GD.cfg&&!force) return GD.cfg; try{ GD.cfg=(await rdb.ref('config/drive').get()).val()||{}; }catch(e){ GD.cfg={}; } return GD.cfg; }
+async function gdLoadMap(){ if(GD.loading) return; GD.loading=true; try{ GD.map=(await rdb.ref('gdrive').get()).val()||{}; }catch(e){ GD.map=GD.map||{}; } GD.loaded=true; GD.loading=false; }
+const gdDim=url=>new Promise((ok,no)=>{ const im=new Image(); im.onload=()=>ok({w:im.naturalWidth||im.width,h:im.naturalHeight||im.height}); im.onerror=()=>no(new Error('ảnh bài làm bị lỗi')); im.src=url; });
+
+/* ---- dựng PDF: báo cáo chi tiết từng câu/ý (như phiếu tra cứu) + các trang ảnh bài làm ---- */
+async function gdBuildPdf(r,pages){
+  await kqLoadLibs();
+  const p=kqPubFromRec(r,null), imgs=arr(pages).filter(x=>x&&x.t==='img'&&x.data);
+  let host=null;
+  try{
+    host=document.createElement('div'); host.style.cssText='position:fixed;left:-10000px;top:0;width:794px;background:#fff;z-index:-1';
+    host.innerHTML=kqBlocks(p).map(b=>'<div class="kq kq-pdf">'+b+'</div>').join(''); document.body.appendChild(host);
+    try{ if(document.fonts&&document.fonts.load) await document.fonts.load('700 14px Inter','ạ ế ữ ơ đ'); if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
+    await new Promise(q=>requestAnimationFrame(()=>requestAnimationFrame(q)));
+    const pdf=new window.jspdf.jsPDF({unit:'mm',format:'a4',compress:true}), PW=210, PH=297, TOP=12, BOT=15, label=[];
+    let y=0, page=1, first=true;
+    for(const el of Array.from(host.children)){
+      const cv=await kqShot(el); let w=PW, h=cv.height*PW/cv.width; const avail=PH-TOP-BOT;
+      if(h>avail){ w=PW*avail/h; h=avail; }
+      if(!first&&y+h>PH-BOT){ pdf.addPage(); page++; y=TOP; label[page-1]='Báo cáo chấm bài'; }
+      pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',(PW-w)/2,y,w,h); y+=h; first=false;
+    }
+    const nRep=page;
+    for(let i=0;i<imgs.length;i++){
+      pdf.addPage(); page++; label[page-1]='Ảnh bài làm — trang '+(i+1)+'/'+imgs.length;
+      const url='data:image/jpeg;base64,'+imgs[i].data, d=await gdDim(url), maxW=PW-16, maxH=PH-TOP-BOT-4;
+      let w=maxW, h=d.h*w/d.w; if(h>maxH){ h=maxH; w=d.w*h/d.h; }
+      pdf.addImage(url,'JPEG',(PW-w)/2,TOP,w,h,undefined,'FAST');
+    }
+    for(let i=1;i<=page;i++){
+      const f=document.createElement('div'); f.className='kq kq-pdf kqfoot-pdf';
+      f.innerHTML='<span>'+esc(p.center||'')+(p.name?' · '+esc(p.name):'')+(label[i]?' · '+esc(label[i]):'')+'</span><span>Trang '+i+' / '+page+'</span>'; host.appendChild(f);
+      const cv=await kqShot(f); pdf.setPage(i); pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',0,PH-11,PW,cv.height*PW/cv.width);
+    }
+    return {b64:pdf.output('datauristring').split(',')[1], pages:page, imgs:imgs.length, rep:nRep};
+  } finally { if(host) host.remove(); }
+}
+async function gdUpload(cfg,payload){
+  const body=JSON.stringify(Object.assign({token:cfg.gradeToken},payload)); let res;
+  try{ res=await fetch(cfg.gradeUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,redirect:'follow'}); }
+  catch(e){ throw new Error('không kết nối được tới Apps Script (kiểm tra URL và quyền truy cập “Bất kỳ ai”)'); }
+  let j; try{ j=await res.json(); }catch(e){ throw new Error('Apps Script trả về dữ liệu không hợp lệ (kiểm tra đã triển khai bản mới chưa)'); }
+  if(!j.ok) throw new Error(j.error||'Apps Script báo lỗi'); return j; }
+
+/* ---- lưu 1 bài chấm lên Drive (tự chạy sau khi lưu vào Điểm số; hoặc bấm tay ở danh sách bài đã chấm) ---- */
+async function gdArchive(id,manual){
+  const r=G.results.find(x=>x.id===id); if(!r||!r.res){ return; }
+  if(GD.busy[id]) return;
+  const cfg=await gdCfg(true);
+  if(!cfg.gradeUrl||!cfg.gradeToken){ if(manual) console.warn('Chưa cấu hình config/drive/gradeUrl và gradeToken'); return; }
+  GD.busy[id]=1; if(!GD.loaded) await gdLoadMap();
+  try{
+    let pages=arr(r.pages); if(!pages.length&&r.np>0){ pages=arr((await rdb.ref('gpages/'+id).get()).val()); }
+    const out=await gdBuildPdf(r,pages), cn=className(r.classId), p=kqPubFromRec(r,null), d=(p.date||'').slice(0,10);
+    const fname=(slug(r.title||'bai')+'_'+slug(p.name||r.name)+(d?'_'+d:'')+'.pdf');
+    const res=await gdUpload(cfg,{name:fname,path:[cn&&cn!=='—'?cn:'Chưa phân lớp',(r.title||'Bài kiểm tra').slice(0,80)],data:out.b64,ping:false});
+    const rec={id:res.id||'',url:res.url||'',name:fname,at:Date.now(),by:(S.profile&&S.profile.name)||'',pages:out.pages,imgs:out.imgs,title:r.title||'',sid:r.sid||'',ts:r.ts||Date.now()};
+    await rdb.ref('gdrive/'+id).set(rec); GD.map[id]=rec;
+    console.log('Đã lưu PDF lưu trữ',fname,out.pages+' trang');
+  }catch(e){ console.warn('Lưu PDF lưu trữ lỗi:',e); toast('Chưa lưu được bản PDF lưu trữ — báo quản trị viên.','err'); }
+  finally{ delete GD.busy[id]; }
+}
+
+/* ---- dọn ảnh bài làm trên Firebase sau 90 ngày (chỉ khi đã có PDF trên Drive; điểm, nhận xét, chi tiết từng câu vẫn giữ) ---- */
+async function gdSweep(manual){
+  try{
+    if(!manual){ const k=new Date().toISOString().slice(0,10); try{ if(localStorage.getItem('gd_sweep')===k) return; localStorage.setItem('gd_sweep',k); }catch(e){} }
+    if(!GD.loaded) await gdLoadMap();
+    const cut=Date.now()-GD.days*864e5, sn=await rdb.ref('gres').orderByChild('ts').endAt(cut).get(), ids=[]; let skip=0;
+    sn.forEach(c=>{ const v=c.val()||{}; if(!(v.np>0)) return; if(GD.map[c.key]&&GD.map[c.key].id) ids.push(c.key); else skip++; });
+    for(let i=0;i<ids.length;i+=100){ const up={}; ids.slice(i,i+100).forEach(k=>{ up['gpages/'+k]=null; up['gres/'+k+'/np']=0; up['gres/'+k+'/imgCleaned']=Date.now(); }); await rdb.ref().update(up); }
+    ids.forEach(k=>{ try{ delete KS.pages[k]; delete KS.pgSig[k]; if(KS.objs[k]) KS.objs[k].np=0; const r=G.results.find(x=>x.id===k); if(r){ r.pages=undefined; r.np=0; } }catch(e){} });
+    if(ids.length){ try{ log('dọn ảnh '+ids.length+' bài chấm AI cũ hơn '+GD.days+' ngày (đã có PDF trên Drive)'); }catch(e){} }
+    console.log('Dọn ảnh bài chấm cũ:',ids.length,'bài; giữ lại',skip,'bài chưa có PDF lưu trữ');
+  }catch(e){ console.warn('Lỗi dọn ảnh:',e); }
+}
+(function(){ const _gl=window.gLoad; window.gLoad=async function(){ await _gl.apply(this,arguments); setTimeout(()=>{ try{ if(S.profile&&KS.ready) gdSweep(false); }catch(e){} },4000); }; })();
+/* quản trị viên chạy tay trong Console nếu cần lưu bù các bài chấm cũ: gdBackfill() */
+async function gdBackfill(){ if(!isSA()){ console.warn('Chỉ superadmin'); return; } if(!GD.loaded) await gdLoadMap(); const L=G.results.filter(r=>r&&r.res&&!(GD.map[r.id]&&GD.map[r.id].id)); console.log('Cần lưu bù',L.length,'bài'); for(const r of L){ await gdArchive(r.id,true); } console.log('Xong'); }
+
+Object.assign(window,{gdArchive,gdBackfill,gdSweep,kqSyncAvg,kqCmt,kqCmtSave,kqScoresCard,kqEditNx,kqSaveNx,kqTestOpen,kqPublishTest,kqRevokeTest,kqTestToggle,kqTestNote,kqTestCopy,kqTestPdf,kqPdf,kqPdfRec,kqPreview,kqShare,kqRevoke,kqPublishAll,kqToggleOpen,kqSetCode,kqSearch,kqDobMask,kqBack,kqLink});
 })();
 </script>
 <script>
@@ -3359,91 +3442,6 @@ function jDone(ts,late,url){ jStop(); J.step=3; const st=J.roster.find(x=>x.id==
   window.jCodeCheckin=function(){ J.viaCode=true; return _cc.apply(this,arguments); }; })();
 
 </script>
-<script>
-/* ===================== LƯU TRỮ BÀI CHẤM AI: PDF (báo cáo từng câu + ảnh bài làm) → Google Drive · dọn ảnh trên Firebase sau 90 ngày ===================== */
-const GD={cfg:null,map:{},loaded:false,loading:false,busy:{},hinted:false,days:90};
-const gdEl=id=>{ const e=document.getElementById(id); return e?String(e.value||'').trim():''; };
-async function gdCfg(force){ if(GD.cfg&&!force) return GD.cfg; try{ GD.cfg=(await rdb.ref('config/drive').get()).val()||{}; }catch(e){ GD.cfg={}; } return GD.cfg; }
-async function gdLoadMap(){ if(GD.loading) return; GD.loading=true; try{ GD.map=(await rdb.ref('gdrive').get()).val()||{}; }catch(e){ GD.map=GD.map||{}; } GD.loaded=true; GD.loading=false; }
-const gdDim=url=>new Promise((ok,no)=>{ const im=new Image(); im.onload=()=>ok({w:im.naturalWidth||im.width,h:im.naturalHeight||im.height}); im.onerror=()=>no(new Error('ảnh bài làm bị lỗi')); im.src=url; });
-
-/* ---- dựng PDF: báo cáo chi tiết từng câu/ý (như phiếu tra cứu) + các trang ảnh bài làm ---- */
-async function gdBuildPdf(r,pages){
-  await kqLoadLibs();
-  const p=kqPubFromRec(r,null), imgs=arr(pages).filter(x=>x&&x.t==='img'&&x.data);
-  let host=null;
-  try{
-    host=document.createElement('div'); host.style.cssText='position:fixed;left:-10000px;top:0;width:794px;background:#fff;z-index:-1';
-    host.innerHTML=kqBlocks(p).map(b=>'<div class="kq kq-pdf">'+b+'</div>').join(''); document.body.appendChild(host);
-    try{ if(document.fonts&&document.fonts.load) await document.fonts.load('700 14px Inter','ạ ế ữ ơ đ'); if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
-    await new Promise(q=>requestAnimationFrame(()=>requestAnimationFrame(q)));
-    const pdf=new window.jspdf.jsPDF({unit:'mm',format:'a4',compress:true}), PW=210, PH=297, TOP=12, BOT=15, label=[];
-    let y=0, page=1, first=true;
-    for(const el of Array.from(host.children)){
-      const cv=await kqShot(el); let w=PW, h=cv.height*PW/cv.width; const avail=PH-TOP-BOT;
-      if(h>avail){ w=PW*avail/h; h=avail; }
-      if(!first&&y+h>PH-BOT){ pdf.addPage(); page++; y=TOP; label[page-1]='Báo cáo chấm bài'; }
-      pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',(PW-w)/2,y,w,h); y+=h; first=false;
-    }
-    const nRep=page;
-    for(let i=0;i<imgs.length;i++){
-      pdf.addPage(); page++; label[page-1]='Ảnh bài làm — trang '+(i+1)+'/'+imgs.length;
-      const url='data:image/jpeg;base64,'+imgs[i].data, d=await gdDim(url), maxW=PW-16, maxH=PH-TOP-BOT-4;
-      let w=maxW, h=d.h*w/d.w; if(h>maxH){ h=maxH; w=d.w*h/d.h; }
-      pdf.addImage(url,'JPEG',(PW-w)/2,TOP,w,h,undefined,'FAST');
-    }
-    for(let i=1;i<=page;i++){
-      const f=document.createElement('div'); f.className='kq kq-pdf kqfoot-pdf';
-      f.innerHTML='<span>'+esc(p.center||'')+(p.name?' · '+esc(p.name):'')+(label[i]?' · '+esc(label[i]):'')+'</span><span>Trang '+i+' / '+page+'</span>'; host.appendChild(f);
-      const cv=await kqShot(f); pdf.setPage(i); pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',0,PH-11,PW,cv.height*PW/cv.width);
-    }
-    return {b64:pdf.output('datauristring').split(',')[1], pages:page, imgs:imgs.length, rep:nRep};
-  } finally { if(host) host.remove(); }
-}
-async function gdUpload(cfg,payload){
-  const body=JSON.stringify(Object.assign({token:cfg.gradeToken},payload)); let res;
-  try{ res=await fetch(cfg.gradeUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,redirect:'follow'}); }
-  catch(e){ throw new Error('không kết nối được tới Apps Script (kiểm tra URL và quyền truy cập “Bất kỳ ai”)'); }
-  let j; try{ j=await res.json(); }catch(e){ throw new Error('Apps Script trả về dữ liệu không hợp lệ (kiểm tra đã triển khai bản mới chưa)'); }
-  if(!j.ok) throw new Error(j.error||'Apps Script báo lỗi'); return j; }
-
-/* ---- lưu 1 bài chấm lên Drive (tự chạy sau khi lưu vào Điểm số; hoặc bấm tay ở danh sách bài đã chấm) ---- */
-async function gdArchive(id,manual){
-  const r=G.results.find(x=>x.id===id); if(!r||!r.res){ return; }
-  if(GD.busy[id]) return;
-  const cfg=await gdCfg(true);
-  if(!cfg.gradeUrl||!cfg.gradeToken){ if(manual) console.warn('Chưa cấu hình config/drive/gradeUrl và gradeToken'); return; }
-  GD.busy[id]=1; if(!GD.loaded) await gdLoadMap();
-  try{
-    let pages=arr(r.pages); if(!pages.length&&r.np>0){ pages=arr((await rdb.ref('gpages/'+id).get()).val()); }
-    const out=await gdBuildPdf(r,pages), cn=className(r.classId), p=kqPubFromRec(r,null), d=(p.date||'').slice(0,10);
-    const fname=(slug(r.title||'bai')+'_'+slug(p.name||r.name)+(d?'_'+d:'')+'.pdf');
-    const res=await gdUpload(cfg,{name:fname,path:[cn&&cn!=='—'?cn:'Chưa phân lớp',(r.title||'Bài kiểm tra').slice(0,80)],data:out.b64,ping:false});
-    const rec={id:res.id||'',url:res.url||'',name:fname,at:Date.now(),by:(S.profile&&S.profile.name)||'',pages:out.pages,imgs:out.imgs,title:r.title||'',sid:r.sid||'',ts:r.ts||Date.now()};
-    await rdb.ref('gdrive/'+id).set(rec); GD.map[id]=rec;
-    console.log('Đã lưu PDF lưu trữ',fname,out.pages+' trang');
-  }catch(e){ console.warn('Lưu PDF lưu trữ lỗi:',e); toast('Chưa lưu được bản PDF lưu trữ — báo quản trị viên.','err'); }
-  finally{ delete GD.busy[id]; }
-}
-
-/* ---- dọn ảnh bài làm trên Firebase sau 90 ngày (chỉ khi đã có PDF trên Drive; điểm, nhận xét, chi tiết từng câu vẫn giữ) ---- */
-async function gdSweep(manual){
-  try{
-    if(!manual){ const k=new Date().toISOString().slice(0,10); try{ if(localStorage.getItem('gd_sweep')===k) return; localStorage.setItem('gd_sweep',k); }catch(e){} }
-    if(!GD.loaded) await gdLoadMap();
-    const cut=Date.now()-GD.days*864e5, sn=await rdb.ref('gres').orderByChild('ts').endAt(cut).get(), ids=[]; let skip=0;
-    sn.forEach(c=>{ const v=c.val()||{}; if(!(v.np>0)) return; if(GD.map[c.key]&&GD.map[c.key].id) ids.push(c.key); else skip++; });
-    for(let i=0;i<ids.length;i+=100){ const up={}; ids.slice(i,i+100).forEach(k=>{ up['gpages/'+k]=null; up['gres/'+k+'/np']=0; up['gres/'+k+'/imgCleaned']=Date.now(); }); await rdb.ref().update(up); }
-    ids.forEach(k=>{ try{ delete KS.pages[k]; delete KS.pgSig[k]; if(KS.objs[k]) KS.objs[k].np=0; const r=G.results.find(x=>x.id===k); if(r){ r.pages=undefined; r.np=0; } }catch(e){} });
-    if(ids.length){ try{ log('dọn ảnh '+ids.length+' bài chấm AI cũ hơn '+GD.days+' ngày (đã có PDF trên Drive)'); }catch(e){} }
-    console.log('Dọn ảnh bài chấm cũ:',ids.length,'bài; giữ lại',skip,'bài chưa có PDF lưu trữ');
-  }catch(e){ console.warn('Lỗi dọn ảnh:',e); }
-}
-(function(){ const _gl=window.gLoad; window.gLoad=async function(){ await _gl.apply(this,arguments); setTimeout(()=>{ try{ if(S.profile&&KS.ready) gdSweep(false); }catch(e){} },4000); }; })();
-/* quản trị viên chạy tay trong Console nếu cần lưu bù các bài chấm cũ: gdBackfill() */
-async function gdBackfill(){ if(!isSA()){ console.warn('Chỉ superadmin'); return; } if(!GD.loaded) await gdLoadMap(); const L=G.results.filter(r=>r&&r.res&&!(GD.map[r.id]&&GD.map[r.id].id)); console.log('Cần lưu bù',L.length,'bài'); for(const r of L){ await gdArchive(r.id,true); } console.log('Xong'); }
-</script>
-
 </body>
 
 </html>
