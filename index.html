@@ -568,7 +568,7 @@ function vDash(){
   const now=new Date(), td=dk(now), m=mk(now); ensureAtt(m); ensureFees(S.feeMonth);
   const cls=activeClasses(), stu=Object.values(S.students).filter(s=>s.active!==false);
   const todays=cls.filter(c=>(c.schedule||[]).some(x=>x.dow===now.getDay()));
-  let pr=0,tot=0; Object.values(S.att).forEach(d=>Object.values(d.marks||{}).forEach(x=>{ tot++; if(x.s==='P'||x.s==='L') pr++; }));
+  let pr=0,tot=0; Object.values(S.att).filter(d=>!d.online).forEach(d=>Object.values(d.marks||{}).forEach(x=>{ tot++; if(x.s==='P'||x.s==='L') pr++; }));
   let due=0,paid=0; stu.forEach(s=>{ const f=feeOf(s.id,S.feeMonth); due+=f.due; paid+=Math.min(f.paid,f.due)||0; });
   const up=serFocusDocs().filter(o=>phase(o)!=='ended').sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).slice(0,5);
   return '<h2 class="pt">Xin chào, '+esc(S.profile.name)+' '+ic('smile')+'</h2><div class="muted mb16">'+DOWN[now.getDay()]+', '+fmtD(td)+'</div>'+
@@ -785,15 +785,15 @@ async function viewProofs(id){
 }
 
 /* ===================== CHUYÊN CẦN THÁNG ===================== */
-function repDocs(p){ return Object.values(S.att).filter(d=>inSess(d,p.classId)&&d.date.startsWith(p.month)).sort((a,b)=>a.date.localeCompare(b.date)); }
+function repDocs(p){ const on=p.type==='online'; return Object.values(S.att).filter(d=>inSess(d,p.classId)&&d.date.startsWith(p.month)&&!!d.online===on).sort((a,b)=>a.date.localeCompare(b.date)); }
 function vRep(){
   const cls=activeClasses(); if(!cls.length) return pageHead('Chuyên cần tháng','')+'<div class="mt16">'+noClass()+'</div>';
   const p=S.P.rep; if(!p.classId||!S.classes[p.classId]) p.classId=cls[0].id; if(!p.month) p.month=mk(new Date()); ensureAtt(p.month);
   const docs=repDocs(p), studs=classStudents(p.classId), sym={P:''+ic('check')+'',L:'M',E:'P',A:'V'}; let sumP=0,sumT=0,low=0;
   const rows=studs.map((s,i)=>{ const c={P:0,L:0,E:0,A:0}; const cells=docs.map(d=>{ const m=(d.marks||{})[s.id]; if(m&&c[m.s]!=null) c[m.s]++; return '<td class="center"><span class="cell '+(m?'c-'+m.s:'c-N')+'">'+(m?sym[m.s]:'·')+'</span></td>'; }).join(''); const t=c.P+c.L+c.E+c.A, r=t?Math.round((c.P+c.L)/t*100):null; if(t){ sumP+=c.P+c.L; sumT+=t; if(r<80) low++; }
     return '<tr><td class="muted">'+(i+1)+'</td><td class="nowrap">'+stuCell(s)+'</td><td class="nowrap">'+dobTxt(s)+'</td><td>'+stuClsPills(s)+'</td>'+cells+'<td class="center">'+c.P+'</td><td class="center">'+c.L+'</td><td class="center">'+c.E+'</td><td class="center">'+c.A+'</td><td style="min-width:110px">'+(r==null?'—':'<b style="color:'+(r<80?'var(--red)':'var(--grn)')+'">'+r+'%</b><div class="bar"><div style="width:'+r+'%;background:'+(r<80?'var(--red)':'var(--grn)')+'"></div></div>')+'</td></tr>'; }).join('');
-  return pageHead('Chuyên cần tháng','Bảng điểm danh theo từng buổi trong tháng','<button class="btn" onclick="exportRep()">'+ic('download')+' Xuất Excel</button>')+
-  '<div class="toolbar tbcard"><select class="inp" onchange="setP(\'rep\',\'classId\',this.value)">'+classOpts(p.classId)+'</select><input class="inp" type="month" value="'+p.month+'" onchange="setP(\'rep\',\'month\',this.value)"><span class="grow"></span><span class="pill pill-gray">'+docs.length+' buổi</span>'+(sumT?'<span class="pill pill-grn">Chuyên cần TB '+Math.round(sumP/sumT*100)+'%</span>':'')+(low?'<span class="pill pill-red">'+low+' HS dưới 80%</span>':'')+'</div>'+
+  return pageHead('Chuyên cần tháng','Bảng điểm danh theo từng buổi — lớp cố định và buổi online được tách riêng','<button class="btn" onclick="exportRep()">'+ic('download')+' Xuất Excel</button>')+
+  '<div class="toolbar tbcard"><div class="row" style="gap:6px"><button class="btn sm '+(p.type!=='online'?'pri':'')+'" onclick="setP(\'rep\',\'type\',\'fixed\')">Lớp cố định</button><button class="btn sm '+(p.type==='online'?'pri':'')+'" onclick="setP(\'rep\',\'type\',\'online\')">Buổi online</button></div><select class="inp" onchange="setP(\'rep\',\'classId\',this.value)">'+classOpts(p.classId)+'</select><input class="inp" type="month" value="'+p.month+'" onchange="setP(\'rep\',\'month\',this.value)"><span class="grow"></span><span class="pill pill-gray">'+docs.length+' buổi</span>'+(sumT?'<span class="pill pill-grn">Chuyên cần TB '+Math.round(sumP/sumT*100)+'%</span>':'')+(low?'<span class="pill pill-red">'+low+' HS dưới 80%</span>':'')+'</div>'+
   '<div class="row wrap small mb12"><span class="cell c-P">'+ic('check')+'</span>Có mặt <span class="cell c-L">M</span>Muộn <span class="cell c-E">P</span>Phép <span class="cell c-A">V</span>Vắng <span class="cell c-N">·</span>Chưa ghi · '+ic('layers',13)+' Buổi gộp lớp · Chuyên cần = (có mặt + muộn) / số buổi đã ghi</div>'+
   (docs.length&&studs.length?'<div class="card" style="padding:0"><div class="scroll"><table class="tbl"><thead><tr><th>#</th><th>Học sinh</th><th>Ngày sinh</th><th>Lớp</th>'+docs.map(d=>'<th class="center" style="cursor:pointer" title="'+(isMerged(d)?'Buổi gộp: '+esc(sessClassNames(d))+' — ':'')+'Mở buổi" onclick="go(\'att\',{classId:\''+p.classId+'\',date:\''+d.date+'\'})">'+d.date.slice(8)+'/'+d.date.slice(5,7)+(d.online?' '+ic('video',12):'')+(isMerged(d)?' '+ic('layers',12):'')+'</th>').join('')+'<th class="center">CM</th><th class="center">M</th><th class="center">P</th><th class="center">V</th><th>Chuyên cần</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>':'<div class="card empty">Chưa có dữ liệu điểm danh trong tháng này.</div>');
 }
@@ -801,7 +801,7 @@ function exportRep(){
   const p=S.P.rep, docs=repDocs(p), studs=classStudents(p.classId), sym={P:'x',L:'M',E:'P',A:'V'};
   const rows=[['Họ tên','Ngày sinh','Trường'].concat(docs.map(d=>fmtD(d.date)+(isMerged(d)?' (gộp)':'')),['Có mặt','Muộn','Phép','Vắng','Chuyên cần %'])];
   studs.forEach(s=>{ const c={P:0,L:0,E:0,A:0}; const cells=docs.map(d=>{ const m=(d.marks||{})[s.id]; if(m&&c[m.s]!=null) c[m.s]++; return m?sym[m.s]:''; }); const t=c.P+c.L+c.E+c.A; rows.push([s.name,dobTxt(s)==='—'?'':dobTxt(s),s.school||''].concat(cells,[c.P,c.L,c.E,c.A,t?Math.round((c.P+c.L)/t*100):''])); });
-  exportXlsx('ChuyenCan_'+className(p.classId)+'_'+p.month,rows);
+  exportXlsx('ChuyenCan_'+(p.type==='online'?'Online_':'CoDinh_')+className(p.classId)+'_'+p.month,rows);
 }
 
 /* ===================== LỚP HỌC ===================== */
@@ -1107,7 +1107,7 @@ async function setPerm(id,v){ try{ await C('users').doc(id).update({canFees:v});
 function vDash(){
   const now=new Date(),td=dk(now),m=mk(now),F=can('canFees'); ensureAtt(m); if(F) ensureFees(S.feeMonth);
   const cls=activeClasses(),stu=Object.values(S.students).filter(s=>s.active!==false),todays=cls.filter(c=>(c.schedule||[]).some(x=>x.dow===now.getDay())),per={}; let pr=0,tot=0;
-  Object.values(S.att).forEach(d=>Object.entries(d.marks||{}).forEach(([k,x])=>{ const a=per[k]=per[k]||{n:0,ok:0}; a.n++; tot++; if(x.s==='P'||x.s==='L'){a.ok++;pr++;} }));
+  Object.values(S.att).filter(d=>!d.online).forEach(d=>Object.entries(d.marks||{}).forEach(([k,x])=>{ const a=per[k]=per[k]||{n:0,ok:0}; a.n++; tot++; if(x.s==='P'||x.s==='L'){a.ok++;pr++;} }));
   let due=0,paid=0; const debt=[]; if(F) stu.forEach(s=>{ const f=feeOf(s.id,S.feeMonth); due+=f.due; paid+=Math.min(f.paid,f.due)||0; if(f.due>f.paid) debt.push([s,f.due-f.paid]); });
   const rate=s=>per[s.id].ok/per[s.id].n, risk=stu.filter(s=>per[s.id]&&per[s.id].n>=3&&rate(s)<0.8).sort((a,b)=>rate(a)-rate(b)), bd=stu.filter(s=>s.dob&&s.dob.slice(5)===td.slice(5));
   const up=serFocusDocs().filter(o=>phase(o)!=='ended').sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).slice(0,5), mm=m.split('-').reverse().join('/'), fm=S.feeMonth.split('-').reverse().join('/');
@@ -1157,7 +1157,7 @@ function delLogo(){ BR.logo=''; saveBrand(); }
 
 /* ---- Hồ sơ học sinh ---- */
 function stuProfile(id){ const s=S.students[id]; if(!s) return; const m=S.attMonth||mk(new Date()); let n=0,ok=0,ab=0;
-  Object.values(S.att).forEach(d=>{ const x=(d.marks||{})[id]; if(x){ n++; if(x.s==='P'||x.s==='L') ok++; if(x.s==='A') ab++; } });
+  Object.values(S.att).filter(d=>!d.online).forEach(d=>{ const x=(d.marks||{})[id]; if(x){ n++; if(x.s==='P'||x.s==='L') ok++; if(x.s==='A') ab++; } });
   const sc=(s.classIds||[]).map(cid=>{ let t=0,w=0; Object.values(S.tests).filter(x=>x.classId===cid).forEach(x=>{ const v=(x.scores||{})[id]; if(v!=null){ const k=+x.weight||1; t+=v/(+x.max||10)*10*k; w+=k; } }); return '<div class="row between urow"><span>'+esc(className(cid))+'</span><b>'+(w?(t/w).toFixed(2):'—')+'</b></div>'; }).join(''), f=can('canFees')?feeOf(id,S.feeMonth):null;
   modal(esc(s.name),'<div class="row wrap mb12"><span class="pill pill-teal">'+ic('calendar',13)+' '+(fmtD(s.dob)||'—')+'</span><span class="pill pill-gray">'+esc(s.school||'Chưa có trường')+'</span></div><div class="grid g3 mb12"><div class="card stat"><span class="si c2">'+ic('userCheck',22)+'</span><div><div class="l">Chuyên cần '+m.split('-').reverse().join('/')+'</div><div class="v">'+(n?Math.round(ok/n*100)+'%':'—')+'</div><div class="small muted">'+ok+'/'+n+' buổi · vắng '+ab+'</div></div></div>'+(f?'<div class="card stat"><span class="si c4">'+ic('wallet',22)+'</span><div><div class="l">Học phí '+S.feeMonth.split("-").reverse().join("/")+'</div><div class="v">'+money(f.paid)+'</div><div class="small muted">/ '+money(f.due)+'</div></div></div>':'')+'</div><div class="b mb12">Điểm trung bình theo lớp</div>'+(sc||'<div class="muted">Chưa có lớp.</div>')+'<div class="small muted mt12">SĐT HS: '+esc(s.phone||'—')+' · Phụ huynh: '+esc(s.parentPhone||'—')+'</div>','<button class="btn" onclick="closeModal()">Đóng</button><button class="btn pri" onclick="closeModal();editStudent(\''+id+'\')">'+ic('edit',14)+' Sửa</button>'); }
 
@@ -1438,7 +1438,7 @@ let et=0; addEventListener('unhandledrejection',e=>{ const c=e.reason&&e.reason.
 const _vd=vDash; window.vDash=vDash=function(){ const h=new Date().getHours(), g=h<11?'Chào buổi sáng':h<14?'Chào buổi trưa':h<18?'Chào buổi chiều':'Chào buổi tối'; return _vd().replace('<h2>Xin chào, ','<h2>'+g+', '); };
 /* ---- Quản lý học sinh ---- */
 S.P.stu.status=S.P.stu.status||''; S.P.stu.sort=S.P.stu.sort||'name';
-function stuRates(){ const o={}; Object.values(S.att).forEach(d=>Object.entries(d.marks||{}).forEach(([k,x])=>{ const a=o[k]=o[k]||{n:0,ok:0}; a.n++; if(x.s==='P'||x.s==='L') a.ok++; })); return o; }
+function stuRates(){ const o={}; Object.values(S.att).filter(d=>!d.online).forEach(d=>Object.entries(d.marks||{}).forEach(([k,x])=>{ const a=o[k]=o[k]||{n:0,ok:0}; a.n++; if(x.s==='P'||x.s==='L') a.ok++; })); return o; }
 function stuAvg(id){ let t=0,w=0; Object.values(S.tests).forEach(x=>{ const v=(x.scores||{})[id]; if(v!=null){ const k=+x.weight||1; t+=v/(+x.max||10)*10*k; w+=k; } }); return w?t/w:null; }
 const hasCls=s=>(s.classIds||[]).some(id=>S.classes[id]);
 window.stuFiltered=stuFiltered=function(){ const p=S.P.stu,q=norm(p.q||''),RT=stuRates(),mo=new Date().getMonth()+1; let l=Object.values(S.students).sort(byName);
@@ -1474,7 +1474,7 @@ window.vStudents=vStudents=function(){ const p=S.P.stu; if(!p.sel) p.sel={}; ens
   '<div class="toolbar" style="margin-top:0"><input class="inp" style="min-width:240px" placeholder="Tìm tên, trường, SĐT…" value="'+esc(p.q||'')+'" oninput="stuSearch(this.value)"><select class="inp" onchange="setP(\'stu\',\'classId\',this.value)">'+classOpts(p.classId,true)+'</select><select class="inp" onchange="setP(\'stu\',\'sort\',this.value)"><option value="name" '+(p.sort==='name'?'selected':'')+'>Sắp xếp: Tên</option><option value="rate" '+(p.sort==='rate'?'selected':'')+'>Chuyên cần thấp trước</option><option value="avg" '+(p.sort==='avg'?'selected':'')+'>Điểm cao trước</option></select>'+((p.q||p.classId||p.status)?'<button class="btn sm" onclick="S.P.stu.q=\'\';S.P.stu.classId=\'\';S.P.stu.status=\'\';render()">Xoá lọc</button>':'')+'<span class="small muted" id="stuCnt">'+stuFiltered().length+' học sinh</span></div><div id="stuBar">'+stuBar()+'</div><div id="stuTbl">'+stuTable()+'</div>'; };
 /* ---- Hồ sơ học sinh đầy đủ ---- */
 window.stuProfile=stuProfile=function(id){ const s=S.students[id]; if(!s) return; const m=S.attMonth||mk(new Date()),mm=m.split('-').reverse().join('/');
-  const docs=Object.values(S.att).filter(d=>d.marks&&d.marks[id]).sort((a,b)=>(b.date||'').localeCompare(a.date||'')); let n=0,ok=0,ab=0,ex=0,lt=0;
+  const allDocs=Object.values(S.att).filter(d=>d.marks&&d.marks[id]), onDocs=allDocs.filter(d=>d.online), docs=allDocs.filter(d=>!d.online).sort((a,b)=>(b.date||'').localeCompare(a.date||'')); let n=0,ok=0,ab=0,ex=0,lt=0;
   docs.forEach(d=>{ const x=d.marks[id]; n++; if(x.s==='P'||x.s==='L') ok++; if(x.s==='L') lt++; if(x.s==='A') ab++; if(x.s==='E') ex++; });
   const pct=n?Math.round(ok/n*100):null,avg=stuAvg(id),f=can('canFees')?feeOf(id,S.feeMonth):null,h=hh(id)%360,z=(s.parentPhone||s.phone||'').replace(/\D/g,'');
   const cls=(s.classIds||[]).filter(c=>S.classes[c]).map(cid=>{ let t=0,w=0; Object.values(S.tests).filter(x=>x.classId===cid).forEach(x=>{ const v=(x.scores||{})[id]; if(v!=null){ const k=+x.weight||1; t+=v/(+x.max||10)*10*k; w+=k; } });
@@ -1482,7 +1482,7 @@ window.stuProfile=stuProfile=function(id){ const s=S.students[id]; if(!s) return
   const msg='Chào anh/chị, em '+s.name+' tháng '+mm+' đi học '+ok+'/'+n+' buổi'+(pct!=null?' ('+pct+'%)':'')+(avg!=null?', điểm trung bình '+avg.toFixed(2):'')+'. Cảm ơn anh/chị! — '+ctrName();
   const stat=(l,v,x,i,c)=>'<div class="card stat"><span class="si '+c+'">'+ic(i,22)+'</span><div><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="small muted">'+x+'</div></div></div>';
   modal(esc(s.name),'<div class="pv"><span class="avatar" style="background:hsl('+h+',70%,92%);color:hsl('+h+',55%,32%)">'+esc((givenName(s.name)||'?').charAt(0).toUpperCase())+'</span><div class="grow"><div class="row wrap"><span class="pill pill-teal">'+ic('calendar',13)+' '+(fmtD(s.dob)||'—')+'</span><span class="pill pill-gray">'+esc(s.school||'Chưa có trường')+'</span>'+(s.active===false?'<span class="pill pill-red">Ngừng học</span>':'<span class="pill pill-grn">Đang học</span>')+'</div><div class="small muted mt8">SĐT HS: '+esc(s.phone||'—')+' · Phụ huynh: '+esc(s.parentPhone||'—')+'</div></div></div>'+
-  '<div class="grid mb12" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">'+stat('Chuyên cần '+mm,pct!=null?pct+'%':'—',ok+'/'+n+' buổi · muộn '+lt+' · phép '+ex+' · vắng '+ab,'userCheck','c2')+stat('Điểm trung bình',avg!=null?avg.toFixed(2):'—','Tất cả bài kiểm tra','file','c3')+(f?stat('Học phí '+S.feeMonth.split('-').reverse().join('/'),money(f.paid),'/ '+money(f.due),'wallet','c4'):'')+'</div>'+
+  '<div class="grid mb12" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">'+stat('Chuyên cần lớp cố định',pct!=null?pct+'%':'—',ok+'/'+n+' buổi · muộn '+lt+' · phép '+ex+' · vắng '+ab,'userCheck','c2')+(onDocs.length?stat('Điểm danh online',Math.round(onDocs.filter(d=>{const k=d.marks[id].s;return k==='P'||k==='L'}).length/onDocs.length*100)+'%',onDocs.filter(d=>{const k=d.marks[id].s;return k==='P'||k==='L'}).length+'/'+onDocs.length+' buổi online (tính riêng)','video','c1'):'')+stat('Điểm trung bình',avg!=null?avg.toFixed(2):'—','Tất cả bài kiểm tra','file','c3')+(f?stat('Học phí '+S.feeMonth.split('-').reverse().join('/'),money(f.paid),'/ '+money(f.due),'wallet','c4'):'')+'</div>'+
   '<div class="b mb12">Các buổi gần đây</div>'+(hist(docs,id)||'<div class="muted small">Chưa có dữ liệu điểm danh trong tháng.</div>')+'<div class="lg2"><span class="pill pill-grn">P Có mặt</span><span class="pill pill-amber">L Muộn</span><span class="pill pill-blue">E Xin phép</span><span class="pill pill-red">A Vắng</span></div>'+
   '<div class="b mb12 mt16">Lớp đang học</div>'+(cls||'<div class="muted">Chưa có lớp.</div>'),
   '<button class="btn" onclick="closeModal()">Đóng</button><button class="btn" data-m="'+esc(msg)+'" onclick="copyText(this.dataset.m)">Sao chép tin nhắn PH</button>'+(z?'<a class="btn" target="_blank" rel="noopener" href="https://zalo.me/'+z+'">Zalo</a>':'')+'<button class="btn pri" onclick="closeModal();editStudent(\''+id+'\')">'+ic('edit',14)+' Sửa</button>',true); };
@@ -3122,6 +3122,18 @@ window.gApplyYT=function(y,R){ let mx=0; R.cau.forEach(c=>c.y.forEach(z=>{ if(St
 @keyframes gpulse{50%{opacity:.35;transform:scale(1.5)}}
 @keyframes gshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @media(prefers-reduced-motion:reduce){.gj *{animation:none!important;transition:none!important}}
+
+/* FIX: ô nhập tên bị ẩn bởi .gsr{display:none} cũ + khung điểm danh to hơn */
+.gj .gsr{display:block!important;position:relative!important;top:auto!important;left:auto!important;right:auto!important;max-height:none!important;overflow:visible!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;animation:none!important}
+.gj .gjc{max-width:560px}
+.gj .gin{height:62px;font-size:18px;border-radius:17px}
+.gj .gsr .gin{padding-left:52px;background:#fff;border:2px solid #c9d6f5}
+.gj h1.gh{font-size:32px}.gj .gs{font-size:16px}
+.gj .gitem{padding:15px 16px;border-radius:20px}.gj .gnm b{font-size:17px}
+.gj .gbtn{height:62px;font-size:18px;border-radius:19px}
+.gj .gvf{width:min(88vw,380px)}
+.gj .ghero h3{font-size:25px}.gj .ghero p{font-size:15px}
+@media(min-width:700px){.gj .gjc{max-width:640px;padding:46px 52px 42px}.gj .gvf{width:min(60vw,420px)}}
 </style>
 <script>
 /* ===================== v9 · CỔNG HỌC SINH + ĐỒNG BỘ ĐIỂM + GIAO DIỆN ĐIỂM DANH MỚI ===================== */
@@ -3183,6 +3195,7 @@ function appScoreMap(){
   Object.values(S.tests||{}).forEach(t=>{
     if(!t||t.hideApp||!t.scores||!okKey(t.id)) return;
     const mx=+t.max||10, vals=Object.values(t.scores).filter(v=>v!==null&&v!==''&&isFinite(+v)).map(Number);
+    let rowsBy=null; try{ if(typeof G!=='undefined'&&G.ready){ rowsBy={}; kqTestRows(t).forEach(x=>{ rowsBy[x.sid]=x; }); } }catch(e){}
     const avg=vals.length>=2?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*100)/100:null, cn=t.classId?className(t.classId):'';
     Object.entries(t.scores).forEach(([sid,v])=>{
       if(v===null||v===''||v===undefined||!isFinite(+v)||!okKey(sid)) return;
@@ -3190,6 +3203,10 @@ function appScoreMap(){
       const r={t:t.title||'Bài kiểm tra',s:+v,m:mx};
       if(t.classId) r.c=t.classId; if(cn&&cn!=='—') r.cn=cn; if(t.date) r.d=t.date; if(avg!==null) r.a=avg;
       const cm=t.comments&&t.comments[sid], nx=cm&&cm.nx; if(nx) r.n=String(nx).slice(0,1500);
+      try{ const x=rowsBy&&rowsBy[sid]; if(x&&x.detail){ const P=kqPubFor(t,x,''); if(P.nx) r.n=String(P.nx).slice(0,1500);
+          if(P.manh&&P.manh.length) r.mh=P.manh.slice(0,10).map(v=>String(v).slice(0,400)); if(P.cai&&P.cai.length) r.ci=P.cai.slice(0,10).map(v=>String(v).slice(0,400));
+          if(P.cau&&P.cau.length) r.cau=P.cau.map(c=>({i:c.id,t:String(c.ten||'').slice(0,120),d:c.diem,m:c.max,y:(c.y||[]).map(y=>({i:y.id,n:String(y.nd||'').slice(0,300),d:y.diem,m:y.max,o:String(y.ok||'').slice(0,400),l:String(y.lose||'').slice(0,400)}))})); }
+        else if(cm){ if(cm.manh&&cm.manh.length) r.mh=cm.manh.slice(0,10).map(v=>String(v).slice(0,400)); if(cm.cai&&cm.cai.length) r.ci=cm.cai.slice(0,10).map(v=>String(v).slice(0,400)); } }catch(e){}
       if(t.pubNote) r.g=String(t.pubNote).slice(0,1000);
       out[sid+'/'+t.id]=r;
     });
@@ -3201,6 +3218,7 @@ async function appSyncRun(force){
   if(!S.profile||!(SYNC.ready.t&&SYNC.ready.s&&SYNC.ready.c)){ if(force) toast('Dữ liệu chưa tải xong, thử lại sau giây lát','err'); return; }
   SYNC.busy=true; SYNC.err='';
   try{
+    try{ if(typeof G!=='undefined'&&!G.ready){ G.ready=true; await gLoad(); } }catch(e){}
     const want=appScoreMap(); SYNC.want=want;
     if(force||!SYNC.cache){ const snap=(await rdb.ref('studentScores').get()).val()||{}, c={};
       Object.entries(snap).forEach(([sid,o])=>Object.entries(o||{}).forEach(([tid,r])=>{ c[sid+'/'+tid]=sjson(r); })); SYNC.cache=c; }
