@@ -2717,7 +2717,7 @@ async function gdArchive(id,manual){
   try{
     let pages=arr(r.pages); if(!pages.length&&r.np>0){ pages=arr((await rdb.ref('gpages/'+id).get()).val()); }
     const out=await gdBuildPdf(r,pages), cn=className(r.classId), p=kqPubFromRec(r,null), d=(p.date||'').slice(0,10);
-    const fname=(slug(r.title||'bai')+'_'+slug(p.name||r.name)+(d?'_'+d:'')+'.pdf');
+    const cl=s=>String(s||'').replace(/[\\\/:*?"<>|\u0000-\u001f]/g,' ').replace(/\s+/g,' ').trim(), fname=(cl(p.name||r.name||'Học sinh').slice(0,60)+' - '+cl(r.title||'Bài kiểm tra').slice(0,80)+(/^\d{4}-\d{2}-\d{2}$/.test(d)?' - '+d.slice(8,10)+'-'+d.slice(5,7)+'-'+d.slice(0,4):'')+'.pdf');
     const res=await gdUpload(cfg,{name:fname,path:[cn&&cn!=='—'?cn:'Chưa phân lớp',(r.title||'Bài kiểm tra').slice(0,80)],data:out.b64,ping:false});
     const rec={id:res.id||'',url:res.url||'',name:fname,at:Date.now(),by:(S.profile&&S.profile.name)||'',pages:out.pages,imgs:out.imgs,title:r.title||'',sid:r.sid||'',ts:r.ts||Date.now()};
     await rdb.ref('gdrive/'+id).set(rec); GD.map[id]=rec;
