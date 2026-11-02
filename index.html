@@ -1962,8 +1962,8 @@ function gRubInfoH(){ const rs=G.exam.rubrics||[], mx=+G.exam.maxScore; return '
 function gNoteTxt(){ const n=(G.exam.note||'').trim(); return n?'\n\nLƯU Ý RIÊNG CỦA GIÁO VIÊN KHI CHẤM (đọc hết từng dòng; quy định nào liên quan đến ý nào thì ghi vào "ghi_chu" của ý đó, quy định chung cho cả câu/cả bài ghi vào "ghi_chu" của ý đầu tiên của câu liên quan):\n'+gNoteRules(n):''; }
 async function gExtractOne(ma){
   const c=[]; if(G.exam.de.length) c.push(...gBlocks(G.exam.de,'ĐỀ BÀI:')); c.push(...gBlocks(G.exam.barem,'HƯỚNG DẪN CHẤM:'));
-  c.push({type:'text',text:'Chuyển TOÀN BỘ hướng dẫn chấm'+(ma?' của MÃ ĐỀ '+ma+' (bỏ qua hoàn toàn barem của các mã đề khác; phần chung cho mọi mã đề thì vẫn áp dụng; mỗi mã đề có thể có đáp án, số liệu, thứ tự câu khác nhau nên phải chép đúng theo mã đề này)':'')+' thành barem có cấu trúc, không bỏ sót câu/ý nào, tách tới từng gạch đầu dòng/ý nhỏ có điểm riêng (nếu barem chỉ ghi điểm chung cho một nhóm ý thì giữ nguyên thành một ý, không tự chia điểm). Giữ đúng điểm của hướng dẫn chấm. Tổng điểm đề là '+G.exam.maxScore+'. Mỗi "noi_dung" phải nêu cụ thể và ĐẦY ĐỦ đáp án cần đạt (từng số liệu, địa danh, khái niệm, mức độ yêu cầu, các yếu tố thành phần kèm điểm thành phần nếu có) để chấm không cần xem lại barem gốc. Ghi thêm "ghi_chu" nếu barem có quy định riêng (điểm tối đa nếu thiếu, cách trừ điểm, cho điểm ý khác, có chấp nhận ý khác đúng hay không). Trả về JSON: {"tong_diem":number,"quy_dinh_chung":"các quy định chung áp dụng cho cả mã đề (từ hướng dẫn chấm và lưu ý của giáo viên: sai đơn vị, làm tròn, ý khác đúng, thiếu chú giải...), mỗi quy định một dòng","cau":[{"id":"1","ten":"Câu 1 (tóm tắt)","y":[{"id":"1.1","noi_dung":"...","diem_toi_da":number,"ghi_chu":""}]}]}'+gNoteTxt()});
-  let r=await gCallJson(c,G_SYS,8000);
+  c.push({type:'text',text:'Chuyển TOÀN BỘ hướng dẫn chấm'+(ma?' của MÃ ĐỀ '+ma+' (bỏ qua hoàn toàn barem của các mã đề khác; phần chung cho mọi mã đề thì vẫn áp dụng; mỗi mã đề có thể có đáp án, số liệu, thứ tự câu khác nhau nên phải chép đúng theo mã đề này)':'')+' thành barem có cấu trúc, không bỏ sót câu/ý nào, tách tới từng gạch đầu dòng/ý nhỏ có điểm riêng, mỗi ý nhỏ là một mục "y" với điểm riêng đúng như hướng dẫn chấm. Nếu hướng dẫn chấm chỉ ghi điểm chung cho một nhóm gồm nhiều ý nhỏ mà không ghi điểm từng ý, thì tách thành từng ý nhỏ và chia đều điểm của nhóm cho các ý (làm tròn 0,25, tổng giữ đúng bằng điểm của nhóm) và ghi "điểm chia đều từ điểm chung của nhóm" vào "ghi_chu". Tổng điểm đề là '+G.exam.maxScore+'. NGUYÊN TẮC TRÍCH NGUYÊN VĂN (bắt buộc): "noi_dung" của mỗi ý phải là phần văn bản TRÍCH NGUYÊN VĂN từ hướng dẫn chấm — giữ nguyên từng câu chữ, từ ngữ, số liệu, dấu câu, thứ tự và cách triển khai ý của hướng dẫn chấm; TUYỆT ĐỐI KHÔNG viết lại, diễn đạt lại, tóm tắt, rút gọn, gộp ý, thay từ đồng nghĩa, sửa văn phong hay bổ sung ý của bạn. Nhiệm vụ của bạn chỉ là cắt hướng dẫn chấm thành từng ý nhỏ và gắn điểm cho từng ý. Chỉ khi chữ trong ảnh không đọc rõ mới ghi [không rõ] tại đúng vị trí đó. "ten" của mỗi câu cũng chép nguyên văn tiêu đề/số hiệu câu như trong hướng dẫn chấm. Ghi "ghi_chu" (cũng trích nguyên văn) nếu hướng dẫn chấm có quy định riêng cho ý đó (điểm tối đa nếu thiếu, cách trừ điểm, cho điểm ý khác, có chấp nhận ý khác đúng hay không). Trả về JSON: {"tong_diem":number,"quy_dinh_chung":"các quy định chung áp dụng cho cả mã đề (chép nguyên văn từ hướng dẫn chấm và lưu ý của giáo viên: sai đơn vị, làm tròn, ý khác đúng, thiếu chú giải...), mỗi quy định một dòng","cau":[{"id":"1","ten":"nguyên văn tiêu đề câu","y":[{"id":"1.1","noi_dung":"nguyên văn ý nhỏ từ hướng dẫn chấm, không sửa chữ","diem_toi_da":number,"ghi_chu":""}]}]}'+gNoteTxt()});
+  let r=await gCallJson(c,G_SYS,12000);
   const arr=x=>Array.isArray(x)?x:null;
   let cs=arr(r.cau)||arr(r.câu)||arr(r.cau_hoi)||arr(r.questions)||arr(r.barem)||arr(r.data)||arr(r.items)||(()=>{ for(const k in r){ if(arr(r[k])&&r[k].length&&typeof r[k][0]==='object') return r[k]; } return null; })()||(arr(r)?r:null);
   if(!cs&&r&&typeof r==='object'){ const o=Object.values(r).find(v=>v&&typeof v==='object'&&arr(v.cau)); if(o) cs=o.cau; }
@@ -2701,9 +2701,12 @@ async function gdBuildPdf(r,pages){
   } finally { if(host) host.remove(); }
 }
 async function gdUpload(cfg,payload){
-  const body=JSON.stringify(Object.assign({token:cfg.gradeToken},payload)); let res;
-  try{ res=await fetch(cfg.gradeUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,redirect:'follow'}); }
-  catch(e){ throw new Error('không kết nối được tới Apps Script (kiểm tra URL và quyền truy cập “Bất kỳ ai”)'); }
+  const body=JSON.stringify(Object.assign({token:cfg.gradeToken},payload)); let res, tries=3;
+  /* tự thử lại khi mất mạng/DNS chập chờn (chỉ thử lại khi chưa nhận được phản hồi nào từ Apps Script) */
+  for(let k=1;k<=tries;k++){
+    try{ res=await fetch(cfg.gradeUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,redirect:'follow'}); break; }
+    catch(e){ console.warn('Gửi PDF lên Drive thất bại (lần '+k+'/'+tries+'):',e); if(k===tries) throw new Error('không kết nối được tới Apps Script sau '+tries+' lần thử (kiểm tra mạng/DNS, URL và quyền truy cập “Bất kỳ ai”)'); await new Promise(q=>setTimeout(q,k*3000)); }
+  }
   let j; try{ j=await res.json(); }catch(e){ throw new Error('Apps Script trả về dữ liệu không hợp lệ (kiểm tra đã triển khai bản mới chưa)'); }
   if(!j.ok) throw new Error(j.error||'Apps Script báo lỗi'); return j; }
 
@@ -2714,15 +2717,16 @@ async function gdArchive(id,manual){
   const cfg=await gdCfg(true);
   if(!cfg.gradeUrl||!cfg.gradeToken){ if(manual) console.warn('Chưa cấu hình config/drive/gradeUrl và gradeToken'); return; }
   GD.busy[id]=1; if(!GD.loaded) await gdLoadMap();
+  let stage='đọc ảnh bài làm';
   try{
     let pages=arr(r.pages); if(!pages.length&&r.np>0){ pages=arr((await rdb.ref('gpages/'+id).get()).val()); }
-    const out=await gdBuildPdf(r,pages), cn=className(r.classId), p=kqPubFromRec(r,null), d=(p.date||'').slice(0,10);
+    stage='dựng file PDF'; const out=await gdBuildPdf(r,pages), cn=className(r.classId), p=kqPubFromRec(r,null), d=(p.date||'').slice(0,10);
     const cl=s=>String(s||'').replace(/[\\\/:*?"<>|\u0000-\u001f]/g,' ').replace(/\s+/g,' ').trim(), fname=(cl(p.name||r.name||'Học sinh').slice(0,60)+' - '+cl(r.title||'Bài kiểm tra').slice(0,80)+(/^\d{4}-\d{2}-\d{2}$/.test(d)?' - '+d.slice(8,10)+'-'+d.slice(5,7)+'-'+d.slice(0,4):'')+'.pdf');
-    const res=await gdUpload(cfg,{name:fname,path:[cn&&cn!=='—'?cn:'Chưa phân lớp',(r.title||'Bài kiểm tra').slice(0,80)],data:out.b64,ping:false});
+    stage='gửi lên Apps Script (PDF '+Math.round(out.b64.length*0.75/1024)+' KB)'; const res=await gdUpload(cfg,{name:fname,path:[cn&&cn!=='—'?cn:'Chưa phân lớp',(r.title||'Bài kiểm tra').slice(0,80)],data:out.b64,ping:false});
     const rec={id:res.id||'',url:res.url||'',name:fname,at:Date.now(),by:(S.profile&&S.profile.name)||'',pages:out.pages,imgs:out.imgs,title:r.title||'',sid:r.sid||'',ts:r.ts||Date.now()};
-    await rdb.ref('gdrive/'+id).set(rec); GD.map[id]=rec;
+    stage='ghi nhận vào Firebase'; await rdb.ref('gdrive/'+id).set(rec); GD.map[id]=rec;
     console.log('Đã lưu PDF lưu trữ',fname,out.pages+' trang');
-  }catch(e){ console.warn('Lưu PDF lưu trữ lỗi:',e); toast('Chưa lưu được bản PDF lưu trữ — báo quản trị viên.','err'); }
+  }catch(e){ console.error('Lưu PDF lưu trữ lỗi ['+stage+']:',e); toast('Chưa lưu được PDF lên Drive — lỗi ở bước “'+stage+'”: '+String((e&&e.message)||e).slice(0,200),'err'); }
   finally{ delete GD.busy[id]; }
 }
 
