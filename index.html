@@ -3239,10 +3239,32 @@ async function loadPortal(){const g=async q=>(await rdb.ref(q).get()).val()||{};
 function vPortal(){const p=PT();if(!p.d){loadPortal();return'<div class="card empty">Đang tải…</div>'}
   const T=[['acc','Tài khoản'],['sc','Điểm số trên app'],['log','Nhật ký đăng nhập'],['nt','Thông báo']];
   return'<h2 class="pt">Cổng học sinh</h2><div class="muted mb16">Quản lý tài khoản, điểm số, nhật ký đăng nhập và thông báo hiển thị trên app học sinh</div><div class="row mb16" style="gap:8px;flex-wrap:wrap">'+T.map(x=>'<button class="btn sm '+(p.tab===x[0]?'pri':'')+'" onclick="PT().tab=\''+x[0]+'\';render()">'+x[1]+'</button>').join('')+'<button class="btn sm" onclick="PT().d=null;render()">↻ Tải lại</button></div>'+({acc:pAcc,sc:pSc,log:pLog,nt:pNt}[p.tab])()}
-function pAcc(){const p=PT(),q=p.q.toLowerCase(),R=Object.entries(p.d.a).map(([u,a])=>({u,...a})).filter(a=>!q||(a.p+' '+Object.keys(a.sids||{}).map(sName).join(' ')).toLowerCase().includes(q)).sort((x,y)=>(y.last||0)-(x.last||0));
-  return'<div class="card"><input class="inp mb12" placeholder="Tìm SĐT hoặc tên học sinh, rồi nhấn Enter…" value="'+esc(p.q)+'" onchange="PT().q=this.value;render()"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SĐT</th><th>Học sinh (anh/chị/em dùng chung)</th><th>Đăng nhập gần nhất</th><th>Trạng thái</th><th></th></tr></thead><tbody>'+
-  (R.map(a=>{const lk=p.d.lk[a.u]===true;return'<tr><td><b>'+esc(a.p)+'</b></td><td>'+Object.keys(a.sids||{}).map(i=>esc(sName(i))).join('<br>')+'</td><td>'+(a.last?fmtDT(a.last):'—')+'</td><td>'+(lk?'<span class="pill pill-amber">Đã khóa</span>':'<span class="pill pill-grn">Hoạt động</span>')+'</td><td style="white-space:nowrap"><button class="btn sm" onclick="pLock(\''+a.u+'\','+!lk+')">'+(lk?'Mở khóa':'Khóa')+'</button> <button class="btn sm" onclick="PT().tab=\'log\';PT().lq=\''+esc(a.p)+'\';render()">Nhật ký</button> <button class="btn sm" onclick="pReset(\''+a.u+'\',\''+esc(a.p)+'\')">Đặt lại mật khẩu</button> <button class="btn sm red" onclick="pDelAcc(\''+a.u+'\',\''+esc(a.p)+'\')">Xóa tài khoản</button></td></tr>'}).join('')||'<tr><td colspan="5" class="muted">Chưa có tài khoản học sinh nào.</td></tr>')+
-  '</tbody></table></div><div class="small muted mt12"><b>Khóa</b>: học sinh không đăng nhập và không đọc được dữ liệu. <b>Đặt lại mật khẩu</b>: xóa tài khoản cũ, học sinh chọn “Đăng nhập lần đầu” để tự tạo mật khẩu mới (Firebase không cho trình duyệt đặt hộ mật khẩu của người khác). <b>Xóa tài khoản</b>: xóa hẳn tài khoản và SĐT khỏi hệ thống; hồ sơ học sinh, điểm và điểm danh vẫn được giữ, học sinh có thể tạo tài khoản mới bằng “Đăng nhập lần đầu”.</div></div>'}
+/* ===== v10 · Cổng học sinh: lọc theo lớp/trạng thái, truy vấn nhật ký theo tài khoản ===== */
+const stuCls=sid=>{const s=S.students[sid];return s?(s.classIds||[]).filter(c=>S.classes[c]):[]};
+const acCls=a=>{const o=[];Object.keys(a.sids||{}).forEach(i=>stuCls(i).forEach(c=>{if(!o.includes(c))o.push(c)}));return o};
+const pSel=(cur,opts,fn)=>'<select class="inp" style="width:auto;min-width:140px" onchange="'+fn+'">'+opts.map(o=>'<option value="'+esc(o[0])+'" '+(String(cur)===String(o[0])?'selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select>';
+const pClsOpts=()=>[['','Tất cả lớp']].concat(Object.values(S.classes).sort((a,b)=>(a.name||'').localeCompare(b.name||'','vi')).map(c=>[c.id,(c.name||'—')+(c.active===false?' (đã dừng)':'')]));
+const pEvOpts=()=>[['','Mọi sự kiện']].concat(Object.keys(EVN).map(k=>[k,EVN[k]]));
+const pDevOpts=()=>[['','Mọi thiết bị'],['iPhone/iPad','iPhone/iPad'],['Android','Android'],['Windows','Windows'],['Mac','Mac'],['Khác','Khác']];
+const pPerOpts=()=>[['','Mọi thời gian'],['1','Trong 24 giờ'],['7','Trong 7 ngày'],['30','Trong 30 ngày']];
+function pAcc(){const p=PT(),f=p.af||(p.af={q:p.q||'',cls:'',st:'',per:''}),q=norm(f.q),now=Date.now();
+  const R=Object.entries(p.d.a).map(([u,a])=>({u,...a})).filter(a=>{const lk=p.d.lk[a.u]===true,cl=acCls(a);
+    if(q&&!norm(a.p+' '+Object.keys(a.sids||{}).map(sName).join(' ')+' '+cl.map(className).join(' ')).includes(q))return false;
+    if(f.cls&&!cl.includes(f.cls))return false;
+    if(f.st==='ok'&&lk)return false;if(f.st==='lock'&&!lk)return false;
+    if(f.per==='never'&&a.last)return false;
+    if(f.per==='old'&&!(a.last&&a.last<now-30*864e5))return false;
+    if((f.per==='7'||f.per==='30')&&!(a.last&&a.last>=now-(+f.per)*864e5))return false;
+    return true}).sort((x,y)=>(y.last||0)-(x.last||0));
+  const total=Object.keys(p.d.a).length,nLock=Object.keys(p.d.a).filter(u=>p.d.lk[u]===true).length;
+  return'<div class="card"><div class="row wrap mb12" style="gap:8px;align-items:center"><input class="inp" style="flex:1;min-width:220px" placeholder="Tìm SĐT, tên học sinh hoặc lớp, rồi nhấn Enter…" value="'+esc(f.q)+'" onchange="PT().af.q=this.value;render()">'+
+  pSel(f.cls,pClsOpts(),"PT().af.cls=this.value;render()")+
+  pSel(f.st,[['','Mọi trạng thái'],['ok','Đang hoạt động'],['lock','Đã khóa']],"PT().af.st=this.value;render()")+
+  pSel(f.per,[['','Đăng nhập: mọi lúc'],['7','Đăng nhập trong 7 ngày'],['30','Đăng nhập trong 30 ngày'],['old','Không đăng nhập > 30 ngày'],['never','Chưa đăng nhập']],"PT().af.per=this.value;render()")+
+  '<button class="btn sm" onclick="PT().af=null;render()">Xóa lọc</button></div>'+
+  '<div class="small muted mb12">Hiển thị <b>'+R.length+'</b> / '+total+' tài khoản · '+nLock+' đang khóa</div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SĐT</th><th>Học sinh (anh/chị/em dùng chung)</th><th>Lớp</th><th>Đăng nhập gần nhất</th><th>Trạng thái</th><th></th></tr></thead><tbody>'+
+  (R.map(a=>{const lk=p.d.lk[a.u]===true,ids=Object.keys(a.sids||{});return'<tr><td><b>'+esc(a.p)+'</b></td><td>'+ids.map(i=>esc(sName(i))).join('<br>')+'</td><td>'+ids.map(i=>{const c=stuCls(i).map(className).map(esc).join(', ');return c?'<span class="small">'+c+'</span>':'<span class="small muted">—</span>'}).join('<br>')+'</td><td>'+(a.last?fmtDT(a.last):'—')+'</td><td>'+(lk?'<span class="pill pill-amber">Đã khóa</span>':'<span class="pill pill-grn">Hoạt động</span>')+'</td><td style="white-space:nowrap"><button class="btn sm" onclick="pLock(\''+a.u+'\','+!lk+')">'+(lk?'Mở khóa':'Khóa')+'</button> <button class="btn sm pri" onclick="pQuery(\''+a.u+'\')">'+ic('search',14)+' Truy vấn nhật ký</button> <button class="btn sm" onclick="pReset(\''+a.u+'\',\''+esc(a.p)+'\')">Đặt lại mật khẩu</button> <button class="btn sm red" onclick="pDelAcc(\''+a.u+'\',\''+esc(a.p)+'\')">Xóa tài khoản</button></td></tr>'}).join('')||'<tr><td colspan="6" class="muted">Không có tài khoản nào khớp bộ lọc.</td></tr>')+
+  '</tbody></table></div><div class="small muted mt12"><b>Khóa</b>: học sinh không đăng nhập và không đọc được dữ liệu. <b>Truy vấn nhật ký</b>: xem riêng toàn bộ hoạt động của tài khoản đó. <b>Đặt lại mật khẩu</b>: xóa tài khoản cũ, học sinh chọn “Đăng nhập lần đầu” để tự tạo mật khẩu mới (Firebase không cho trình duyệt đặt hộ mật khẩu của người khác). <b>Xóa tài khoản</b>: xóa hẳn tài khoản và SĐT khỏi hệ thống; hồ sơ học sinh, điểm và điểm danh vẫn được giữ, học sinh có thể tạo tài khoản mới bằng “Đăng nhập lần đầu”.</div></div>'}
 async function pLock(u,f){try{await(f?rdb.ref('locks/'+u).set(true):rdb.ref('locks/'+u).remove());if(f)PT().d.lk[u]=true;else delete PT().d.lk[u];toast(f?'Đã khóa tài khoản':'Đã mở khóa','ok');render()}catch(e){toast('Lỗi: '+e.message,'err')}}
 async function pReset(u,ph){if(!confirm('Đặt lại mật khẩu cho SĐT '+ph+'? Tài khoản cũ bị xóa, học sinh phải tạo mật khẩu mới.'))return;
   try{const sc=await stuClear(u,PT().d.a[u]);await rdb.ref().update(Object.assign(sc,{['phoneIdx/'+ph]:null,['accts/'+u]:null,['locks/'+u]:true}));delete PT().d.a[u];toast('Đã đặt lại. Báo học sinh chọn “Đăng nhập lần đầu”.','ok');render()}catch(e){toast('Lỗi: '+e.message,'err')}}
@@ -3252,8 +3274,28 @@ async function pDelAcc(u,ph){const a=PT().d.a[u]||{},nm=Object.keys(a.sids||{}).
     await rdb.ref().update(up);delete PT().d.a[u];delete PT().d.lk[u];try{log('xóa tài khoản học sinh SĐT '+ph)}catch(e){}toast('Đã xóa tài khoản','ok');render()}
   catch(e){toast('Lỗi: '+e.message,'err')}}
 const EVN={login:'Đăng nhập',register:'Tạo tài khoản',link:'Liên kết học sinh',pw:'Đổi mật khẩu',switch:'Đổi học sinh'},uaS=u=>/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Khác';
-function pLog(){const p=PT(),q=p.lq;const L=p.d.lg.filter(x=>!q||String(x.p).includes(q)||sName(x.sid).toLowerCase().includes(q.toLowerCase()));
-  return'<div class="card"><input class="inp mb12" placeholder="Lọc theo SĐT hoặc tên học sinh, rồi nhấn Enter…" value="'+esc(q)+'" onchange="PT().lq=this.value;render()"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Thời gian</th><th>SĐT</th><th>Học sinh</th><th>Sự kiện</th><th>Thiết bị</th></tr></thead><tbody>'+(L.map(x=>'<tr><td>'+fmtDT(x.t)+'</td><td>'+esc(x.p)+'</td><td>'+esc(x.sid?sName(x.sid):'')+'</td><td><span class="pill '+(x.ev==='pw'?'pill-amber':'pill-blue')+'">'+(EVN[x.ev]||esc(x.ev))+'</span></td><td>'+uaS(x.ua||'')+'</td></tr>').join('')||'<tr><td colspan="5" class="muted">Chưa có nhật ký.</td></tr>')+'</tbody></table></div><div class="small muted mt12">Hiển thị 300 lượt gần nhất. Lần nhập sai mật khẩu không được ghi (chưa đăng nhập nên không có quyền ghi).</div></div>'}
+function pLog(){const p=PT(),f=p.lf||(p.lf={q:'',cls:'',ev:'',dev:'',per:''}),q=norm(f.q),now=Date.now(),days={'1':1,'7':7,'30':30}[f.per],pm={};
+  Object.values(p.d.a).forEach(a=>{pm[String(a.p)]=Object.keys(a.sids||{})});
+  const lcls=x=>{const ids=x.sid?[x.sid]:(pm[String(x.p)]||[]),o=[];ids.forEach(i=>stuCls(i).forEach(c=>{if(!o.includes(c))o.push(c)}));return o};
+  const L=p.d.lg.filter(x=>(!q||norm(String(x.p||'')+' '+(x.sid?sName(x.sid):'')).includes(q))&&(!f.cls||lcls(x).includes(f.cls))&&(!f.ev||x.ev===f.ev)&&(!f.dev||uaS(x.ua||'')===f.dev)&&(!days||x.t>=now-days*864e5));
+  return'<div class="card"><div class="row wrap mb12" style="gap:8px;align-items:center"><input class="inp" style="flex:1;min-width:220px" placeholder="Lọc theo SĐT hoặc tên học sinh, rồi nhấn Enter…" value="'+esc(f.q)+'" onchange="PT().lf.q=this.value;render()">'+
+  pSel(f.cls,pClsOpts(),"PT().lf.cls=this.value;render()")+pSel(f.ev,pEvOpts(),"PT().lf.ev=this.value;render()")+pSel(f.dev,pDevOpts(),"PT().lf.dev=this.value;render()")+pSel(f.per,pPerOpts(),"PT().lf.per=this.value;render()")+
+  '<button class="btn sm" onclick="PT().lf=null;render()">Xóa lọc</button></div><div class="small muted mb12">Hiển thị <b>'+L.length+'</b> / '+p.d.lg.length+' lượt</div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Thời gian</th><th>SĐT</th><th>Học sinh</th><th>Lớp</th><th>Sự kiện</th><th>Thiết bị</th><th></th></tr></thead><tbody>'+
+  (L.map(x=>'<tr><td>'+fmtDT(x.t)+'</td><td>'+esc(x.p)+'</td><td>'+esc(x.sid?sName(x.sid):'')+'</td><td class="small">'+(lcls(x).map(className).map(esc).join(', ')||'—')+'</td><td><span class="pill '+(x.ev==='pw'?'pill-amber':'pill-blue')+'">'+(EVN[x.ev]||esc(x.ev))+'</span></td><td>'+uaS(x.ua||'')+'</td><td>'+(pm[String(x.p)]?'<button class="btn sm" onclick="pQuery(\''+Object.keys(p.d.a).find(u=>String(p.d.a[u].p)===String(x.p))+'\')">Truy vấn</button>':'')+'</td></tr>').join('')||'<tr><td colspan="7" class="muted">Không có nhật ký khớp bộ lọc.</td></tr>')+'</tbody></table></div><div class="small muted mt12">Hiển thị tối đa 300 lượt gần nhất. Muốn xem toàn bộ lịch sử của một tài khoản, bấm “Truy vấn”. Lần nhập sai mật khẩu không được ghi (chưa đăng nhập nên không có quyền ghi).</div></div>'}
+/* --- Truy vấn nhật ký riêng của một tài khoản --- */
+const PQ={rows:[],ev:'',per:'',ph:'',u:''};
+async function pQuery(u){const p=PT(),a=p.d.a[u]||{},ph=String(a.p||'');PQ.u=u;PQ.ph=ph;PQ.ev='';PQ.per='';PQ.rows=[];
+  modal('Nhật ký tài khoản '+esc(ph),'<div id="pqB" class="muted">Đang truy vấn…</div>','<button class="btn" onclick="closeModal()">Đóng</button>',true);
+  const m={};p.d.lg.filter(x=>String(x.p)===ph).forEach(x=>{m[x.t+'|'+x.ev]=x});
+  try{const s=await rdb.ref('loginLogs').orderByChild('p').equalTo(ph).limitToLast(500).get();Object.values(s.val()||{}).forEach(x=>{m[x.t+'|'+x.ev]=x})}catch(e){}
+  PQ.rows=Object.values(m).sort((x,y)=>y.t-x.t);pqRender()}
+function pqRender(){const b=document.getElementById('pqB');if(!b)return;const p=PT(),a=p.d.a[PQ.u]||{},now=Date.now(),days={'1':1,'7':7,'30':30}[PQ.per],ids=Object.keys(a.sids||{});
+  const base=PQ.rows.filter(x=>!days||x.t>=now-days*864e5),cnt={};base.forEach(x=>{cnt[x.ev]=(cnt[x.ev]||0)+1});
+  const L=base.filter(x=>!PQ.ev||x.ev===PQ.ev),devs=Array.from(new Set(PQ.rows.map(x=>uaS(x.ua||'')))).join(', ')||'—',first=PQ.rows.length?PQ.rows[PQ.rows.length-1].t:0,last=PQ.rows.length?PQ.rows[0].t:0;
+  b.innerHTML='<div class="small mb12"><b>Học sinh:</b> '+ids.map(i=>esc(sName(i))+' <span class="muted">('+(stuCls(i).map(className).map(esc).join(', ')||'chưa có lớp')+')</span>').join(' · ')+'<br><b>Trạng thái:</b> '+(p.d.lk[PQ.u]===true?'Đã khóa':'Hoạt động')+' · <b>Thiết bị đã dùng:</b> '+esc(devs)+'<br><b>Lượt đầu:</b> '+(first?fmtDT(first):'—')+' · <b>Lượt gần nhất:</b> '+(last?fmtDT(last):'—')+'</div>'+
+  '<div class="row wrap mb12" style="gap:6px;align-items:center"><button class="btn sm '+(!PQ.ev?'pri':'')+'" onclick="PQ.ev=\'\';pqRender()">Tất cả ('+base.length+')</button>'+Object.keys(cnt).map(k=>'<button class="btn sm '+(PQ.ev===k?'pri':'')+'" onclick="PQ.ev=\''+k+'\';pqRender()">'+(EVN[k]||esc(k))+' ('+cnt[k]+')</button>').join('')+pSel(PQ.per,pPerOpts(),"PQ.per=this.value;pqRender()")+'</div>'+
+  '<div style="overflow-x:auto;max-height:52vh;overflow-y:auto"><table class="tbl"><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Lớp</th><th>Sự kiện</th><th>Thiết bị</th></tr></thead><tbody>'+
+  (L.map(x=>{const s=x.sid?[x.sid]:ids;return'<tr><td>'+fmtDT(x.t)+'</td><td>'+esc(s.map(sName).join(', '))+'</td><td class="small">'+(Array.from(new Set([].concat(...s.map(stuCls)))).map(className).map(esc).join(', ')||'—')+'</td><td><span class="pill '+(x.ev==='pw'?'pill-amber':'pill-blue')+'">'+(EVN[x.ev]||esc(x.ev))+'</span></td><td>'+uaS(x.ua||'')+'</td></tr>'}).join('')||'<tr><td colspan="5" class="muted">Tài khoản này chưa có hoạt động nào được ghi lại.</td></tr>')+'</tbody></table></div><div class="small muted mt12">Đang hiển thị '+L.length+' lượt (tối đa 500 lượt gần nhất của riêng tài khoản này).</div>'}
 const locDT=ts=>ts?new Date(ts-new Date(ts).getTimezoneOffset()*6e4).toISOString().slice(0,16):'';
 function pNt(){setTimeout(pnPrev,0);const p=PT(),e=p.edit?p.d.nt[p.edit]:null,now=Date.now(),L=Object.entries(p.d.nt).map(([id,n])=>({id,...n})).sort((a,b)=>b.at-a.at),sel=(e&&e.to)||[];
   return'<div class="grid g2"><div class="card"><div class="b mb12">'+(e?'Sửa thông báo':'Soạn thông báo mới')+'</div><div class="field"><label>Tiêu đề</label><input class="inp" id="pnT" value="'+esc(e?e.title:'')+'" oninput="pnPrev()"></div><div class="field"><label>Nội dung</label><div class="row" style="gap:6px;margin-bottom:6px"><button class="btn sm" onclick="pnFmt(\'b\')"><b>B</b></button><button class="btn sm" onclick="pnFmt(\'i\')"><i>I</i></button><button class="btn sm" onclick="pnFmt(\'u\')">• Danh sách</button><button class="btn sm" onclick="pnFmt(\'l\')">🔗 Liên kết</button></div><textarea class="inp" id="pnB" rows="7" oninput="pnPrev()">'+esc(e?e.body:'')+'</textarea></div>'+
@@ -3284,7 +3326,7 @@ const okKey=k=>k&&!/[.#$\[\]\/]/.test(k);
 function appScoreMap(){
   const out={};
   Object.values(S.tests||{}).forEach(t=>{
-    if(!t||t.hideApp||!t.scores||!okKey(t.id)) return;
+    if(!t||t.hideApp||(t.pubAt&&t.pubAt>Date.now())||!t.scores||!okKey(t.id)) return;
     const mx=+t.max||10, vals=Object.values(t.scores).filter(v=>v!==null&&v!==''&&isFinite(+v)).map(Number);
     let rowsBy=null; try{ if(typeof G!=='undefined'&&G.ready){ rowsBy={}; kqTestRows(t).forEach(x=>{ rowsBy[x.sid]=x; }); } }catch(e){}
     const avg=vals.length>=2?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*100)/100:null, cn=t.classId?className(t.classId):'';
@@ -3305,7 +3347,7 @@ function appScoreMap(){
   return out;
 }
 async function appSyncRun(force){
-  if(SYNC.busy) return;
+  if(SYNC.busy){ SYNC.retry=true; return; }
   if(!S.profile||!(SYNC.ready.t&&SYNC.ready.s&&SYNC.ready.c)){ if(force) toast('Dữ liệu chưa tải xong, thử lại sau giây lát','err'); return; }
   SYNC.busy=true; SYNC.err='';
   try{
@@ -3328,17 +3370,34 @@ async function appSyncRun(force){
     SYNC.err=/permission/i.test((e&&e.message)||'')?'Chưa cập nhật Rules (Cài đặt → Thiết lập Firebase → dán Rules mới rồi Publish).':((e&&e.message)||String(e));
     SYNC.cache=null; if(force||!SYNC.warned){ SYNC.warned=true; toast('Đồng bộ điểm lên app HS chưa được: '+SYNC.err,'err'); }
   }
-  SYNC.busy=false;
+  SYNC.busy=false; if(SYNC.retry){ SYNC.retry=false; setTimeout(()=>appSyncRun(false),500); }
   if(S.view==='portal'&&PT().tab==='sc'){ const a=document.activeElement; if(!(a&&/INPUT|SELECT|TEXTAREA/.test(a.tagName))) render(); }
 }
 async function appToggleTest(id){ const t=S.tests[id]; if(!t) return;
-  try{ await C('tests').doc(id).update({hideApp:t.hideApp?FV.delete():true}); toast(t.hideApp?'Đã hiện bài này trên app học sinh':'Đã ẩn bài này khỏi app học sinh','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
+  try{ await C('tests').doc(id).update({hideApp:t.hideApp?FV.delete():true,pubAt:FV.delete()}); toast(t.hideApp?'Đã hiện bài này trên app học sinh':'Đã ẩn bài này khỏi app học sinh','ok'); }catch(e){ toast('Lỗi: '+e.message,'err'); } }
+const PB={ids:[]};
+function pubInfo(t){const now=Date.now();
+  if(t.hideApp)return'<span class="pill pill-gray">Đang ẩn</span> <button class="btn sm" onclick="appToggleTest(\''+t.id+'\')">Hiện ngay</button> <button class="btn sm" onclick="pubOpen([\''+t.id+'\'])">'+ic('clock',13)+' Hẹn giờ</button>';
+  if(t.pubAt&&t.pubAt>now)return'<span class="pill pill-amber">'+ic('clock',12)+' Hẹn giờ '+fmtDT(t.pubAt)+'</span> <button class="btn sm" onclick="pubNow(\''+t.id+'\')">Công bố ngay</button> <button class="btn sm" onclick="pubOpen([\''+t.id+'\'])">Đổi giờ</button> <button class="btn sm red" onclick="pubCancel(\''+t.id+'\')">Hủy hẹn</button>';
+  return'<span class="pill pill-grn">Đang hiện</span>'+(t.pubAt?' <span class="small muted">công bố '+fmtDT(t.pubAt)+'</span>':'')+' <button class="btn sm" onclick="appToggleTest(\''+t.id+'\')">Ẩn</button> <button class="btn sm" onclick="pubOpen([\''+t.id+'\'])">'+ic('clock',13)+' Hẹn giờ</button>'}
+function pubSel(id,on){const p=PT();p.sel=p.sel||{};if(on)p.sel[id]=1;else delete p.sel[id]}
+function pubBulk(){const ids=Object.keys(PT().sel||{}).filter(i=>S.tests[i]);if(!ids.length)return toast('Tick chọn ít nhất một bài ở cột đầu bảng','err');pubOpen(ids)}
+function pubOpen(ids){PB.ids=ids;const ts=ids.map(i=>S.tests[i]).filter(Boolean),ex=ts.length===1&&ts[0].pubAt>Date.now()?ts[0].pubAt:0,d=new Date();d.setDate(d.getDate()+1);d.setHours(7,0,0,0);
+  modal('Hẹn giờ công bố điểm','<div class="small muted mb12">Điểm của '+(ts.length>1?'<b>'+ts.length+' bài</b>':'bài <b>'+esc(ts[0]?ts[0].title||'Bài kiểm tra':'')+'</b>')+' sẽ ẩn với học sinh cho tới đúng giờ hẹn, sau đó tự hiện trên app.</div><div class="field"><label>Công bố lúc</label><input class="inp" type="datetime-local" id="pbAt" value="'+locDT(ex||d.getTime())+'"></div><div class="row wrap" style="gap:6px"><button class="btn sm" onclick="pubQuick(1)">+1 giờ</button><button class="btn sm" onclick="pubQuick(2)">Tối nay 20:00</button><button class="btn sm" onclick="pubQuick(3)">Sáng mai 07:00</button><button class="btn sm" onclick="pubQuick(4)">+1 ngày</button></div><div class="small muted mt12">Việc đưa điểm lên app do trình duyệt trợ giảng thực hiện: đúng giờ hẹn nếu trang đang mở, hoặc ngay khi trợ giảng mở lại trang.</div>','<button class="btn" onclick="closeModal()">Đóng</button><button class="btn pri" onclick="pubSave()">Lưu hẹn giờ</button>')}
+function pubQuick(k){const d=new Date(),n=Date.now();let t;if(k===1)t=n+36e5;else if(k===2){d.setHours(20,0,0,0);t=d.getTime();if(t<=n)t+=864e5}else if(k===3){d.setDate(d.getDate()+1);d.setHours(7,0,0,0);t=d.getTime()}else t=n+864e5;const e=document.getElementById('pbAt');if(e)e.value=locDT(t)}
+async function pubSave(){const ts=val('pbAt')?new Date(val('pbAt')).getTime():0;if(!ts||ts<=Date.now()+30000)return toast('Hãy chọn thời điểm trong tương lai','err');
+  try{for(const id of PB.ids)await C('tests').doc(id).update({pubAt:ts,hideApp:FV.delete()});try{log('hẹn giờ công bố điểm '+PB.ids.length+' bài lúc '+fmtDT(ts))}catch(e){}PT().sel={};closeModal();toast('Đã hẹn giờ công bố lúc '+fmtDT(ts),'ok');render()}catch(e){toast('Lỗi: '+e.message,'err')}}
+async function pubNow(id){try{await C('tests').doc(id).update({pubAt:FV.delete(),hideApp:FV.delete()});toast('Đã công bố điểm lên app học sinh','ok')}catch(e){toast('Lỗi: '+e.message,'err')}}
+async function pubCancel(id){try{await C('tests').doc(id).update({pubAt:FV.delete(),hideApp:true});toast('Đã hủy hẹn giờ — bài đang ẩn với học sinh','ok')}catch(e){toast('Lỗi: '+e.message,'err')}}
+Object.assign(window,{pubSel,pubBulk,pubOpen,pubQuick,pubSave,pubNow,pubCancel,pQuery,pqRender});
+/* tự công bố khi tới giờ hẹn (kiểm tra mỗi 15 giây) */
+setInterval(()=>{const n=Date.now(),b=SYNC.tick||n;SYNC.tick=n;if(!S.profile)return;if(Object.values(S.tests||{}).some(t=>t&&t.pubAt&&t.pubAt>b&&t.pubAt<=n))appSyncRun(false)},15000);
 function pSc(){
-  const T=Object.values(S.tests||{}).filter(t=>t&&t.scores&&Object.keys(t.scores).length).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0)),
+  const T=Object.values(S.tests||{}).filter(t=>t&&t.scores&&Object.keys(t.scores).length).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0)),sel=PT().sel||{},nSch=T.filter(t=>!t.hideApp&&t.pubAt&&t.pubAt>Date.now()).length,
     st=SYNC.err?'<span class="pill pill-red">Lỗi</span> '+esc(SYNC.err):SYNC.last?'<span class="pill pill-grn">Đã đồng bộ</span> lần gần nhất '+fmtDT(SYNC.last)+' · '+SYNC.rows+' dòng điểm đang hiển thị trên app':(SYNC.busy?'Đang đồng bộ…':'<span class="pill pill-gray">Chờ đồng bộ</span> sẽ tự chạy sau khi dữ liệu tải xong');
-  return '<div class="card mb16"><div class="row between wrap" style="gap:12px"><div style="min-width:240px;flex:1"><div class="b">Đồng bộ điểm với app học sinh</div><div class="small muted mt8">Điểm ở mục <b>Điểm số</b> tự động đưa lên app học sinh mỗi khi bạn nhập hoặc sửa. Ẩn một bài ở bảng dưới nếu chưa muốn học sinh thấy.</div><div class="small mt8">'+st+'</div></div><button class="btn pri" '+(SYNC.busy?'disabled':'')+' onclick="appSyncRun(true)">'+ic('refresh',16)+' Đồng bộ ngay</button></div></div>'+
-  '<div class="card" style="padding:0"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Bài kiểm tra</th><th>Lớp</th><th>Ngày</th><th class="center">HS có điểm</th><th>Trên app HS</th></tr></thead><tbody>'+
-  (T.map(t=>{ const n=Object.values(t.scores).filter(v=>v!==null&&v!==''&&isFinite(+v)).length; return '<tr><td><b>'+esc(t.title||'Bài kiểm tra')+'</b></td><td>'+esc(className(t.classId))+'</td><td>'+esc(fmtD(t.date))+'</td><td class="center">'+n+'</td><td style="white-space:nowrap">'+(t.hideApp?'<span class="pill pill-gray">Đang ẩn</span> <button class="btn sm" onclick="appToggleTest(\''+t.id+'\')">Hiện</button>':'<span class="pill pill-grn">Đang hiện</span> <button class="btn sm" onclick="appToggleTest(\''+t.id+'\')">Ẩn</button>')+'</td></tr>'; }).join('')||'<tr><td colspan="5" class="muted">Chưa có bài kiểm tra nào có điểm.</td></tr>')+
+  return '<div class="card mb16"><div class="row between wrap" style="gap:12px"><div style="min-width:240px;flex:1"><div class="b">Đồng bộ điểm với app học sinh</div><div class="small muted mt8">Điểm ở mục <b>Điểm số</b> tự động đưa lên app học sinh mỗi khi bạn nhập hoặc sửa. Ẩn một bài ở bảng dưới nếu chưa muốn học sinh thấy, hoặc <b>hẹn giờ công bố</b> để điểm tự hiện đúng giờ.</div><div class="small mt8">'+st+(nSch?' · <span class="pill pill-amber">'+nSch+' bài đang hẹn giờ</span>':'')+'</div></div><div class="row wrap" style="gap:8px"><button class="btn" onclick="pubBulk()">'+ic('clock',16)+' Hẹn giờ cho bài đã chọn</button><button class="btn pri" '+(SYNC.busy?'disabled':'')+' onclick="appSyncRun(true)">'+ic('refresh',16)+' Đồng bộ ngay</button></div></div></div>'+
+  '<div class="card" style="padding:0"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th style="width:34px"></th><th>Bài kiểm tra</th><th>Lớp</th><th>Ngày</th><th class="center">HS có điểm</th><th>Trên app HS</th></tr></thead><tbody>'+
+  (T.map(t=>{ const n=Object.values(t.scores).filter(v=>v!==null&&v!==''&&isFinite(+v)).length; return '<tr><td><input type="checkbox" '+(sel[t.id]?'checked':'')+' onchange="pubSel(\''+t.id+'\',this.checked)"></td><td><b>'+esc(t.title||'Bài kiểm tra')+'</b></td><td>'+esc(className(t.classId))+'</td><td>'+esc(fmtD(t.date))+'</td><td class="center">'+n+'</td><td style="white-space:nowrap">'+pubInfo(t)+'</td></tr>'; }).join('')||'<tr><td colspan="6" class="muted">Chưa có bài kiểm tra nào có điểm.</td></tr>')+
   '</tbody></table></div></div>';
 }
 
