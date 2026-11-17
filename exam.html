@@ -1,29 +1,66 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Trợ giảng kiểm tra miệng Địa lí</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiểm tra </title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f7fa;--card:#fff;--tx:#1d2733;--mu:#667;--pr:#1f6feb;--bd:#dde3ea;--ok:#1a7f37;--w:#b26a00;--bad:#c62828;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--card:#1b222b;--tx:#e6ebf1;--mu:#9aa6b2;--bd:#2c3642;--pr:#5aa2ff}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,"Segoe UI",sans-serif}
-.w{max-width:960px;margin:0 auto;padding:16px}h1{font-size:22px;margin:4px 0 14px}h2{font-size:18px;margin:0 0 8px}
-.c{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px}
-input{padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;width:100%}
-label{font-size:14px;color:var(--mu);display:block;margin:8px 0 4px}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
-button{padding:10px 16px;border:0;border-radius:8px;background:var(--pr);color:#fff;font:inherit;cursor:pointer;font-weight:600}button.s{background:var(--bd);color:var(--tx)}
-.r{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px}.r button{background:var(--bd);color:var(--tx)}.r button.on{background:var(--pr);color:#fff}
-.tag{display:inline-block;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--bd);margin-right:6px}
-.q{font-size:20px;font-weight:700}.t{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums}.a{white-space:pre-line;border-left:4px solid var(--pr);padding-left:12px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}.mu{color:var(--mu);font-size:14px}
-table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid var(--bd);padding:6px;text-align:left;font-size:14px}
-</style></head><body><div class="w" id="app"></div>
+:root{--bg:#eaf4f4;--tx:#12303a;--mu:#6a808a;--pr:#0f766e;--pr2:#0e7490;--ac:#f97316;--bd:#d6e6e8;--sh:0 10px 30px rgba(14,80,95,.10)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--tx);font:16px/1.6 "Be Vietnam Pro","Segoe UI",system-ui,sans-serif;background:radial-gradient(900px 420px at 0 -5%,#c7ecee,transparent 60%),radial-gradient(800px 380px at 100% 0,#fde7d3,transparent 55%),var(--bg)}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+.hero{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px;padding:22px 26px;border-radius:24px;color:#fff;background:linear-gradient(120deg,#0b3b4a,#0f766e 60%,#14a3a3);box-shadow:var(--sh)}
+.hero h1{margin:0;font-size:24px}.hero p{margin:2px 0 0;opacity:.85;font-size:14px}
+.c{background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:20px;padding:18px 22px;margin-bottom:16px;box-shadow:var(--sh)}
+h2{font-size:18px;margin:0 0 10px}.mu{color:var(--mu);font-size:14px}
+input,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:12px;background:#f8fcfc;color:var(--tx);font:inherit}
+input:focus,textarea:focus{outline:3px solid #99e0dc;border-color:var(--pr)}
+textarea{margin-top:10px;resize:vertical}
+label{font-size:13px;color:var(--mu);display:block;margin:8px 0 4px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+button{padding:11px 18px;border:0;border-radius:12px;font:inherit;font-weight:600;cursor:pointer;background:#e3eff0;color:var(--tx);transition:transform .12s}
+button:hover:not(:disabled){transform:translateY(-1px)}button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+button.b{background:linear-gradient(120deg,var(--pr),var(--pr2));color:#fff}
+.hero button{background:rgba(255,255,255,.18);color:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.tag{display:inline-block;font-size:12.5px;font-weight:600;padding:3px 12px;border-radius:99px;background:#e3eff0}
+.tag.bad{background:#fee2e2;color:#b91c1c}.tag.wn{background:#fef3c7;color:#b45309}.tag.pr{background:#dbeafe;color:#1d4ed8}.tag.ok{background:#dcfce7;color:#15803d}
+.steps{display:flex;gap:8px;margin:0 0 16px}.steps i{flex:1;text-align:center;font-style:normal;font-weight:700;padding:6px 0;border-radius:12px;background:#fff;border:1.5px solid var(--bd);color:var(--mu)}
+.steps i.dn{background:#dcfce7;color:#15803d;border-color:#86efac}.steps i.cur{background:var(--pr);color:#fff;border-color:var(--pr)}
+.q{font-size:22px;font-weight:800;margin:10px 0 14px;line-height:1.4}
+.rg{position:relative;width:150px;height:150px}.rg svg{width:100%;transform:rotate(-90deg)}
+.rb{fill:none;stroke:#dcebec;stroke-width:9}.rf{fill:none;stroke-width:9;stroke-linecap:round}
+.rg b{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;font-variant-numeric:tabular-nums}
+.bt{display:flex;gap:10px;flex-wrap:wrap}
+.a{white-space:pre-line;border-left:5px solid var(--pr);padding:4px 0 4px 14px;font-size:15.5px}
+.ans{background:linear-gradient(#f2fbfa,#fff)}
+.r{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.lv{background:#fff;border:2px solid var(--bd);line-height:1.35;padding:12px 6px}
+.lv.bad{border-color:#fecaca}.lv.wn{border-color:#fde68a}.lv.pr{border-color:#bfdbfe}.lv.ok{border-color:#bbf7d0}
+.lv.bad.on{background:#ef4444;color:#fff}.lv.wn.on{background:#f59e0b;color:#fff}.lv.pr.on{background:#3b82f6;color:#fff}.lv.ok.on{background:#16a34a;color:#fff}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:6px}.nav button{padding:14px 22px}
+.ban{display:flex;gap:18px;align-items:center;border-radius:24px;padding:22px 26px;color:#fff;margin-bottom:16px;box-shadow:var(--sh)}
+.ban.ok{background:linear-gradient(120deg,#15803d,#22c55e)}.ban.wn{background:linear-gradient(120deg,#d97706,#fbbf24)}.ban.bad{background:linear-gradient(120deg,#dc2626,#f97316)}
+.em{font-size:52px;line-height:1}.vt{font-size:26px;font-weight:800}.ban>div:last-child{flex:1}
+.bar{height:10px;background:rgba(255,255,255,.35);border-radius:9px;margin:8px 0;overflow:hidden}.bar i{display:block;height:100%;background:#fff;border-radius:9px}
+.qi{padding:10px 0;border-top:1px dashed var(--bd)}details{margin-top:6px}summary{cursor:pointer;color:var(--pr);font-weight:600;font-size:14px}
+.ta{background:#fff7ed;border-left:5px solid var(--ac);border-radius:10px;padding:10px 14px;margin-top:10px}
+.li{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--bd)}
+.chip{display:inline-block;padding:4px 12px;border-radius:99px;font-size:13px;font-weight:600;margin-top:8px}.chip.ok{background:#dcfce7;color:#15803d}.chip.bad{background:#fee2e2;color:#b91c1c}
+.hsb{margin:0;min-height:100vh;color:#fff;background:linear-gradient(160deg,#0b3b4a,#0f766e)}
+.hsw{text-align:center;padding:5vh 5vw}.hsh{opacity:.8;font-size:22px}.hsq{font-size:clamp(26px,3.6vw,46px);font-weight:800;margin:4vh auto;max-width:900px;line-height:1.35}
+.hsw .rg{width:240px;height:240px;margin:0 auto}.hsw .rg b{font-size:56px;color:#fff}.hsw .rb{stroke:rgba(255,255,255,.2)}.hsm{font-size:22px;opacity:.9;margin-top:14px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#12303a;color:#fff;padding:10px 20px;border-radius:99px;z-index:9}
+@media print{.np{display:none!important}body{background:#fff}}
+@media(max-width:560px){.ban{flex-direction:column;text-align:center}.hero h1{font-size:20px}}
+</style></head><body><div class="wrap" id="app"></div>
 <script>
 const CATS={TN:"Tự nhiên Việt Nam",DC:"Dân cư",KT:"Kinh tế ngành N-L-TS & CN"};
 const Q=[
 ["TN","Trình bày đặc điểm vị trí địa lí Việt Nam.","- Trung tâm Đông Nam Á, phía đông bán đảo Đông Dương, biển Đông thông ra TBD.\n- Nội chí tuyến Bắc bán cầu; khu vực gió mùa châu Á điển hình.\n- Cầu nối ĐNÁ lục địa và hải đảo; gần ngã tư hàng hải - hàng không quốc tế.\n- Trên đường di lưu, di cư của sinh vật; nơi giao thoa 2 vành đai sinh khoáng TBD và Địa Trung Hải.\n- Nhiều thiên tai, chịu tác động mạnh của biến đổi khí hậu."],
 ["TN","Phân tích ảnh hưởng của vị trí địa lí và phạm vi lãnh thổ đến khí hậu nước ta.","- Nội chí tuyến, gió tín phong + gió mùa → nhiệt đới ẩm gió mùa (>20°C, ẩm >80%, mưa 1500-2000mm); không hoang mạc hóa như Bắc Phi, Tây Nam Á cùng vĩ độ.\n- Biển Đông: tăng ẩm, biến tính khối khí, dịu mát mùa hạ, bớt hanh khô mùa đông.\n- Lãnh thổ dài, hẹp ngang + địa hình + khối khí → phân hóa Bắc-Nam, Tây-Đông, theo mùa.\n- Gây bão, áp thấp nhiệt đới, hạn hán, xâm nhập mặn."],
 ["TN","Nêu các đặc điểm chung của địa hình Việt Nam.","- Đồi núi chiếm 3/4 diện tích, chủ yếu đồi núi thấp (<1000m: 85%); đồng bằng 1/4.\n- Được tân kiến tạo nâng thành nhiều bậc kế tiếp; hướng nghiêng TB-ĐN; hướng núi TB-ĐN và vòng cung.\n- Chịu tác động mạnh của thiên nhiên nhiệt đới ẩm gió mùa: phong hóa, xâm thực, xói mòn, cacxtơ, bồi tụ đồng bằng.\n- Chịu tác động mạnh của con người (tích cực và tiêu cực: phá rừng → sạt lở, lũ quét)."],
-["TN","So sánh địa hình vùng núi Tây Bắc và Đông Bắc.","- Tây Bắc: giữa sông Hồng - sông Cả; núi cao, đồ sộ nhất (>1500m; Phan-xi-păng 3147m); hướng TB-ĐN, 3 mạch song song; cắt xẻ mạnh, đỉnh nhọn, sườn dốc, thung lũng sâu hẹp; cánh đồng giữa núi.\n- Đông Bắc: từ dãy Con Voi đến Quảng Ninh; núi thấp <1000m; hướng vòng cung (4 cánh cung: Sông Gâm, Ngân Sơn, Bắc Sơn, Đông Triều) chụm ở Tam Đảo; đỉnh tròn, sườn thoải, thung lũng rộng; có đồi bát úp, cacxtơ."],
+["TN","So sánh địa hình vùng núi Tây Bắc và Đông Bắc.","- Tây Bắc: giữa sông Hồng - sông Cả; núi cao, đồ sộ nhất (>1500m; Phan-xi-păng 3143m); hướng TB-ĐN, 3 mạch song song; cắt xẻ mạnh, đỉnh nhọn, sườn dốc, thung lũng sâu hẹp; cánh đồng giữa núi.\n- Đông Bắc: từ dãy Con Voi đến Quảng Ninh; núi thấp <1000m; hướng vòng cung (4 cánh cung: Sông Gâm, Ngân Sơn, Bắc Sơn, Đông Triều) chụm ở Tam Đảo; đỉnh tròn, sườn thoải, thung lũng rộng; có đồi bát úp, cacxtơ."],
 ["TN","Trình bày tính chất nhiệt đới ẩm gió mùa của khí hậu Việt Nam và nguyên nhân.","- Nhiệt đới: nhiệt độ TB >20°C, nắng 1400-3000 giờ/năm, cán cân bức xạ dương (do nội chí tuyến, 2 lần Mặt Trời lên thiên đỉnh).\n- Ẩm: mưa 1500-2000mm, độ ẩm >80% (biển Đông, gió mùa, bão, ATNĐ).\n- Gió mùa: mùa đông (ĐB, tháng 11-4, từ cao áp Xibia, lạnh), mùa hạ (TN, tháng 5-10, nóng ẩm, mưa nhiều; phơn Tây Nam)."],
 ["TN","Chứng minh khí hậu nước ta phân hóa đa dạng.","- Bắc-Nam: ranh giới dãy Bạch Mã (16°B). Miền Bắc nhiệt đới ẩm gió mùa có mùa đông lạnh; miền Nam cận xích đạo gió mùa, mùa mưa-khô; ven biển Trung Bộ mưa thu-đông.\n- Tây-Đông: biển - đồng bằng - miền núi phía Tây.\n- Độ cao: 3 đai (nhiệt đới <600-700m/900-1000m; cận nhiệt đến 2600m; ôn đới >2600m).\n- Theo mùa. Thất thường do gió mùa, địa hình, bão, El Nino, La Nina."],
 ["TN","Đặc điểm chung của mạng lưới sông ngòi nước ta và giải thích.","- Dày đặc, rộng khắp (2360 sông >10km), chủ yếu nhỏ, ngắn, dốc.\n- Hướng TB-ĐN và vòng cung.\n- 2 mùa: lũ 70-80%, cạn 20-30% lưu lượng.\n- Nhiều nước, giàu phù sa (800 tỉ m³, 200 triệu tấn/năm).\n- Giải thích: ¾ đồi núi, mưa nhiều theo mùa, lãnh thổ hẹp ngang, núi ăn sát biển."],
@@ -33,7 +70,7 @@ const Q=[
 ["TN","Vì sao bảo tồn đa dạng sinh học ở Việt Nam là cấp thiết? Nêu biện pháp.","- Suy giảm số lượng loài, hệ sinh thái (70% rừng tự nhiên là rừng nghèo/mới phục hồi), nguồn gen.\n- Nguyên nhân: biến đổi khí hậu; khai thác quá mức, phá rừng, ô nhiễm, loài ngoại lai.\n- Biện pháp: khu bảo tồn, vườn quốc gia; trồng và bảo vệ rừng; chống săn bắt, đánh bắt quá mức; xử lí chất thải; nâng cao ý thức."],
 ["TN","Trình bày các bộ phận vùng biển Việt Nam.","Đường cơ sở → nội thủy (phía trong, là lãnh thổ) → lãnh hải (12 hải lí) → tiếp giáp lãnh hải (12 hải lí) → đặc quyền kinh tế (cùng lãnh hải rộng 200 hải lí) → thềm lục địa (đáy biển, lòng đất, đến mép rìa lục địa, tối đa 350 hải lí). Diện tích biển ~1 triệu km²; tiếp giáp biển Đông với 8 nước."],
 ["DC","Trình bày sự phân bố các dân tộc ở Việt Nam.","- 54 dân tộc, cùng sinh sống rộng khắp.\n- Kinh >85%, đồng bằng, ven biển, trung du.\n- Dân tộc thiểu số >15%: trung du miền núi phía Bắc (Thái, Tày, Nùng, Mông), Tây Nguyên (Ê-đê, Gia-rai, Ba-na), ven biển Nam Bộ và ĐBSCL (Khmer, Chăm, Hoa).\n- Phân bố thay đổi theo thời gian, không gian, xu hướng đan xen.\n- Người Việt ở nước ngoài >5 triệu, là bộ phận không tách rời."],
-["DC","Trình bày quy mô dân số và gia tăng dân số nước ta.","- Quy mô: 2021 ≈ 98,5 triệu; 2024 ≈ 100,3 triệu (101,1 triệu theo ghi chú); thứ 16 thế giới, thứ 3 Đông Nam Á.\n- Tỉ lệ gia tăng tự nhiên = (sinh - tử)/10 (%).\n- Gia tăng nhanh từ nửa sau TK20; những năm gần đây giảm (2021: 0,94%) nhưng quy mô lớn nên mỗi năm vẫn tăng ~1 triệu người; khác biệt giữa vùng, thành thị - nông thôn."],
+["DC","Trình bày quy mô dân số và gia tăng dân số nước ta.","- Quy mô: 2021 ≈ 98,5 triệu; cuối 2024 ≈ 101,3 triệu; thứ 16 thế giới, thứ 3 Đông Nam Á.\n- Tỉ lệ gia tăng tự nhiên = (sinh - tử)/10 (%).\n- Gia tăng nhanh từ nửa sau TK20; những năm gần đây giảm (2021: 0,94%) nhưng quy mô lớn nên mỗi năm vẫn tăng ~1 triệu người; khác biệt giữa vùng, thành thị - nông thôn."],
 ["DC","Ảnh hưởng của dân số đông và tăng nhanh đến phát triển kinh tế - xã hội.","- Tích cực: nguồn lao động dồi dào, bổ sung hằng năm lớn (~1 triệu); thị trường tiêu thụ rộng.\n- Tiêu cực: kinh tế - tốc độ phát triển, mâu thuẫn tích lũy - tiêu dùng, chậm chuyển dịch cơ cấu; xã hội - chất lượng cuộc sống, áp lực nhà ở, giáo dục, y tế, việc làm, thất nghiệp; môi trường - ô nhiễm, suy giảm tài nguyên."],
 ["DC","Phân tích sự thay đổi cơ cấu dân số theo nhóm tuổi.","- Dân số vàng và xu hướng già hóa.\n- Dưới 15 tuổi: tỉ trọng cao nhưng giảm (24,1%).\n- 15-64 tuổi: tỉ trọng lớn nhất, tăng (67,6%).\n- Từ 65 tuổi: nhỏ nhưng tăng (8,3%).\n- Nguyên nhân: kinh tế - xã hội phát triển, kế hoạch hóa gia đình, y tế tiến bộ → tỉ suất sinh giảm, tuổi thọ tăng."],
 ["DC","Trình bày đặc điểm phân bố dân cư nước ta.","- Mật độ cao (2024 ≈ 305 người/km²), thứ 3 Đông Nam Á.\n- Không đều: đồng bằng (ĐBSH 1091) >> miền núi, cao nguyên (Tây Bắc, Trung du miền núi phía Bắc 136); nông thôn 62,9% - thành thị 37,1% (2021); HN, TP.HCM cao nhất.\n- Thay đổi theo thời gian, ngày càng hợp lí hơn: mật độ tăng, tỉ lệ dân thành thị tăng."],
@@ -41,7 +78,7 @@ const Q=[
 ["DC","Hậu quả của phân bố dân cư không đều và biện pháp giải quyết.","- Đồng bằng: dân đông, lao động dư thừa, thất nghiệp, áp lực nhà ở, y tế, giáo dục, môi trường.\n- Miền núi: thưa dân (3/4 diện tích, 1/4 dân), thiếu lao động, tài nguyên chưa khai thác, hạ tầng khó phát triển.\n- Giải pháp: phát triển công nghiệp, dịch vụ nông thôn; đô thị hóa; phân bố lại dân cư - lao động; xuất khẩu lao động; thực hiện kế hoạch hóa gia đình."],
 ["DC","Trình bày đặc điểm nguồn lao động nước ta (ưu điểm và hạn chế).","- Ưu: dồi dào (lực lượng lao động 2021 ≈ 50,6 triệu), tăng ~1 triệu/năm; chất lượng ngày càng cao (đào tạo 26,2% - 2021); cần cù, sáng tạo, nhiều kinh nghiệm N-L-TS, tiểu thủ công nghiệp.\n- Hạn chế: phân bố chưa đều, thừa ở đồng bằng - thiếu ở miền núi; thể lực yếu, tác phong công nghiệp chưa cao; chưa đáp ứng CNH-HĐH; thiếu cán bộ giỏi, công nhân kĩ thuật."],
 ["DC","Vì sao tỉ lệ gia tăng dân số tự nhiên giảm nhưng quy mô dân số vẫn tăng?","- Tỉ lệ gia tăng giảm do thực hiện tốt chính sách dân số kế hoạch hóa gia đình, tỉ suất sinh giảm (kinh tế phát triển, nhận thức tăng, y tế tốt).\n- Tỉ lệ gia tăng vẫn cao (0,94%) và quy mô dân số lớn (~101 triệu) nên mỗi năm dân số vẫn tăng ~1 triệu người."],
-["DC","Vì sao tỉ lệ dân thành thị nước ta tăng?","Do công nghiệp hóa, hiện đại hóa, đô thị hóa: chuyển dịch cơ cấu kinh tế theo hướng tăng công nghiệp - dịch vụ, giảm nông nghiệp; công nghiệp, dịch vụ phát triển cần nhiều lao động, thu hút dân cư về đô thị; mật độ dân số tăng do hút lao động (19,5% năm 1990 → 37,1% năm 2021)."],
+["DC","Vì sao tỉ lệ dân thành thị nước ta tăng?","Do công nghiệp hóa, hiện đại hóa, đô thị hóa: chuyển dịch cơ cấu kinh tế theo hướng tăng công nghiệp - dịch vụ, giảm nông nghiệp; công nghiệp, dịch vụ phát triển cần nhiều lao động, thu hút dân cư về đô thị (tỉ lệ dân thành thị: 19,5% năm 1990 → 37,1% năm 2021); đô thị mở rộng, thu hút nhập cư từ nông thôn."],
 ["DC","Trình bày thực trạng và giải pháp vấn đề việc làm.","- Thực trạng: 2021 có 49 triệu lao động có việc làm; thất nghiệp 3,2% (thành thị 4,3%, nông thôn 2,5%), thiếu việc làm 2,52% (nông thôn 2,94%); việc làm giản đơn, năng suất thấp phổ biến.\n- Giải pháp: hoàn thiện chính sách; đào tạo, dạy nghề; phát triển ngành cần nhiều lao động; thị trường lao động; xuất khẩu lao động; bảo hiểm thất nghiệp; phân bố lại dân cư, lao động."],
 ["DC","So sánh quần cư nông thôn và quần cư thành thị.","- Mật độ: nông thôn thấp - thành thị cao.\n- Hoạt động kinh tế: nông thôn nông nghiệp là chủ yếu, đang chuyển sang dịch vụ, công nghiệp; thành thị công nghiệp - dịch vụ.\n- Chức năng: nông thôn hành chính, văn hóa, xã hội (đang thay đổi); thành thị đa chức năng (kinh tế, văn hóa, chính trị, đổi mới sáng tạo).\n- Cấu trúc: nông thôn làng, xóm, bản, thôn; thành thị phường, thị trấn, nhà ở dày đặc."],
 ["KT","Phân tích các nhân tố ảnh hưởng đến sự phát triển và phân bố sản xuất lúa.","- Tự nhiên: đồng bằng châu thổ, đất phù sa; khí hậu nhiệt đới ẩm → 2-3 vụ/năm; nước dồi dào; nhiều giống lúa tốt. Khó khăn: đất nhiễm mặn, phèn, cát bay, bình quân đất thấp; thiên tai, sâu bệnh, biến đổi khí hậu.\n- Kinh tế - xã hội: lao động kinh nghiệm; KHCN; thủy lợi, chế biến; chính sách; thị trường (gạo ST25...).\n- Khó khăn: cơ sở vật chất kĩ thuật chưa đồng bộ, thị trường biến động, liên kết còn hạn chế."],
@@ -60,31 +97,76 @@ const Q=[
 ];
 const LV=["Chưa học","Chưa học kĩ","Đã học","Đã học kĩ"];
 const CM={TN:["chưa nắm được kiến thức Địa lí tự nhiên, cần học lại từ đầu","còn nhớ rời rạc, thiếu giải thích nguyên nhân, cần ôn kĩ hơn","nắm được ý chính, cần củng cố số liệu và giải thích","nắm chắc, trình bày đầy đủ"],DC:["chưa học phần Dân cư","học chưa kĩ, thiếu số liệu và giải thích","nắm được ý chính","nắm chắc, có số liệu và giải thích tốt"],KT:["chưa học phần Kinh tế ngành","học chưa kĩ, thiếu hệ thống các nhân tố","nắm được ý chính nhưng cần thêm ví dụ, số liệu","nắm chắc, phân tích có hệ thống"]};
-let S={hist:[],cur:null,win:null,tm:null},A=document.getElementById("app");
-const $=(h)=>{A.innerHTML=h};
+const DB="https://csdl-dl-nthh-default-rtdb.asia-southeast1.firebasedatabase.app/oral_exams";
+const IC=["😟","🤔","🙂","🌟"],LC=["bad","wn","pr","ok"],CI={TN:"🌏",DC:"👥",KT:"🏭"};
+const EX={
+0:"Ý nghĩa: thuận lợi (giao lưu, hội nhập, kinh tế biển, đa dạng sinh học) và khó khăn (bão, áp thấp, an ninh biển đảo). Hay hỏi thêm: vì sao cùng vĩ độ mà nước ta không khô hạn?",
+1:"Dẫn chứng so sánh: Bắc Phi, Tây Nam Á cùng vĩ độ là hoang mạc vì chịu cao áp cận chí tuyến và thiếu ảnh hưởng của biển; nước ta có gió mùa và biển Đông nên ẩm.",
+2:"Dẫn chứng bậc địa hình: núi cao >2000m (Hoàng Liên Sơn, Trường Sơn Bắc), cao nguyên bazan (Tây Nguyên), đồng bằng thấp (ĐBSH, ĐBSCL).",
+4:"Mùa đông miền Bắc: đầu mùa lạnh khô, cuối mùa lạnh ẩm (mưa phùn). Gió mùa đông bắc kết hợp tín phong gây mùa khô ở Nam Bộ, Tây Nguyên và mưa thu - đông ở ven biển Trung Bộ.",
+5:"Theo mùa: Bắc Bộ có 4 mùa rõ rệt; Nam Bộ và Tây Nguyên có 2 mùa mưa - khô; Trung Bộ mưa lệch về thu - đông.",
+13:"Công thức hay ra: Tg = (tỉ suất sinh - tỉ suất tử)/10 (%). Ví dụ sinh 16‰, tử 6‰ → 1,0%.",
+15:"Dân số vàng: nhóm 15-64 tuổi chiếm hơn gấp đôi nhóm phụ thuộc (dưới 15 và từ 65 tuổi). Cần tận dụng cơ hội trước khi già hóa nhanh."
+};
+const A=document.getElementById("app");let S={recs:[],cur:null,rec:null,win:null,tm:null};
+const $=h=>{A.innerHTML=h},e=s=>String(s==null?"":s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+const hero=(t,p,x="")=>`<div class="hero"><div><h1>${t}</h1><p>${p}</p></div><div class="row np">${x}</div></div>`;
+const fmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+const nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const link=id=>location.href.split("#")[0]+"#r="+id;
+const ans=x=>{let k=Q.indexOf(x);return x[2]+(EX[k]?"\n\n➕ Mở rộng: "+EX[k]:"")};
 function sh(a){return a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1])}
-function home(){clearInterval(S.tm);
- $(`<h1>👩‍🏫 Trợ giảng kiểm tra miệng Địa lí</h1><div class="c"><h2>Mở lượt kiểm tra mới</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><p class="mu">Mỗi HS 5 câu hỏi ngẫu nhiên từ 3 phạm trù (Tự nhiên, Dân cư, Kinh tế ngành), mỗi câu có 5 phút suy nghĩ. Khi bắt đầu sẽ mở cửa sổ phụ để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).</p><button onclick="start()">Bắt đầu kiểm tra</button></div>
- <div class="c"><h2>Các lượt đã kiểm tra (${S.hist.length})</h2>${S.hist.length?`<table><tr><th>HS</th><th>Ca</th><th>Giờ</th><th>Kết quả</th></tr>${S.hist.map((h,i)=>`<tr><td>${h.n}</td><td>${h.ca}</td><td>${h.gio}</td><td><a href="#" onclick="sum(${i});return false">Xem</a></td></tr>`).join("")}</table>`:'<span class="mu">Chưa có lượt nào.</span>'}</div>`)}
-function pick(){let by={TN:[],DC:[],KT:[]};sh(Q).forEach(q=>by[q[0]].push(q));let p=[by.TN[0],by.DC[0],by.KT[0]],ex=sh(Object.keys(by))[0],ex2=sh(Object.keys(by))[1];p.push(by[ex][1]);p.push(by[ex2][ex2==ex?2:1]);return sh(p)}
+async function api(p,m,b,q){let r=await fetch(DB+p+".json"+(q||""),{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("lỗi "+r.status);return r.json()}
+const lg=()=>{try{return JSON.parse(localStorage.oe||"[]")}catch(_){return[]}};
+const sv=r=>{try{let l=lg().filter(x=>x.id!=r.id);l.push(r);localStorage.oe=JSON.stringify(l.slice(-100))}catch(_){}};
+function toast(m){let d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+function cp(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Đã sao chép link")).catch(()=>prompt("Sao chép link:",t))}
+function calc(r){let cats={};Object.keys(CATS).forEach(k=>{let id=r.qs.map((x,j)=>x.c==k?j:-1).filter(j=>j>=0);if(id.length){let a=id.reduce((s,j)=>s+r.r[j],0)/id.length;cats[k]={id,lv:Math.min(3,Math.round(a))}}});return{cats,all:r.r.reduce((a,b)=>a+b,0)/r.r.length}}
+const verdict=a=>a>=2?["✅","ĐÃ HỌC BÀI","ok"]:a>=1?["⚠️","HỌC BÀI CHƯA KĨ","wn"]:["❌","CHƯA HỌC BÀI","bad"];
+function resHTML(r,m){let d=calc(r),v=verdict(d.all),n=r.r.filter(x=>x>=2).length,cm=r.cm||{};
+ let box=k=>m=="adm"?`<textarea id="cm_${k}" rows="2" placeholder="✍️ Nhận xét thêm của trợ giảng...">${e(cm[k]||"")}</textarea>`:cm[k]?`<div class="ta">💬 <b>Trợ giảng nhận xét:</b> ${e(cm[k])}</div>`:"";
+ let all=box("all");
+ return `<div class="ban ${v[2]}"><div class="em">${v[0]}</div><div><div class="vt">${v[1]}</div><div>${e(r.n)} — ${e(r.ca)}, ${e(r.gio)}</div><div class="bar"><i style="width:${d.all/3*100}%"></i></div><div>Mức học trung bình ${d.all.toFixed(1)}/3 — ${n}/5 câu đạt từ mức "Đã học"</div></div></div>`
+ +Object.keys(d.cats).map(k=>{let o=d.cats[k];return `<div class="c"><h2>${CI[k]} ${CATS[k]} <span class="tag ${LC[o.lv]}">${LV[o.lv]}</span></h2><p>Nhận xét: HS ${CM[k][o.lv]}.</p>${o.id.map(j=>`<div class="qi"><div class="row"><span>${e(r.qs[j].q)}</span><span class="tag ${LC[r.r[j]]}">${IC[r.r[j]]} ${LV[r.r[j]]}</span></div>${m=="hs"?"":`<details><summary>Xem đáp án tham khảo</summary><div class="a">${e(r.qs[j].a)}</div></details>`}</div>`).join("")}${box(k)}</div>`}).join("")
+ +(all?`<div class="c"><h2>📝 Nhận xét chung</h2>${all}</div>`:"")}
+function route(){clearInterval(S.tm);let m=location.hash.match(/^#r=(.+)$/);m?view(m[1]):home()}
+async function view(id){$(hero("📘 Kết quả kiểm tra miệng","Chuyên Địa lí cô Hải Hà")+'<div class="c">Đang tải kết quả...</div>');
+ try{let r=await api("/"+id,"GET");if(!r||!r.qs)throw 0;r.r=r.r||[];$(hero("📘 Kết quả kiểm tra miệng","Chuyên Địa lí cô Hải Hà",'<button onclick="print()">🖨 In / lưu PDF</button>')+resHTML(r,"view"))}
+ catch(_){$(hero("📘 Kết quả kiểm tra miệng","Chuyên Địa lí cô Hải Hà")+'<div class="c"><h2>Không mở được kết quả</h2><p>Link có thể sai hoặc mạng đang lỗi. Hãy tải lại trang hoặc nhờ trợ giảng gửi lại link.</p></div>')}}
+function home(){clearInterval(S.tm);S.cur=null;S.recs=lg().sort((a,b)=>b.t-a.t);
+ $(hero("👩‍🏫 Kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà • mỗi HS 5 câu ngẫu nhiên • 5 phút mỗi câu")+`<div class="c"><h2>🚀 Mở lượt kiểm tra mới</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><p class="mu">5 câu lấy từ 3 phạm trù: Tự nhiên, Dân cư, Kinh tế ngành. Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).</p><button class="b" onclick="start()">Bắt đầu kiểm tra</button></div><div class="c"><h2>📚 Các lượt đã kiểm tra</h2><div id="ls"></div></div>`);list();load()}
+function list(){let l=document.getElementById("ls");if(!l)return;l.innerHTML=S.recs.length?S.recs.map(r=>{let v=verdict(calc(r).all);return `<div class="li"><div><b>${e(r.n)}</b><div class="mu">${e(r.ca)} • ${e(r.gio)}</div></div><span class="tag ${v[2]}">${v[0]} ${v[1]}</span><div class="row"><button onclick="sum('${r.id}')">Xem</button><button onclick="cp(link('${r.id}'))">🔗 Chép link</button></div></div>`}).join(""):'<span class="mu">Chưa có lượt nào.</span>'}
+async function load(){let l=lg();try{let o=await api("","GET",0,'?orderBy=%22%24key%22&limitToLast=100');if(o)Object.keys(o).forEach(k=>{let r=o[k];if(r&&r.qs&&r.r){r.id=k;l=l.filter(x=>x.id!=k);l.push(r)}})}catch(_){}
+ S.recs=l.sort((a,b)=>b.t-a.t);if(!S.cur)list()}
+function pick(){let by={TN:[],DC:[],KT:[]};sh(Q).forEach(q=>by[q[0]].push(q));let p=[by.TN[0],by.DC[0],by.KT[0]],ks=sh(Object.keys(by)),ex=ks[0],ex2=ks[1];p.push(by[ex][1]);p.push(by[ex2][1]);return sh(p)}
 function start(){let n=document.getElementById("n").value.trim();if(!n){alert("Nhập tên học sinh");return}
- S.cur={n,ca:document.getElementById("ca").value||"-",gio:document.getElementById("gio").value||new Date().toLocaleString("vi-VN"),qs:pick(),i:0,r:[],t:300,run:false};
- S.win=window.open("","hs_view","width=900,height=600");if(!S.win){alert("Trình duyệt chặn cửa sổ bật lên. Hãy cho phép rồi thử lại.");return}
- S.win.document.open();S.win.document.write(`<title>Màn hình học sinh</title><body style="font-family:system-ui,sans-serif;background:#0f2742;color:#fff;margin:0;padding:5vw;text-align:center"><div id=h style="opacity:.7;font-size:20px"></div><div id=q style="font-size:34px;font-weight:700;margin:6vh 0"></div><div id=t style="font-size:90px;font-weight:800"></div><div id=m style="font-size:22px;opacity:.8"></div></body>`);S.win.document.close();q()}
-function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
-function ch(){let c=S.cur,w=S.win;if(!w||w.closed)return;let g=id=>w.document.getElementById(id);if(!g("q"))return;g("h").textContent=`${c.n} • Câu ${c.i+1}/5`;g("q").textContent=c.qs[c.i][1];g("t").textContent=fmt(c.t);g("m").textContent=c.t>0?(c.run?"Thời gian suy nghĩ":"Chuẩn bị..."):"Hết giờ - mời em trả lời"}
-function q(){clearInterval(S.tm);let c=S.cur;c.t=300;c.run=false;let x=c.qs[c.i];
- $(`<div class="row"><h1>${c.n} — Câu ${c.i+1}/5</h1><button class="s" onclick="if(confirm('Dừng lượt kiểm tra?'))home()">Thoát</button></div><div class="c"><span class="tag">${CATS[x[0]]}</span><div class="q" style="margin:8px 0">${x[1]}</div><div class="row"><div class="t" id="tt">05:00</div><div><button id="bt" onclick="run()">▶ Bắt đầu tính giờ</button> <button class="s" onclick="c0()">Bỏ qua thời gian</button></div></div></div>
- <div class="c"><h2>Đáp án (chỉ trợ giảng thấy)</h2><div class="a">${x[2].replace(/</g,"&lt;")}</div></div>
- <div class="c"><h2>Nhận định phạm vi học của HS</h2><div class="r">${LV.map((l,k)=>`<button onclick="rate(${k},this)">${l}</button>`).join("")}</div><div style="margin-top:12px"><button id="nx" onclick="next()" disabled>${c.i<4?"Câu tiếp theo →":"Tổng kết"}</button></div></div>`);ch()}
-function tick(){let c=S.cur;if(c.t>0)c.t--;let e=document.getElementById("tt");if(e)e.textContent=fmt(c.t);if(c.t<=0)clearInterval(S.tm);ch()}
-function run(){let c=S.cur;if(c.run){clearInterval(S.tm);c.run=false;document.getElementById("bt").textContent="▶ Tiếp tục"}else{c.run=true;document.getElementById("bt").textContent="⏸ Tạm dừng";S.tm=setInterval(tick,1000)}ch()}
-function c0(){clearInterval(S.tm);S.cur.t=0;S.cur.run=true;tick()}
-function rate(k,b){S.cur.r[S.cur.i]=k;document.querySelectorAll(".r button").forEach(x=>x.classList.remove("on"));b.classList.add("on");document.getElementById("nx").disabled=false}
-function next(){let c=S.cur;c.i++;if(c.i<5)q();else{clearInterval(S.tm);if(S.win&&!S.win.closed)S.win.close();S.hist.push({n:c.n,ca:c.ca,gio:c.gio,qs:c.qs,r:c.r});sum(S.hist.length-1)}}
-function sum(i){let h=S.hist[i],o="";
- Object.keys(CATS).forEach(k=>{let id=h.qs.map((x,j)=>x[0]==k?j:-1).filter(j=>j>=0);if(!id.length)return;let avg=id.reduce((s,j)=>s+h.r[j],0)/id.length,lv=Math.min(3,Math.round(avg));
- o+=`<div class="c"><h2>${CATS[k]} <span class="tag">${LV[lv]}</span></h2><p>Nhận xét: HS ${CM[k][lv]}.</p><ul>${id.map(j=>`<li>${h.qs[j][1]} — <b>${LV[h.r[j]]}</b></li>`).join("")}</ul></div>`});
- let all=h.r.reduce((a,b)=>a+b,0)/5;$(`<div class="row"><h1>Tổng kết: ${h.n}</h1><div><button class="s" onclick="window.print()">In</button> <button onclick="home()">Về trang chính</button></div></div><p class="mu">${h.ca} • ${h.gio}</p><div class="c"><h2>Đánh giá chung: ${LV[Math.min(3,Math.round(all))]}</h2><p class="mu">Điểm mức học trung bình ${all.toFixed(1)}/3</p></div>${o}`)}
-home();
+ S.cur={n,ca:document.getElementById("ca").value||"-",gio:document.getElementById("gio").value||new Date().toLocaleString("vi-VN"),qs:pick(),i:0,r:[],ts:[300,300,300,300,300],run:false,done:false};
+ if(!openWin())return;q()}
+function openWin(){if(!S.win||S.win.closed)S.win=window.open("","hs_view","width=1000,height=640");if(!S.win){alert("Trình duyệt chặn cửa sổ bật lên. Hãy cho phép rồi thử lại.");return false}S.win.focus();ch();return true}
+function ring(t){let col=t<=30?"#ef4444":t<=90?"#f59e0b":"#22d3ee";return `<div class="rg"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="rb"/><circle cx="60" cy="60" r="54" class="rf" style="stroke:${col};stroke-dasharray:339.3;stroke-dashoffset:${339.3*(1-Math.max(0,t)/300)}"/></svg><b>${fmt(t)}</b></div>`}
+function ch(){let w=S.win,c=S.cur;if(!w||w.closed||!c)return;let d=w.document;
+ if(!d.getElementById("hs")){d.open();d.write('<meta charset="utf-8"><title>Màn hình học sinh</title><style>'+document.querySelector("style").textContent+'</style><body class="hsb"><div id="hs"></div>');d.close()}
+ let t=c.ts[c.i];d.getElementById("hs").innerHTML=c.done?`<div class="wrap"><h1 style="text-align:center">🎉 Hoàn thành bài kiểm tra!</h1>${resHTML(S.rec,"hs")}</div>`:`<div class="hsw"><div class="hsh">${e(c.n)} • Câu ${c.i+1}/5</div><div class="hsq">${e(c.qs[c.i][1])}</div>${ring(t)}<div class="hsm">${t>0?(c.run?"Thời gian suy nghĩ":"Chuẩn bị..."):"Hết giờ — mời em trả lời"}</div></div>`}
+function q(){clearInterval(S.tm);let c=S.cur,x=c.qs[c.i];c.run=false;
+ $(hero("📝 "+e(c.n),"Ca: "+e(c.ca)+" • "+e(c.gio),'<button onclick="openWin()">🖥 Mở lại cửa sổ HS</button><button onclick="if(confirm(\'Dừng lượt kiểm tra?\'))home()">Thoát</button>')
+ +`<div class="steps">${c.qs.map((_,k)=>`<i class="${k==c.i?"cur":c.r[k]!=null?"dn":""}">${k+1}</i>`).join("")}</div>
+ <div class="c"><span class="tag">${CI[x[0]]} ${CATS[x[0]]}</span><div class="q">${e(x[1])}</div><div class="row"><div id="tm">${ring(c.ts[c.i])}</div><div class="bt"><button id="bt" class="b" onclick="run()">${c.ts[c.i]<300?"▶ Tiếp tục":"▶ Bắt đầu tính giờ"}</button><button onclick="c0()">⏭ Bỏ qua thời gian</button></div></div></div>
+ <div class="c ans"><h2>📖 Đáp án chi tiết <span class="mu">(chỉ trợ giảng thấy)</span></h2><div class="a">${e(ans(x))}</div></div>
+ <div class="c"><h2>🎯 HS học đến mức nào?</h2><div class="r">${LV.map((l,k)=>`<button class="lv ${LC[k]}${c.r[c.i]===k?" on":""}" onclick="rate(${k})">${IC[k]}<br>${l}</button>`).join("")}</div></div>
+ <div class="nav"><button onclick="go(-1)" ${c.i?"":"disabled"}>← Câu trước</button><button class="b" id="nx" onclick="go(1)" ${c.r[c.i]==null?"disabled":""}>${c.i<4?"Câu tiếp theo →":"🏁 Kết thúc & xem kết quả"}</button></div>`);ch()}
+function tick(){let c=S.cur;if(c.ts[c.i]>0)c.ts[c.i]--;let t=document.getElementById("tm");if(t)t.innerHTML=ring(c.ts[c.i]);if(c.ts[c.i]<=0){clearInterval(S.tm);c.run=false;let b=document.getElementById("bt");if(b)b.textContent="⏰ Hết giờ"}ch()}
+function run(){let c=S.cur,b=document.getElementById("bt");if(c.run){clearInterval(S.tm);c.run=false;b.textContent="▶ Tiếp tục"}else{if(c.ts[c.i]<=0)return;c.run=true;b.textContent="⏸ Tạm dừng";S.tm=setInterval(tick,1000)}ch()}
+function c0(){clearInterval(S.tm);S.cur.ts[S.cur.i]=0;S.cur.run=false;tick()}
+function rate(k){let c=S.cur;c.r[c.i]=k;document.querySelectorAll(".lv").forEach((b,j)=>b.classList.toggle("on",j==k));document.getElementById("nx").disabled=false;document.querySelectorAll(".steps i")[c.i].classList.add("dn")}
+function go(d){let c=S.cur;if(d>0&&c.i==4)return fin();clearInterval(S.tm);c.i+=d;q()}
+async function fin(){let c=S.cur;clearInterval(S.tm);c.done=true;
+ S.rec={id:nid(),t:Date.now(),n:c.n,ca:c.ca,gio:c.gio,qs:c.qs.map(x=>({c:x[0],q:x[1],a:ans(x)})),r:c.r,cm:{}};sv(S.rec);S.recs.unshift(S.rec);ch();sum(S.rec);await save(S.rec)}
+async function save(r){let s=document.getElementById("st");try{await api("/"+r.id,"PUT",r);if(s)s.innerHTML='<span class="chip ok">☁️ Đã lưu lên Firebase</span>'}catch(x){if(s)s.innerHTML='<span class="chip bad">⚠️ Chưa lưu được ('+e(x.message)+'). <a href="#" onclick="save(S.rec);return false">Thử lại</a></span>'}}
+function sum(r){if(typeof r=="string")r=S.recs.find(x=>x.id==r);S.rec=r;
+ $(hero("📊 Kết quả: "+e(r.n),e(r.ca)+" • "+e(r.gio),'<button onclick="print()">🖨 In</button><button onclick="home()">🏠 Trang chính</button>')
+ +`<div class="c np"><h2>🔗 Link kết quả gửi cho học sinh</h2><div class="row" style="flex-wrap:nowrap"><input id="lk" readonly value="${e(link(r.id))}"><button class="b" onclick="cp(document.getElementById('lk').value)">Sao chép</button></div><div id="st"></div>${location.protocol=="file:"?'<p class="mu">Bạn đang mở file trên máy nên link chỉ dùng được sau khi đưa trang này lên GitHub Pages.</p>':""}</div>`
+ +resHTML(r,"adm")+`<div class="nav np"><button onclick="home()">← Về trang chính</button><button class="b" onclick="saveCm()">💾 Lưu nhận xét</button></div>`)}
+async function saveCm(){let r=S.rec,cm={};["TN","DC","KT","all"].forEach(k=>{let t=document.getElementById("cm_"+k);if(t&&t.value.trim())cm[k]=t.value.trim()});r.cm=cm;sv(r);
+ try{await api("/"+r.id+"/cm","PUT",cm);toast("Đã lưu nhận xét")}catch(x){toast("Chưa lưu được lên Firebase: "+x.message)}}
+addEventListener("hashchange",route);route();
 </script></body></html>
