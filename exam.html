@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kiểm tra </title>
+<title>Kiểm tra miệng Địa lí • Cô Hải Hà</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <style>
 :root{--bg:#eaf4f4;--tx:#12303a;--mu:#6a808a;--pr:#0f766e;--pr2:#0e7490;--ac:#f97316;--bd:#d6e6e8;--sh:0 10px 30px rgba(14,80,95,.10)}
 *{box-sizing:border-box}
@@ -12,8 +14,8 @@ body{margin:0;min-height:100vh;color:var(--tx);font:16px/1.6 "Be Vietnam Pro","S
 .hero h1{margin:0;font-size:24px}.hero p{margin:2px 0 0;opacity:.85;font-size:14px}
 .c{background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:20px;padding:18px 22px;margin-bottom:16px;box-shadow:var(--sh)}
 h2{font-size:18px;margin:0 0 10px}.mu{color:var(--mu);font-size:14px}
-input,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:12px;background:#f8fcfc;color:var(--tx);font:inherit}
-input:focus,textarea:focus{outline:3px solid #99e0dc;border-color:var(--pr)}
+input,textarea,select{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:12px;background:#f8fcfc;color:var(--tx);font:inherit}
+input:focus,textarea:focus,select:focus{outline:3px solid #99e0dc;border-color:var(--pr)}
 textarea{margin-top:10px;resize:vertical}
 label{font-size:13px;color:var(--mu);display:block;margin:8px 0 4px}
 .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
@@ -21,6 +23,7 @@ button{padding:11px 18px;border:0;border-radius:12px;font:inherit;font-weight:60
 button:hover:not(:disabled){transform:translateY(-1px)}button:disabled{opacity:.45;cursor:not-allowed}
 button:focus-visible,a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 button.b{background:linear-gradient(120deg,var(--pr),var(--pr2));color:#fff}
+button.dg{background:#fee2e2;color:#b91c1c}
 .hero button{background:rgba(255,255,255,.18);color:#fff}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 .tag{display:inline-block;font-size:12.5px;font-weight:600;padding:3px 12px;border-radius:99px;background:#e3eff0}
@@ -98,6 +101,9 @@ const Q=[
 const LV=["Chưa học","Chưa học kĩ","Đã học","Đã học kĩ"];
 const CM={TN:["chưa nắm được kiến thức Địa lí tự nhiên, cần học lại từ đầu","còn nhớ rời rạc, thiếu giải thích nguyên nhân, cần ôn kĩ hơn","nắm được ý chính, cần củng cố số liệu và giải thích","nắm chắc, trình bày đầy đủ"],DC:["chưa học phần Dân cư","học chưa kĩ, thiếu số liệu và giải thích","nắm được ý chính","nắm chắc, có số liệu và giải thích tốt"],KT:["chưa học phần Kinh tế ngành","học chưa kĩ, thiếu hệ thống các nhân tố","nắm được ý chính nhưng cần thêm ví dụ, số liệu","nắm chắc, phân tích có hệ thống"]};
 const DB="https://csdl-dl-nthh-default-rtdb.asia-southeast1.firebasedatabase.app/oral_exams";
+const ROOT=DB.replace(/\/oral_exams$/,"");
+/* ĐIỀN apiKey lấy ở Firebase Console > Project settings > Your apps */
+firebase.initializeApp({apiKey:"ĐIỀN_API_KEY",authDomain:"csdl-dl-nthh.firebaseapp.com",projectId:"csdl-dl-nthh"});
 const IC=["😟","🤔","🙂","🌟"],LC=["bad","wn","pr","ok"],CI={TN:"🌏",DC:"👥",KT:"🏭"};
 const EX={
 0:"Ý nghĩa: thuận lợi (giao lưu, hội nhập, kinh tế biển, đa dạng sinh học) và khó khăn (bão, áp thấp, an ninh biển đảo). Hay hỏi thêm: vì sao cùng vĩ độ mà nước ta không khô hạn?",
@@ -108,18 +114,21 @@ const EX={
 13:"Công thức hay ra: Tg = (tỉ suất sinh - tỉ suất tử)/10 (%). Ví dụ sinh 16‰, tử 6‰ → 1,0%.",
 15:"Dân số vàng: nhóm 15-64 tuổi chiếm hơn gấp đôi nhóm phụ thuộc (dưới 15 và từ 65 tuổi). Cần tận dụng cơ hội trước khi già hóa nhanh."
 };
-const A=document.getElementById("app");let S={recs:[],cur:null,rec:null,win:null,tm:null};
-const $=h=>{A.innerHTML=h},e=s=>String(s==null?"":s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+const A=document.getElementById("app");let S={recs:[],cur:null,rec:null,win:null,tm:null,me:null,f:{}},U=null;
+const $=h=>{A.innerHTML=h},e=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const hero=(t,p,x="")=>`<div class="hero"><div><h1>${t}</h1><p>${p}</p></div><div class="row np">${x}</div></div>`;
 const fmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
 const nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const link=id=>location.href.split("#")[0]+"#r="+id;
+const dk=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const dOf=r=>r.day||new Date(r.t-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
 const ans=x=>{let k=Q.indexOf(x);return x[2]+(EX[k]?"\n\n➕ Mở rộng: "+EX[k]:"")};
 function sh(a){return a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1])}
-async function api(p,m,b,q){let r=await fetch(DB+p+".json"+(q||""),{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("lỗi "+r.status);return r.json()}
+async function api(p,m,b,q){let t=U?await U.getIdToken():null;q=(q||"")+(t?(q?"&":"?")+"auth="+t:"");
+ let r=await fetch(DB+p+".json"+q,{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("lỗi "+r.status);return r.json()}
 const lg=()=>{try{return JSON.parse(localStorage.oe||"[]")}catch(_){return[]}};
 const sv=r=>{try{let l=lg().filter(x=>x.id!=r.id);l.push(r);localStorage.oe=JSON.stringify(l.slice(-100))}catch(_){}};
-function toast(m){let d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+function toast(m){let d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
 function cp(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Đã sao chép link")).catch(()=>prompt("Sao chép link:",t))}
 function calc(r){let cats={};Object.keys(CATS).forEach(k=>{let id=r.qs.map((x,j)=>x.c==k?j:-1).filter(j=>j>=0);if(id.length){let a=id.reduce((s,j)=>s+r.r[j],0)/id.length;cats[k]={id,lv:Math.min(3,Math.round(a))}}});return{cats,all:r.r.reduce((a,b)=>a+b,0)/r.r.length}}
 const verdict=a=>a>=2?["✅","ĐÃ HỌC BÀI","ok"]:a>=1?["⚠️","HỌC BÀI CHƯA KĨ","wn"]:["❌","CHƯA HỌC BÀI","bad"];
@@ -129,15 +138,48 @@ function resHTML(r,m){let d=calc(r),v=verdict(d.all),n=r.r.filter(x=>x>=2).lengt
  return `<div class="ban ${v[2]}"><div class="em">${v[0]}</div><div><div class="vt">${v[1]}</div><div>${e(r.n)} — ${e(r.ca)}, ${e(r.gio)}</div><div class="bar"><i style="width:${d.all/3*100}%"></i></div><div>Mức học trung bình ${d.all.toFixed(1)}/3 — ${n}/5 câu đạt từ mức "Đã học"</div></div></div>`
  +Object.keys(d.cats).map(k=>{let o=d.cats[k];return `<div class="c"><h2>${CI[k]} ${CATS[k]} <span class="tag ${LC[o.lv]}">${LV[o.lv]}</span></h2><p>Nhận xét: HS ${CM[k][o.lv]}.</p>${o.id.map(j=>`<div class="qi"><div class="row"><span>${e(r.qs[j].q)}</span><span class="tag ${LC[r.r[j]]}">${IC[r.r[j]]} ${LV[r.r[j]]}</span></div>${m=="hs"?"":`<details><summary>Xem đáp án tham khảo</summary><div class="a">${e(r.qs[j].a)}</div></details>`}</div>`).join("")}${box(k)}</div>`}).join("")
  +(all?`<div class="c"><h2>📝 Nhận xét chung</h2>${all}</div>`:"")}
-function route(){clearInterval(S.tm);let m=location.hash.match(/^#r=(.+)$/);m?view(m[1]):home()}
-async function view(id){$(hero("📘 Kết quả kiểm tra miệng","Chuyên Địa lí cô Hải Hà")+'<div class="c">Đang tải kết quả...</div>');
- try{let r=await api("/"+id,"GET");if(!r||!r.qs)throw 0;r.r=r.r||[];$(hero("📘 Kết quả kiểm tra miệng","Chuyên Địa lí cô Hải Hà",'<button onclick="print()">🖨 In / lưu PDF</button>')+resHTML(r,"view"))}
- catch(_){$(hero("📘 Kết quả kiểm tra miệng","Chuyên Địa lí cô Hải Hà")+'<div class="c"><h2>Không mở được kết quả</h2><p>Link có thể sai hoặc mạng đang lỗi. Hãy tải lại trang hoặc nhờ trợ giảng gửi lại link.</p></div>')}}
-function home(){clearInterval(S.tm);S.cur=null;S.recs=lg().sort((a,b)=>b.t-a.t);
- $(hero("👩‍🏫 Kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà • mỗi HS 5 câu ngẫu nhiên • 5 phút mỗi câu")+`<div class="c"><h2>🚀 Mở lượt kiểm tra mới</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><p class="mu">5 câu lấy từ 3 phạm trù: Tự nhiên, Dân cư, Kinh tế ngành. Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).</p><button class="b" onclick="start()">Bắt đầu kiểm tra</button></div><div class="c"><h2>📚 Các lượt đã kiểm tra</h2><div id="ls"></div></div>`);list();load()}
-function list(){let l=document.getElementById("ls");if(!l)return;l.innerHTML=S.recs.length?S.recs.map(r=>{let v=verdict(calc(r).all);return `<div class="li"><div><b>${e(r.n)}</b><div class="mu">${e(r.ca)} • ${e(r.gio)}</div></div><span class="tag ${v[2]}">${v[0]} ${v[1]}</span><div class="row"><button onclick="sum('${r.id}')">Xem</button><button onclick="cp(link('${r.id}'))">🔗 Chép link</button></div></div>`}).join(""):'<span class="mu">Chưa có lượt nào.</span>'}
-async function load(){let l=lg();try{let o=await api("","GET",0,'?orderBy=%22%24key%22&limitToLast=100');if(o)Object.keys(o).forEach(k=>{let r=o[k];if(r&&r.qs&&r.r){r.id=k;l=l.filter(x=>x.id!=k);l.push(r)}})}catch(_){}
+
+/* ---------- Đăng nhập Google ---------- */
+function gl(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(x=>toast(x.message))}
+function out(){firebase.auth().signOut()}
+function login(){$(hero("👩‍🏫 Kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà • dành cho trợ giảng")+'<div class="c"><h2>Đăng nhập</h2><p class="mu">Dùng tài khoản Google đã được quản trị viên duyệt.</p><button class="b" onclick="gl()">Đăng nhập bằng Google</button></div>')}
+function deny(){$(hero("Chưa được cấp quyền","")+`<div class="c"><p>Tài khoản <b>${e(U.email)}</b> chưa được duyệt hoặc đã hết hạn. Hãy nhờ quản trị viên duyệt.</p><button onclick="out()">Đăng xuất</button></div>`)}
+firebase.auth().onAuthStateChanged(async u=>{U=u;S.me=null;
+ if(u){try{let t=await u.getIdToken(),p=await(await fetch(ROOT+"/users/"+u.uid+".json?auth="+t)).json();
+  if(p&&p.status=="active"&&(!p.expiresAt||p.expiresAt>Date.now()))S.me={name:p.name||u.displayName||u.email,role:p.role}}catch(_){}}
+ route()});
+
+/* ---------- Điều hướng ---------- */
+function route(){clearInterval(S.tm);let m=location.hash.match(/^#r=(.+)$/);
+ if(m)return view(m[1]);if(!U)return login();if(!S.me)return deny();home()}
+async function view(id){$(hero("📘 Kết quả kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà")+'<div class="c">Đang tải kết quả...</div>');
+ try{let r=await api("/"+id,"GET");if(!r||!r.qs)throw 0;r.r=r.r||[];$(hero("📘 Kết quả kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà",'<button onclick="print()">🖨 In / lưu PDF</button>')+resHTML(r,"view"))}
+ catch(_){$(hero("📘 Kết quả kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà")+'<div class="c"><h2>Không mở được kết quả</h2><p>Link có thể sai, kết quả đã bị xóa hoặc mạng đang lỗi. Hãy tải lại trang hoặc nhờ trợ giảng gửi lại link.</p></div>')}}
+
+/* ---------- Trang chính + lịch sử ---------- */
+function home(){clearInterval(S.tm);S.cur=null;
+ $(hero("👩‍🏫 Kiểm tra miệng Địa lí","TG: "+e(S.me.name)+" • mỗi HS 5 câu ngẫu nhiên • 5 phút mỗi câu",'<button onclick="out()">Đăng xuất</button>')
+ +`<div class="c"><h2>🚀 Mở lượt kiểm tra mới</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><p class="mu">5 câu lấy từ 3 phạm trù: Tự nhiên, Dân cư, Kinh tế ngành. Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).</p><button class="b" onclick="start()">Bắt đầu kiểm tra</button></div>
+ <div class="c"><h2>📚 Lịch sử kiểm tra</h2><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div><div id="ls"></div></div>`);
+ let f=S.f;document.getElementById("f1").value=f.a||"";document.getElementById("f2").value=f.b||"";document.getElementById("f4").value=f.sRaw||"";list();load()}
+function fl(){let g=k=>document.getElementById(k).value;S.f={a:g("f1"),b:g("f2"),by:g("f3"),s:g("f4").trim().toLowerCase(),sRaw:g("f4")};list()}
+function clr(){S.f={};home()}
+function list(){let l=document.getElementById("ls");if(!l)return;let f=S.f;
+ let sel=document.getElementById("f3"),tg={};S.recs.forEach(r=>{tg[r.by||""]=r.bn||"(không rõ)"});
+ sel.innerHTML='<option value="">Tất cả</option>'+Object.keys(tg).map(k=>`<option value="${e(k)}">${e(tg[k])}</option>`).join("");sel.value=f.by||"";
+ let a=S.recs.filter(r=>(!f.a||dOf(r)>=f.a)&&(!f.b||dOf(r)<=f.b)&&(!f.by||(r.by||"")==f.by)&&(!f.s||r.n.toLowerCase().includes(f.s)));
+ document.getElementById("cnt").textContent=a.length+"/"+S.recs.length+" lượt";
+ l.innerHTML=a.length?a.map(r=>{let v=verdict(calc(r).all),own=U&&S.me&&(r.by==U.uid||S.me.role=="superadmin");
+ return `<div class="li"><div><b>${e(r.n)}</b><div class="mu">${e(dOf(r))} • ${e(r.ca)} • ${e(r.gio)}${r.bn?" • TG: "+e(r.bn):""}</div></div><span class="tag ${v[2]}">${v[0]} ${v[1]}</span><div class="row"><button onclick="sum('${r.id}')">Xem</button><button onclick="cp(link('${r.id}'))">🔗 Link</button>${own?`<button class="dg" onclick="del('${r.id}')">🗑 Xóa</button>`:""}</div></div>`}).join(""):'<span class="mu">Không có lượt nào khớp.</span>'}
+async function load(){let l=lg();
+ try{let o=await api("","GET",0,'?orderBy=%22%24key%22&limitToLast=500');l=[];if(o)Object.keys(o).forEach(k=>{let r=o[k];if(r&&r.qs&&r.r){r.id=k;l.push(r)}})}catch(_){}
  S.recs=l.sort((a,b)=>b.t-a.t);if(!S.cur)list()}
+async function del(id){let r=S.recs.find(x=>x.id==id);if(!r||!confirm("Xóa lượt kiểm tra của "+r.n+"? Không thể khôi phục."))return;
+ try{await api("/"+id,"DELETE");S.recs=S.recs.filter(x=>x.id!=id);try{localStorage.oe=JSON.stringify(lg().filter(x=>x.id!=id))}catch(_){}
+  if(S.rec&&S.rec.id==id){S.rec=null;home()}else list();toast("Đã xóa")}
+ catch(x){toast("Không xóa được ("+x.message+")")}}
+
+/* ---------- Lượt kiểm tra ---------- */
 function pick(){let by={TN:[],DC:[],KT:[]};sh(Q).forEach(q=>by[q[0]].push(q));let p=[by.TN[0],by.DC[0],by.KT[0]],ks=sh(Object.keys(by)),ex=ks[0],ex2=ks[1];p.push(by[ex][1]);p.push(by[ex2][1]);return sh(p)}
 function start(){let n=document.getElementById("n").value.trim();if(!n){alert("Nhập tên học sinh");return}
  S.cur={n,ca:document.getElementById("ca").value||"-",gio:document.getElementById("gio").value||new Date().toLocaleString("vi-VN"),qs:pick(),i:0,r:[],ts:[300,300,300,300,300],run:false,done:false};
@@ -160,13 +202,13 @@ function c0(){clearInterval(S.tm);S.cur.ts[S.cur.i]=0;S.cur.run=false;tick()}
 function rate(k){let c=S.cur;c.r[c.i]=k;document.querySelectorAll(".lv").forEach((b,j)=>b.classList.toggle("on",j==k));document.getElementById("nx").disabled=false;document.querySelectorAll(".steps i")[c.i].classList.add("dn")}
 function go(d){let c=S.cur;if(d>0&&c.i==4)return fin();clearInterval(S.tm);c.i+=d;q()}
 async function fin(){let c=S.cur;clearInterval(S.tm);c.done=true;
- S.rec={id:nid(),t:Date.now(),n:c.n,ca:c.ca,gio:c.gio,qs:c.qs.map(x=>({c:x[0],q:x[1],a:ans(x)})),r:c.r,cm:{}};sv(S.rec);S.recs.unshift(S.rec);ch();sum(S.rec);await save(S.rec)}
+ S.rec={id:nid(),t:Date.now(),n:c.n,ca:c.ca,gio:c.gio,qs:c.qs.map(x=>({c:x[0],q:x[1],a:ans(x)})),r:c.r,cm:{},by:U.uid,bn:S.me.name,be:U.email,day:dk()};sv(S.rec);S.recs.unshift(S.rec);ch();sum(S.rec);await save(S.rec)}
 async function save(r){let s=document.getElementById("st");try{await api("/"+r.id,"PUT",r);if(s)s.innerHTML='<span class="chip ok">☁️ Đã lưu lên Firebase</span>'}catch(x){if(s)s.innerHTML='<span class="chip bad">⚠️ Chưa lưu được ('+e(x.message)+'). <a href="#" onclick="save(S.rec);return false">Thử lại</a></span>'}}
 function sum(r){if(typeof r=="string")r=S.recs.find(x=>x.id==r);S.rec=r;
- $(hero("📊 Kết quả: "+e(r.n),e(r.ca)+" • "+e(r.gio),'<button onclick="print()">🖨 In</button><button onclick="home()">🏠 Trang chính</button>')
- +`<div class="c np"><h2>🔗 Link kết quả gửi cho học sinh</h2><div class="row" style="flex-wrap:nowrap"><input id="lk" readonly value="${e(link(r.id))}"><button class="b" onclick="cp(document.getElementById('lk').value)">Sao chép</button></div><div id="st"></div>${location.protocol=="file:"?'<p class="mu">Bạn đang mở file trên máy nên link chỉ dùng được sau khi đưa trang này lên GitHub Pages.</p>':""}</div>`
+ $(hero("📊 Kết quả: "+e(r.n),e(r.ca)+" • "+e(r.gio)+(r.bn?" • TG: "+e(r.bn):""),'<button onclick="print()">🖨 In</button><button onclick="home()">🏠 Trang chính</button>')
+ +`<div class="c np"><h2>🔗 Link kết quả gửi cho học sinh</h2><div class="row" style="flex-wrap:nowrap"><input id="lk" readonly value="${e(link(r.id))}"><button class="b" onclick="cp(document.getElementById('lk').value)">Sao chép</button></div><div id="st"></div>${location.protocol=="file:"?'<p class="mu">Bạn đang mở file trên máy nên link chỉ dùng được sau khi đưa trang này lên GitHub Pages (đăng nhập Google cũng cần chạy trên domain đã thêm vào Authorized domains).</p>':""}</div>`
  +resHTML(r,"adm")+`<div class="nav np"><button onclick="home()">← Về trang chính</button><button class="b" onclick="saveCm()">💾 Lưu nhận xét</button></div>`)}
 async function saveCm(){let r=S.rec,cm={};["TN","DC","KT","all"].forEach(k=>{let t=document.getElementById("cm_"+k);if(t&&t.value.trim())cm[k]=t.value.trim()});r.cm=cm;sv(r);
  try{await api("/"+r.id+"/cm","PUT",cm);toast("Đã lưu nhận xét")}catch(x){toast("Chưa lưu được lên Firebase: "+x.message)}}
-addEventListener("hashchange",route);route();
+addEventListener("hashchange",route);
 </script></body></html>
