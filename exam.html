@@ -98,12 +98,13 @@ const Q=[
 ["KT","Trình bày đặc điểm tài nguyên rừng và sự phát triển ngành lâm nghiệp.","- 2021: rừng 14,7 triệu ha (tự nhiên 69%, trồng 31%), độ che phủ 42%; rừng tự nhiên tập trung Trung du miền núi Bắc Bộ; rừng phòng hộ, đặc dụng, sản xuất.\n- Trồng rừng được đẩy mạnh (~200 nghìn ha mới/năm); sản lượng gỗ khai thác tăng (12 triệu m³, gấp 4,6 lần 2010); vùng gỗ lớn: TDMNBB, Bắc Trung Bộ, DHNTB, Tây Nguyên."],
 ["KT","Vì sao cây công nghiệp phát triển mạnh trong những năm gần đây?","Vai trò quan trọng (nguyên liệu chế biến, xuất khẩu, tạo việc làm, bảo vệ môi trường); điều kiện tự nhiên (đồi núi, đất feralit, khí hậu nhiệt đới, nước, giống); lao động dồi dào, kinh nghiệm; thị trường trong và ngoài nước mở rộng; chính sách hỗ trợ; ứng dụng KHCN; cơ sở vật chất kĩ thuật (thủy lợi, chế biến, kho bãi, vận chuyển)."]
 ];
+const TM=120;
 const LV=["Chưa học","Chưa học kĩ","Đã học","Đã học kĩ"];
 const CM={TN:["chưa nắm được kiến thức Địa lí tự nhiên, cần học lại từ đầu","còn nhớ rời rạc, thiếu giải thích nguyên nhân, cần ôn kĩ hơn","nắm được ý chính, cần củng cố số liệu và giải thích","nắm chắc, trình bày đầy đủ"],DC:["chưa học phần Dân cư","học chưa kĩ, thiếu số liệu và giải thích","nắm được ý chính","nắm chắc, có số liệu và giải thích tốt"],KT:["chưa học phần Kinh tế ngành","học chưa kĩ, thiếu hệ thống các nhân tố","nắm được ý chính nhưng cần thêm ví dụ, số liệu","nắm chắc, phân tích có hệ thống"]};
 const DB="https://csdl-dl-nthh-default-rtdb.asia-southeast1.firebasedatabase.app/oral_exams";
 const ROOT=DB.replace(/\/oral_exams$/,"");
 /* ĐIỀN apiKey lấy ở Firebase Console > Project settings > Your apps */
-firebase.initializeApp({apiKey:"ĐIỀN_API_KEY",authDomain:"csdl-dl-nthh.firebaseapp.com",projectId:"csdl-dl-nthh"});
+firebase.initializeApp({apiKey:"AIzaSyDKYJ4yMJQ-vxKkMQR4rLDC01npMhWPIbE",authDomain:"csdl-dl-nthh.firebaseapp.com",projectId:"csdl-dl-nthh"});
 const IC=["😟","🤔","🙂","🌟"],LC=["bad","wn","pr","ok"],CI={TN:"🌏",DC:"👥",KT:"🏭"};
 const EX={
 0:"Ý nghĩa: thuận lợi (giao lưu, hội nhập, kinh tế biển, đa dạng sinh học) và khó khăn (bão, áp thấp, an ninh biển đảo). Hay hỏi thêm: vì sao cùng vĩ độ mà nước ta không khô hạn?",
@@ -158,7 +159,7 @@ async function view(id){$(hero("📘 Kết quả kiểm tra miệng Địa lí",
 
 /* ---------- Trang chính + lịch sử ---------- */
 function home(){clearInterval(S.tm);S.cur=null;
- $(hero("👩‍🏫 Kiểm tra miệng Địa lí","TG: "+e(S.me.name)+" • mỗi HS 5 câu ngẫu nhiên • 5 phút mỗi câu",'<button onclick="out()">Đăng xuất</button>')
+ $(hero("👩‍🏫 Kiểm tra miệng Địa lí","TG: "+e(S.me.name)+" • mỗi HS 5 câu ngẫu nhiên • 2 phút mỗi câu",'<button onclick="out()">Đăng xuất</button>')
  +`<div class="c"><h2>🚀 Mở lượt kiểm tra mới</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><p class="mu">5 câu lấy từ 3 phạm trù: Tự nhiên, Dân cư, Kinh tế ngành. Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).</p><button class="b" onclick="start()">Bắt đầu kiểm tra</button></div>
  <div class="c"><h2>📚 Lịch sử kiểm tra</h2><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div><div id="ls"></div></div>`);
  let f=S.f;document.getElementById("f1").value=f.a||"";document.getElementById("f2").value=f.b||"";document.getElementById("f4").value=f.sRaw||"";list();load()}
@@ -182,17 +183,17 @@ async function del(id){let r=S.recs.find(x=>x.id==id);if(!r||!confirm("Xóa lư�
 /* ---------- Lượt kiểm tra ---------- */
 function pick(){let by={TN:[],DC:[],KT:[]};sh(Q).forEach(q=>by[q[0]].push(q));let p=[by.TN[0],by.DC[0],by.KT[0]],ks=sh(Object.keys(by)),ex=ks[0],ex2=ks[1];p.push(by[ex][1]);p.push(by[ex2][1]);return sh(p)}
 function start(){let n=document.getElementById("n").value.trim();if(!n){alert("Nhập tên học sinh");return}
- S.cur={n,ca:document.getElementById("ca").value||"-",gio:document.getElementById("gio").value||new Date().toLocaleString("vi-VN"),qs:pick(),i:0,r:[],ts:[300,300,300,300,300],run:false,done:false};
+ S.cur={n,ca:document.getElementById("ca").value||"-",gio:document.getElementById("gio").value||new Date().toLocaleString("vi-VN"),qs:pick(),i:0,r:[],ts:[TM,TM,TM,TM,TM],run:false,done:false};
  if(!openWin())return;q()}
 function openWin(){if(!S.win||S.win.closed)S.win=window.open("","hs_view","width=1000,height=640");if(!S.win){alert("Trình duyệt chặn cửa sổ bật lên. Hãy cho phép rồi thử lại.");return false}S.win.focus();ch();return true}
-function ring(t){let col=t<=30?"#ef4444":t<=90?"#f59e0b":"#22d3ee";return `<div class="rg"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="rb"/><circle cx="60" cy="60" r="54" class="rf" style="stroke:${col};stroke-dasharray:339.3;stroke-dashoffset:${339.3*(1-Math.max(0,t)/300)}"/></svg><b>${fmt(t)}</b></div>`}
+function ring(t){let col=t<=15?"#ef4444":t<=45?"#f59e0b":"#22d3ee";return `<div class="rg"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="rb"/><circle cx="60" cy="60" r="54" class="rf" style="stroke:${col};stroke-dasharray:339.3;stroke-dashoffset:${339.3*(1-Math.max(0,t)/TM)}"/></svg><b>${fmt(t)}</b></div>`}
 function ch(){let w=S.win,c=S.cur;if(!w||w.closed||!c)return;let d=w.document;
  if(!d.getElementById("hs")){d.open();d.write('<meta charset="utf-8"><title>Màn hình học sinh</title><style>'+document.querySelector("style").textContent+'</style><body class="hsb"><div id="hs"></div>');d.close()}
  let t=c.ts[c.i];d.getElementById("hs").innerHTML=c.done?`<div class="wrap"><h1 style="text-align:center">🎉 Hoàn thành bài kiểm tra!</h1>${resHTML(S.rec,"hs")}</div>`:`<div class="hsw"><div class="hsh">${e(c.n)} • Câu ${c.i+1}/5</div><div class="hsq">${e(c.qs[c.i][1])}</div>${ring(t)}<div class="hsm">${t>0?(c.run?"Thời gian suy nghĩ":"Chuẩn bị..."):"Hết giờ — mời em trả lời"}</div></div>`}
 function q(){clearInterval(S.tm);let c=S.cur,x=c.qs[c.i];c.run=false;
  $(hero("📝 "+e(c.n),"Ca: "+e(c.ca)+" • "+e(c.gio),'<button onclick="openWin()">🖥 Mở lại cửa sổ HS</button><button onclick="if(confirm(\'Dừng lượt kiểm tra?\'))home()">Thoát</button>')
  +`<div class="steps">${c.qs.map((_,k)=>`<i class="${k==c.i?"cur":c.r[k]!=null?"dn":""}">${k+1}</i>`).join("")}</div>
- <div class="c"><span class="tag">${CI[x[0]]} ${CATS[x[0]]}</span><div class="q">${e(x[1])}</div><div class="row"><div id="tm">${ring(c.ts[c.i])}</div><div class="bt"><button id="bt" class="b" onclick="run()">${c.ts[c.i]<300?"▶ Tiếp tục":"▶ Bắt đầu tính giờ"}</button><button onclick="c0()">⏭ Bỏ qua thời gian</button></div></div></div>
+ <div class="c"><span class="tag">${CI[x[0]]} ${CATS[x[0]]}</span><div class="q">${e(x[1])}</div><div class="row"><div id="tm">${ring(c.ts[c.i])}</div><div class="bt"><button id="bt" class="b" onclick="run()">${c.ts[c.i]<TM?"▶ Tiếp tục":"▶ Bắt đầu tính giờ"}</button><button onclick="c0()">⏭ Bỏ qua thời gian</button></div></div></div>
  <div class="c ans"><h2>📖 Đáp án chi tiết <span class="mu">(chỉ trợ giảng thấy)</span></h2><div class="a">${e(ans(x))}</div></div>
  <div class="c"><h2>🎯 HS học đến mức nào?</h2><div class="r">${LV.map((l,k)=>`<button class="lv ${LC[k]}${c.r[c.i]===k?" on":""}" onclick="rate(${k})">${IC[k]}<br>${l}</button>`).join("")}</div></div>
  <div class="nav"><button onclick="go(-1)" ${c.i?"":"disabled"}>← Câu trước</button><button class="b" id="nx" onclick="go(1)" ${c.r[c.i]==null?"disabled":""}>${c.i<4?"Câu tiếp theo →":"🏁 Kết thúc & xem kết quả"}</button></div>`);ch()}
