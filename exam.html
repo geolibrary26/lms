@@ -160,9 +160,10 @@ async function view(id){$(hero("📘 Kết quả kiểm tra miệng Địa lí",
 /* ---------- Trang chính + lịch sử ---------- */
 function home(){clearInterval(S.tm);S.cur=null;
  $(hero("👩‍🏫 Kiểm tra miệng Địa lí","TG: "+e(S.me.name)+" • mỗi HS 5 câu ngẫu nhiên • 2 phút mỗi câu",'<button onclick="out()">Đăng xuất</button>')
+ +`<div class="c"><h2>📅 Lịch kiểm tra từ Sheet <span class="mu" id="sst"></span></h2><div class="row"><div><label>Ngày</label><input type="date" id="sd" oninput="setSd(this.value)"></div><button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button></div><div id="sc"></div></div>`
  +`<div class="c"><h2>🚀 Mở lượt kiểm tra mới</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><p class="mu">5 câu lấy từ 3 phạm trù: Tự nhiên, Dân cư, Kinh tế ngành. Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).</p><button class="b" onclick="start()">Bắt đầu kiểm tra</button></div>
  <div class="c"><h2>📚 Lịch sử kiểm tra</h2><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div><div id="ls"></div></div>`);
- let f=S.f;document.getElementById("f1").value=f.a||"";document.getElementById("f2").value=f.b||"";document.getElementById("f4").value=f.sRaw||"";list();load()}
+ let f=S.f;document.getElementById("f1").value=f.a||"";document.getElementById("f2").value=f.b||"";document.getElementById("f4").value=f.sRaw||"";document.getElementById("sd").value=S.sd;sched();refreshSched();list();load()}
 function fl(){let g=k=>document.getElementById(k).value;S.f={a:g("f1"),b:g("f2"),by:g("f3"),s:g("f4").trim().toLowerCase(),sRaw:g("f4")};list()}
 function clr(){S.f={};home()}
 function list(){let l=document.getElementById("ls");if(!l)return;let f=S.f;
@@ -174,16 +175,63 @@ function list(){let l=document.getElementById("ls");if(!l)return;let f=S.f;
  return `<div class="li"><div><b>${e(r.n)}</b><div class="mu">${e(dOf(r))} • ${e(r.ca)} • ${e(r.gio)}${r.bn?" • TG: "+e(r.bn):""}</div></div><span class="tag ${v[2]}">${v[0]} ${v[1]}</span><div class="row"><button onclick="sum('${r.id}')">Xem</button><button onclick="cp(link('${r.id}'))">🔗 Link</button>${own?`<button class="dg" onclick="del('${r.id}')">🗑 Xóa</button>`:""}</div></div>`}).join(""):'<span class="mu">Không có lượt nào khớp.</span>'}
 async function load(){let l=lg();
  try{let o=await api("","GET",0,'?orderBy=%22%24key%22&limitToLast=500');l=[];if(o)Object.keys(o).forEach(k=>{let r=o[k];if(r&&r.qs&&r.r){r.id=k;l.push(r)}})}catch(_){}
- S.recs=l.sort((a,b)=>b.t-a.t);if(!S.cur)list()}
+ S.recs=l.sort((a,b)=>b.t-a.t);if(!S.cur){list();sched()}}
 async function del(id){let r=S.recs.find(x=>x.id==id);if(!r||!confirm("Xóa lượt kiểm tra của "+r.n+"? Không thể khôi phục."))return;
  try{await api("/"+id,"DELETE");S.recs=S.recs.filter(x=>x.id!=id);try{localStorage.oe=JSON.stringify(lg().filter(x=>x.id!=id))}catch(_){}
   if(S.rec&&S.rec.id==id){S.rec=null;home()}else list();toast("Đã xóa")}
  catch(x){toast("Không xóa được ("+x.message+")")}}
 
 /* ---------- Lượt kiểm tra ---------- */
+/* ---------- Đồng bộ lịch từ Google Sheet ---------- */
+const SHEET_ID="1TvI5xiJVy8qT52dZ64ZeAWiH11FDaqXuFq74hmJNtqM"; // đoạn giữa /d/ và /edit trong link Sheet
+const TAB="Học sinh";
+const norm=s=>String(s||"").normalize("NFC").trim().toLowerCase().replace(/\s+/g," ");
+const VT=a=>a>=2?"Đã học bài":a>=1?"Học bài chưa kĩ":"Chưa học bài";
+const WD=["CN","T2","T3","T4","T5","T6","T7"];
+S.sch=[];S.schT=0;S.sd=dk();
+async function loadSched(){
+ let u="https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:json&headers=1&sheet="+encodeURIComponent(TAB)+"&_="+Date.now();
+ let t=await(await fetch(u,{cache:"no-store"})).text();
+ let j=JSON.parse(t.slice(t.indexOf("{"),t.lastIndexOf("}")+1));
+ S.sch=j.table.rows.map(r=>{let c=i=>{let x=r.c[i];return x?String(x.f!=null?x.f:(x.v!=null?x.v:"")).trim():""};
+  let d=c(3),m=d.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  return{n:c(0),lop:c(1),d,iso:m?m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0"):"",gio:c(4).slice(0,5),tg:c(5),meet:c(6),st:c(7),nt:c(8)}
+ }).filter(x=>x.n&&x.iso);
+ S.schT=Date.now()}
+function caNo(x){let ts=[...new Set(S.sch.filter(y=>y.iso==x.iso).map(y=>y.gio))].sort();return ts.indexOf(x.gio)+1}
+const absent=x=>/vắng/i.test(x.st);
+function permit(x){let s=x.st+" "+x.nt;return /không phép|ko phép/i.test(s)?"không phép":/có phép/i.test(s)?"có phép":null}
+function recOf(x){return S.recs.filter(r=>norm(r.n)==norm(x.n)&&dOf(r)==x.iso).sort((a,b)=>b.t-a.t)[0]}
+const dayLbl=iso=>WD[new Date(iso+"T00:00:00").getDay()]+", "+iso.split("-").reverse().join("/");
+function sched(){let box=document.getElementById("sc");if(!box)return;
+ let L=S.sch.filter(x=>x.iso==S.sd).sort((a,b)=>a.gio.localeCompare(b.gio)||a.n.localeCompare(b.n));
+ let st=document.getElementById("sst");if(st)st.textContent=S.schT?"Đồng bộ lúc "+new Date(S.schT).toLocaleTimeString("vi-VN"):"Đang tải...";
+ box.innerHTML=L.length?L.map(x=>{let r=recOf(x),ab=absent(x),mine=S.me&&norm(x.tg)==norm(S.me.name);
+  let tag=ab?'<span class="tag wn">⚠️ Vắng</span>':r?'<span class="tag ok">✅ Đã có kết quả</span>':/đã kiểm tra/i.test(x.st)?'<span class="tag ok">Đã KT (theo Sheet)</span>':'<span class="tag pr">Chờ kiểm tra</span>';
+  return `<div class="li"><div><b>${e(x.n)}</b><div class="mu">Ca ${caNo(x)} • ${e(x.gio)} • ${e(x.lop)} • TG: ${e(x.tg)}${mine?" (bạn)":""}</div></div>${tag}<div class="row">${x.meet?`<a href="${e(x.meet)}" target="_blank" rel="noopener"><button>Meet</button></a>`:""}${ab||r?"":`<button class="b" onclick="startS('${encodeURIComponent(x.n+"|"+x.iso+"|"+x.gio)}')">▶ Bắt đầu</button>`}</div></div>`}).join(""):'<span class="mu">Không có học sinh nào được xếp trong ngày này.</span>'}
+function startS(k){let [n,iso,gio]=decodeURIComponent(k).split("|"),x=S.sch.find(y=>y.n==n&&y.iso==iso&&y.gio==gio);
+ if(!x){toast("Lịch vừa thay đổi, hãy chọn lại");sched();return}
+ start({n:x.n,ca:"Ca "+caNo(x),gio:x.gio+" "+x.d.slice(0,5)})}
+async function refreshSched(){if(!document.getElementById("sc"))return;
+ try{await loadSched();sched()}
+ catch(_){let s=document.getElementById("sst");if(s)s.textContent="⚠️ Không đọc được Sheet (kiểm tra ID và quyền chia sẻ)"}}
+setInterval(refreshSched,60000);
+addEventListener("focus",refreshSched);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshSched()});
+function setSd(v){S.sd=v||dk();sched()}
+function report(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.localeCompare(b.gio)||a.n.localeCompare(b.n));
+ if(!L.length){toast("Ngày này không có lịch");return}
+ let warn=0,bl=L.map(x=>{let kq;
+  if(absent(x)){let p=permit(x);if(!p){p="[GHI RÕ CÓ PHÉP / KHÔNG PHÉP]";warn++}
+   kq="Học sinh vắng mặt "+p+". Tổ Trợ giảng đã xếp lịch kiểm tra bù cho HS."}
+  else{let r=recOf(x);if(r){let a=calc(r).all;kq=a.toFixed(1)+"/3 ("+VT(a)+")"}else{kq="Chưa có kết quả";warn++}}
+  return "Học sinh: "+x.n+"\nLớp: "+x.lop+"\nNgày: "+dayLbl(iso)+"\nCa số: "+caNo(x)+"\nThời gian: "+x.gio+"\nKết quả: "+kq}).join("\n\n");
+ let t="[BÁO CÁO TÌNH HÌNH KIỂM TRA 1:1 NGÀY "+iso.split("-").reverse().slice(0,2).join("/")+"]\nKính gửi Quý phụ huynh,\nTổ Trợ giảng xin thông báo Kết quả kiểm tra lí thuyết 1:1 như sau:\n\n"+bl+"\n\nCác em và Quý phụ huynh vui lòng liên hệ Tổ Trợ giảng để xem thông tin chi tiết về kết quả kiểm tra.\nTrân trọng!";
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(warn?"Đã sao chép, nhưng còn "+warn+" mục cần kiểm tra lại":"Đã sao chép báo cáo")).catch(()=>prompt("Sao chép báo cáo:",t))}
+
 function pick(){let by={TN:[],DC:[],KT:[]};sh(Q).forEach(q=>by[q[0]].push(q));let p=[by.TN[0],by.DC[0],by.KT[0]],ks=sh(Object.keys(by)),ex=ks[0],ex2=ks[1];p.push(by[ex][1]);p.push(by[ex2][1]);return sh(p)}
-function start(){let n=document.getElementById("n").value.trim();if(!n){alert("Nhập tên học sinh");return}
- S.cur={n,ca:document.getElementById("ca").value||"-",gio:document.getElementById("gio").value||new Date().toLocaleString("vi-VN"),qs:pick(),i:0,r:[],ts:[TM,TM,TM,TM,TM],nt:[,,,,],run:false,done:false};
+function start(p){let n=p?p.n:document.getElementById("n").value.trim();if(!n){alert("Nhập tên học sinh");return}
+ S.cur={n,ca:p?p.ca:(document.getElementById("ca").value||"-"),gio:p?p.gio:(document.getElementById("gio").value||new Date().toLocaleString("vi-VN")),qs:pick(),i:0,r:[],ts:[TM,TM,TM,TM,TM],nt:[,,,,],run:false,done:false};
  if(!openWin())return;q()}
 function openWin(){if(!S.win||S.win.closed)S.win=window.open("","hs_view","width=1000,height=640");if(!S.win){alert("Trình duyệt chặn cửa sổ bật lên. Hãy cho phép rồi thử lại.");return false}S.win.focus();ch();return true}
 function ring(t){let col=t<=15?"#ef4444":t<=45?"#f59e0b":"#22d3ee";return `<div class="rg"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="rb"/><circle cx="60" cy="60" r="54" class="rf" style="stroke:${col};stroke-dasharray:339.3;stroke-dashoffset:${339.3*(1-Math.max(0,t)/TM)}"/></svg><b>${fmt(t)}</b></div>`}
