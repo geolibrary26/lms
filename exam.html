@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kiểm tra miệng Địa lí • Cô Hải Hà</title>
+<title>Kiểm tra Lí thuyết • Cô Hải Hà</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -98,6 +98,20 @@ const Q=[
 ["KT","Trình bày đặc điểm tài nguyên rừng và sự phát triển ngành lâm nghiệp.","- 2021: rừng 14,7 triệu ha (tự nhiên 69%, trồng 31%), độ che phủ 42%; rừng tự nhiên tập trung Trung du miền núi Bắc Bộ; rừng phòng hộ, đặc dụng, sản xuất.\n- Trồng rừng được đẩy mạnh (~200 nghìn ha mới/năm); sản lượng gỗ khai thác tăng (12 triệu m³, gấp 4,6 lần 2010); vùng gỗ lớn: TDMNBB, Bắc Trung Bộ, DHNTB, Tây Nguyên."],
 ["KT","Vì sao cây công nghiệp phát triển mạnh trong những năm gần đây?","Vai trò quan trọng (nguyên liệu chế biến, xuất khẩu, tạo việc làm, bảo vệ môi trường); điều kiện tự nhiên (đồi núi, đất feralit, khí hậu nhiệt đới, nước, giống); lao động dồi dào, kinh nghiệm; thị trường trong và ngoài nước mở rộng; chính sách hỗ trợ; ứng dụng KHCN; cơ sở vật chất kĩ thuật (thủy lợi, chế biến, kho bãi, vận chuyển)."]
 ];
+const TP=["Vị trí & lãnh thổ", "Vị trí & lãnh thổ", "Địa hình", "Địa hình", "Khí hậu", "Khí hậu", "Sông ngòi", "Sông ngòi", "Đất", "Khoáng sản", "Sinh vật & đa dạng sinh học", "Biển đảo", "Dân tộc", "Quy mô & gia tăng dân số", "Quy mô & gia tăng dân số", "Cơ cấu dân số", "Phân bố dân cư", "Phân bố dân cư", "Phân bố dân cư", "Lao động & việc làm", "Quy mô & gia tăng dân số", "Đô thị hóa & quần cư", "Lao động & việc làm", "Đô thị hóa & quần cư", "Trồng lúa", "Cây công nghiệp", "Chăn nuôi", "Thủy sản", "Trồng lúa", "CN điện", "CN dệt may - giày dép", "CN điện tử", "CN chế biến thực phẩm", "CN xanh", "Thủy sản", "Lâm nghiệp", "Cây công nghiệp"]; // chủ đề của từng câu, cùng thứ tự với Q
+const rk=(a,f)=>a.map(x=>[f(x)+Math.random()*.9,x]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+function hist(n){let h={tc:{},qc:{},mine:{},mt:{},cc:{TN:0,DC:0,KT:0}},k=norm(n);
+S.recs.forEach(r=>{let me=!!k&&norm(r.n)==k;(r.qs||[]).forEach(x=>{let i=Q.findIndex(y=>y[1]==x.q);if(i<0)return;let t=TP[i];h.qc[i]=(h.qc[i]||0)+1;h.tc[t]=(h.tc[t]||0)+1;h.cc[Q[i][0]]++;if(me){h.mine[i]=(h.mine[i]||0)+1;h.mt[t]=(h.mt[t]||0)+1}})});return h}
+// Bốc 5 câu thuộc 5 chủ đề khác nhau (tối đa 3 câu/phạm trù). Chủ đề: ưu tiên chủ đề HS chưa được hỏi, rồi chủ đề toàn lớp ít được hỏi nhất
+// => mọi chủ đề được hỏi đều nhau. Câu trong chủ đề: ưu tiên câu HS chưa gặp, rồi câu ít được hỏi nhất.
+function pick(n){let h=hist(n||""),p=[],used={},cat={TN:0,DC:0,KT:0};
+for(let k=0;k<5;k++){let ts=[...new Set(Q.map((q,i)=>!used[TP[i]]&&cat[q[0]]<3?TP[i]:null).filter(Boolean))];if(!ts.length)break;
+let t=rk(ts,t=>(h.mt[t]||0)*1e3+(h.tc[t]||0))[0],is=Q.map((q,i)=>i).filter(i=>TP[i]==t),i=rk(is,i=>(h.mine[i]||0)*1e3+(h.qc[i]||0))[0];
+used[t]=1;cat[Q[i][0]]++;p.push(Q[i])}
+return sh(p)}
+function cov(){let h=hist(""),o="";Object.keys(CATS).forEach(c=>{let ts=[...new Set(Q.map((q,i)=>q[0]==c?TP[i]:null).filter(Boolean))];
+o+=`<p class="mu" style="margin:8px 0 4px"><b>${CI[c]} ${CATS[c]}</b> (${ts.length} chủ đề)</p><div>`+ts.map(t=>`<span class="tag" style="margin:2px">${t} • ${Q.filter((q,i)=>TP[i]==t).length} câu • ${h.tc[t]||0} lượt</span>`).join("")+`</div>`});return o}
+function cv(){let b=document.getElementById("cv");if(b)b.innerHTML=cov()}
 const TM=120;
 const LV=["Chưa học","Chưa học kĩ","Đã học","Đã học kĩ"];
 const CM={TN:["chưa nắm được kiến thức Địa lí tự nhiên, cần học lại từ đầu","còn nhớ rời rạc, thiếu giải thích nguyên nhân, cần ôn kĩ hơn","nắm được ý chính, cần củng cố số liệu và giải thích","nắm chắc, trình bày đầy đủ"],DC:["chưa học phần Dân cư","học chưa kĩ, thiếu số liệu và giải thích","nắm được ý chính","nắm chắc, có số liệu và giải thích tốt"],KT:["chưa học phần Kinh tế ngành","học chưa kĩ, thiếu hệ thống các nhân tố","nắm được ý chính nhưng cần thêm ví dụ, số liệu","nắm chắc, phân tích có hệ thống"]};
@@ -143,7 +157,7 @@ function resHTML(r,m){let d=calc(r),v=verdict(d.all),n=r.r.filter(x=>x>=2).lengt
 /* ---------- Đăng nhập Google ---------- */
 function gl(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(x=>toast(x.message))}
 function out(){firebase.auth().signOut()}
-function login(){$(hero("👩‍🏫 Kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà • dành cho trợ giảng")+'<div class="c"><h2>Đăng nhập</h2><p class="mu">Dùng tài khoản Google đã được quản trị viên duyệt.</p><button class="b" onclick="gl()">Đăng nhập bằng Google</button></div>')}
+function login(){$(hero("👩‍🏫 Kiểm tra Lí thuyết","Chuyên Địa lí cô Hải Hà • dành cho trợ giảng")+'<div class="c"><h2>Đăng nhập</h2><p class="mu">Dùng tài khoản Google đã được quản trị viên duyệt.</p><button class="b" onclick="gl()">Đăng nhập bằng Google</button></div>')}
 function deny(){$(hero("Chưa được cấp quyền","")+`<div class="c"><p>Tài khoản <b>${e(U.email)}</b> chưa được duyệt hoặc đã hết hạn. Hãy nhờ quản trị viên duyệt.</p><button onclick="out()">Đăng xuất</button></div>`)}
 firebase.auth().onAuthStateChanged(async u=>{U=u;S.me=null;
  if(u){try{let t=await u.getIdToken(),p=await(await fetch(ROOT+"/users/"+u.uid+".json?auth="+t)).json();
@@ -153,16 +167,17 @@ firebase.auth().onAuthStateChanged(async u=>{U=u;S.me=null;
 /* ---------- Điều hướng ---------- */
 function route(){clearInterval(S.tm);let m=location.hash.match(/^#r=(.+)$/);
  if(m)return view(m[1]);if(!U)return login();if(!S.me)return deny();home()}
-async function view(id){$(hero("📘 Kết quả kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà")+'<div class="c">Đang tải kết quả...</div>');
- try{let r=await api("/"+id,"GET");if(!r||!r.qs)throw 0;r.r=r.r||[];$(hero("📘 Kết quả kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà",'<button onclick="print()">🖨 In / lưu PDF</button>')+resHTML(r,"view"))}
- catch(_){$(hero("📘 Kết quả kiểm tra miệng Địa lí","Chuyên Địa lí cô Hải Hà")+'<div class="c"><h2>Không mở được kết quả</h2><p>Link có thể sai, kết quả đã bị xóa hoặc mạng đang lỗi. Hãy tải lại trang hoặc nhờ trợ giảng gửi lại link.</p></div>')}}
+async function view(id){$(hero("📘 Kết quả kiểm tra Lí thuyết","Chuyên Địa lí cô Hải Hà")+'<div class="c">Đang tải kết quả...</div>');
+ try{let r=await api("/"+id,"GET");if(!r||!r.qs)throw 0;r.r=r.r||[];$(hero("📘 Kết quả kiểm tra Lí thuyết","Chuyên Địa lí cô Hải Hà",'<button onclick="print()">🖨 In / lưu PDF</button>')+resHTML(r,"view"))}
+ catch(_){$(hero("📘 Kết quả kiểm tra Lí thuyết","Chuyên Địa lí cô Hải Hà")+'<div class="c"><h2>Không mở được kết quả</h2><p>Link có thể sai, kết quả đã bị xóa hoặc mạng đang lỗi. Hãy tải lại trang hoặc nhờ trợ giảng gửi lại link.</p></div>')}}
 
 /* ---------- Trang chính + lịch sử ---------- */
 function home(){clearInterval(S.tm);S.cur=null;
- $(hero("👩‍🏫 Kiểm tra miệng Địa lí","TG: "+e(S.me.name)+" • mỗi HS 5 câu ngẫu nhiên • 2 phút mỗi câu",'<button onclick="out()">Đăng xuất</button>')
+ $(hero("👩‍🏫 Kiểm tra Lí thuyết","TG: "+e(S.me.name)+" • mỗi HS 5 câu ngẫu nhiên • 2 phút mỗi câu",'<button onclick="out()">Đăng xuất</button>')
  +`<div class="c"><h2>📅 Lịch kiểm tra từ Sheet <span class="mu" id="sst"></span></h2><div class="row"><div><label>Ngày</label><input type="date" id="sd" oninput="setSd(this.value)"></div><button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button></div><div id="sc"></div></div>`
- +`<div class="c"><h2>🚀 Mở lượt kiểm tra mới</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><p class="mu">5 câu lấy từ 3 phạm trù: Tự nhiên, Dân cư, Kinh tế ngành. Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).</p><button class="b" onclick="start()">Bắt đầu kiểm tra</button></div>
- <div class="c"><h2>📚 Lịch sử kiểm tra</h2><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div><div id="ls"></div></div>`);
+ +`<div class="c"><h2>🚀 Mở lượt kiểm tra mới</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><p class="mu">5 câu thuộc 5 chủ đề khác nhau trong 3 phạm trù (Tự nhiên, Dân cư, Kinh tế ngành); hệ thống ưu tiên chủ đề/câu HS chưa được hỏi và chủ đề ít được hỏi nhất toàn lớp để mọi chủ đề được hỏi đều nhau. Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).</p><button class="b" onclick="start()">Bắt đầu kiểm tra</button></div>
+ <div class="c"><h2>🧭 Độ phủ kho đề</h2><div id="cv">${cov()}</div></div>
+<div class="c"><h2>📚 Lịch sử kiểm tra</h2><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div><div id="ls"></div></div>`);
  let f=S.f;document.getElementById("f1").value=f.a||"";document.getElementById("f2").value=f.b||"";document.getElementById("f4").value=f.sRaw||"";document.getElementById("sd").value=S.sd;sched();refreshSched();list();load()}
 function fl(){let g=k=>document.getElementById(k).value;S.f={a:g("f1"),b:g("f2"),by:g("f3"),s:g("f4").trim().toLowerCase(),sRaw:g("f4")};list()}
 function clr(){S.f={};home()}
@@ -175,7 +190,7 @@ function list(){let l=document.getElementById("ls");if(!l)return;let f=S.f;
  return `<div class="li"><div><b>${e(r.n)}</b><div class="mu">${e(dOf(r))} • ${e(r.ca)} • ${e(r.gio)}${r.bn?" • TG: "+e(r.bn):""}</div></div><span class="tag ${v[2]}">${v[0]} ${v[1]}</span><div class="row"><button onclick="sum('${r.id}')">Xem</button><button onclick="cp(link('${r.id}'))">🔗 Link</button>${own?`<button class="dg" onclick="del('${r.id}')">🗑 Xóa</button>`:""}</div></div>`}).join(""):'<span class="mu">Không có lượt nào khớp.</span>'}
 async function load(){let l=lg();
  try{let o=await api("","GET",0,'?orderBy=%22%24key%22&limitToLast=500');l=[];if(o)Object.keys(o).forEach(k=>{let r=o[k];if(r&&r.qs&&r.r){r.id=k;l.push(r)}})}catch(_){}
- S.recs=l.sort((a,b)=>b.t-a.t);if(!S.cur){list();sched()}}
+ S.recs=l.sort((a,b)=>b.t-a.t);if(!S.cur){list();sched();cv()}}
 async function del(id){let r=S.recs.find(x=>x.id==id);if(!r||!confirm("Xóa lượt kiểm tra của "+r.n+"? Không thể khôi phục."))return;
  try{await api("/"+id,"DELETE");S.recs=S.recs.filter(x=>x.id!=id);try{localStorage.oe=JSON.stringify(lg().filter(x=>x.id!=id))}catch(_){}
   if(S.rec&&S.rec.id==id){S.rec=null;home()}else list();toast("Đã xóa")}
@@ -229,9 +244,8 @@ function report(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.l
  let t="[BÁO CÁO TÌNH HÌNH KIỂM TRA 1:1 NGÀY "+iso.split("-").reverse().slice(0,2).join("/")+"]\nKính gửi Quý phụ huynh,\nTổ Trợ giảng xin thông báo Kết quả kiểm tra lí thuyết 1:1 như sau:\n\n"+bl+"\n\nCác em và Quý phụ huynh vui lòng liên hệ Tổ Trợ giảng để xem thông tin chi tiết về kết quả kiểm tra.\nTrân trọng!";
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(warn?"Đã sao chép, nhưng còn "+warn+" mục cần kiểm tra lại":"Đã sao chép báo cáo")).catch(()=>prompt("Sao chép báo cáo:",t))}
 
-function pick(){let by={TN:[],DC:[],KT:[]};sh(Q).forEach(q=>by[q[0]].push(q));let p=[by.TN[0],by.DC[0],by.KT[0]],ks=sh(Object.keys(by)),ex=ks[0],ex2=ks[1];p.push(by[ex][1]);p.push(by[ex2][1]);return sh(p)}
 function start(p){let n=p?p.n:document.getElementById("n").value.trim();if(!n){alert("Nhập tên học sinh");return}
- S.cur={n,ca:p?p.ca:(document.getElementById("ca").value||"-"),gio:p?p.gio:(document.getElementById("gio").value||new Date().toLocaleString("vi-VN")),qs:pick(),i:0,r:[],ts:[TM,TM,TM,TM,TM],nt:[,,,,],run:false,done:false};
+ S.cur={n,ca:p?p.ca:(document.getElementById("ca").value||"-"),gio:p?p.gio:(document.getElementById("gio").value||new Date().toLocaleString("vi-VN")),qs:pick(n),i:0,r:[],ts:[TM,TM,TM,TM,TM],nt:[,,,,],run:false,done:false};
  if(!openWin())return;q()}
 function openWin(){if(!S.win||S.win.closed)S.win=window.open("","hs_view","width=1000,height=640");if(!S.win){alert("Trình duyệt chặn cửa sổ bật lên. Hãy cho phép rồi thử lại.");return false}S.win.focus();ch();return true}
 function ring(t){let col=t<=15?"#ef4444":t<=45?"#f59e0b":"#22d3ee";return `<div class="rg"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="rb"/><circle cx="60" cy="60" r="54" class="rf" style="stroke:${col};stroke-dasharray:339.3;stroke-dashoffset:${339.3*(1-Math.max(0,t)/TM)}"/></svg><b>${fmt(t)}</b></div>`}
