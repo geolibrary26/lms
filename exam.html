@@ -196,11 +196,15 @@ const TP=["Vị trí & lãnh thổ", "Vị trí & lãnh thổ", "Vị trí & lã
 const rk=(a,f)=>a.map(x=>[f(x)+Math.random()*.9,x]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
 function hist(n){let h={tc:{},qc:{},mine:{},mt:{},cc:{TN:0,DC:0,KT:0}},k=norm(n);
 S.recs.forEach(r=>{let me=!!k&&norm(r.n)==k;(r.qs||[]).forEach((x,jj)=>{if(r.r&&r.r[jj]===-1)return;let i=Q.findIndex(y=>y[1]==x.q);if(i<0)return;let t=TP[i];h.qc[i]=(h.qc[i]||0)+1;h.tc[t]=(h.tc[t]||0)+1;h.cc[Q[i][0]]++;if(me){h.mine[i]=(h.mine[i]||0)+1;h.mt[t]=(h.mt[t]||0)+1}})});return h}
-function pick(n){let h=hist(n||""),p=[],used={},cat={TN:0,DC:0,KT:0};
-for(let k=0;k<5;k++){let ts=[...new Set(Q.map((q,i)=>!used[TP[i]]&&cat[q[0]]<3?TP[i]:null).filter(Boolean))];if(!ts.length)break;
-let t=rk(ts,t=>(h.mt[t]||0)*1e3+(h.tc[t]||0))[0],is=Q.map((q,i)=>i).filter(i=>TP[i]==t),i=rk(is,i=>(h.mine[i]||0)*1e3+(h.qc[i]||0))[0];
-used[t]=1;cat[Q[i][0]]++;p.push(Q[i])}
-return sh(p)}
+const QUOTA={TN:2,DC:1,KT:2};
+function pick(n){let h=hist(n||""),p=[],used={},cats=Object.keys(QUOTA);
+ cats.forEach(c=>{for(let k=0;k<QUOTA[c];k++){
+  let ts=[...new Set(Q.map((q,i)=>q[0]==c&&!used[TP[i]]?TP[i]:null).filter(Boolean))],is;
+  if(ts.length){let t=rk(ts,t=>(h.mt[t]||0)*1e3+(h.tc[t]||0))[0];used[t]=1;is=Q.map((q,i)=>i).filter(i=>TP[i]==t)}
+  else is=Q.map((q,i)=>i).filter(i=>Q[i][0]==c&&!p.includes(Q[i]));
+  if(!is.length)continue;
+  let i=rk(is,i=>(h.mine[i]||0)*1e3+(h.qc[i]||0))[0];p.push(Q[i])}});
+ return sh(p)}
 function cov(){let h=hist(""),o="";Object.keys(CATS).forEach(c=>{let ts=[...new Set(Q.map((q,i)=>q[0]==c?TP[i]:null).filter(Boolean))];
 o+=`<p class="mu" style="margin:8px 0 4px"><b>${CI[c]} ${CATS[c]}</b> (${ts.length} chủ đề)</p><div>`+ts.map(t=>`<span class="tag" style="margin:2px">${t} • ${Q.filter((q,i)=>TP[i]==t).length} câu • ${h.tc[t]||0} lượt</span>`).join("")+`</div>`});return o}
 function cv(){let b=document.getElementById("cv");if(b)b.innerHTML=cov()}
@@ -270,7 +274,7 @@ function panel(t){
  if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button><button onclick="diag()">Kiểm tra dữ liệu</button>`)
   +`<div id="stt" class="sts"></div><div class="c"><div class="row" style="justify-content:flex-start"><button onclick="dayGo(-1)">‹</button><input type="date" id="sd" style="width:auto" oninput="setSd(this.value)"><button onclick="dayGo(1)">›</button><button onclick="setSd(dk());document.getElementById('sd').value=S.sd">Hôm nay</button></div></div><div class="c" id="sc"></div>`+hsBlock();
  if(t=="nw")return ph("🚀 Mở lượt kiểm tra mới","Mỗi HS 5 câu ngẫu nhiên • 1 phút 30 giây mỗi câu")
-  +`<div class="two"><div class="c"><h2>Thông tin học sinh</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><div style="margin-top:16px"><button class="b" onclick="start()">▶ Bắt đầu kiểm tra</button></div></div><div class="c ans"><h2>💡 Lưu ý</h2><p class="mu">• 5 câu thuộc 5 chủ đề khác nhau trong 3 phạm trù.<br>• Bộ câu hỏi được chốt cho từng HS trong ngày và lưu tiến độ trên Firebase: thoát ra vào lại hoặc trợ giảng khác đều tiếp tục đúng lượt đó.<br>• Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).<br>• Muốn kiểm tra theo lịch Sheet, hãy bấm ▶ Bắt đầu ở tab 📅 Lịch kiểm tra.</p></div></div>`;
+  +`<div class="two"><div class="c"><h2>Thông tin học sinh</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><div style="margin-top:16px"><button class="b" onclick="start()">▶ Bắt đầu kiểm tra</button></div></div><div class="c ans"><h2>💡 Lưu ý</h2><p class="mu">• 5 câu thuộc 5 chủ đề khác nhau: 2 câu Tự nhiên, 1 câu Dân cư, 2 câu Kinh tế ngành.<br>• Bộ câu hỏi được chốt cho từng HS trong ngày và lưu tiến độ trên Firebase: thoát ra vào lại hoặc trợ giảng khác đều tiếp tục đúng lượt đó.<br>• Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).<br>• Muốn kiểm tra theo lịch Sheet, hãy bấm ▶ Bắt đầu ở tab 📅 Lịch kiểm tra.</p></div></div>`;
  if(t=="pg")return ph("⏳ Lượt đang kiểm tra dở","Tiếp tục hoặc đặt lại các lượt chưa hoàn thành")+`<div class="c" id="pg"></div>`;
  if(t=="cv")return ph("🧭 Độ phủ kho đề","Số câu và số lượt đã hỏi theo từng chủ đề")+`<div class="c" id="cv">${cov()}</div>`;
  return panel("sc")}
