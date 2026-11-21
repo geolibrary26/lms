@@ -266,7 +266,7 @@ async function view(id){$(pub(hero("📘 Kết quả Kiểm tra Lí thuyết","C
 /* ---------- Trang chính (các tab bên trái) ---------- */
 function hsBlock(){return ph("📚 Lịch sử kiểm tra","Lọc theo ngày, trợ giảng, học sinh")+`<div class="c"><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div></div><div class="c" id="ls"></div>`}
 function panel(t){
- if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button>`)
+ if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button><button onclick="diag()">🔍 Kiểm tra dữ liệu</button>`)
   +`<div id="stt" class="sts"></div><div class="c"><div class="row" style="justify-content:flex-start"><button onclick="dayGo(-1)">‹</button><input type="date" id="sd" style="width:auto" oninput="setSd(this.value)"><button onclick="dayGo(1)">›</button><button onclick="setSd(dk());document.getElementById('sd').value=S.sd">Hôm nay</button></div></div><div class="c" id="sc"></div>`+hsBlock();
  if(t=="nw")return ph("🚀 Mở lượt kiểm tra mới","Mỗi HS 5 câu ngẫu nhiên • 1 phút 30 giây mỗi câu")
   +`<div class="two"><div class="c"><h2>Thông tin học sinh</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><div style="margin-top:16px"><button class="b" onclick="start()">▶ Bắt đầu kiểm tra</button></div></div><div class="c ans"><h2>💡 Lưu ý</h2><p class="mu">• 5 câu thuộc 5 chủ đề khác nhau trong 3 phạm trù.<br>• Bộ câu hỏi được chốt cho từng HS trong ngày và lưu tiến độ trên Firebase: thoát ra vào lại hoặc trợ giảng khác đều tiếp tục đúng lượt đó.<br>• Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).<br>• Muốn kiểm tra theo lịch Sheet, hãy bấm ▶ Bắt đầu ở tab 📅 Lịch kiểm tra.</p></div></div>`;
@@ -345,6 +345,15 @@ setInterval(refreshSched,60000);
 addEventListener("focus",refreshSched);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshSched()});
 function setSd(v){S.sd=v||dk();sched()}
+function diag(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.localeCompare(b.gio)),o=["Ngày "+iso+" | bản ghi đã tải: "+S.recs.length+" | số HS trong lịch: "+L.length,""];
+ L.forEach(x=>{let m=recsOf(x),all=S.recs.filter(r=>nk(r.n)==nk(x.n)).map(r=>dOf(r));
+  o.push("• "+x.n+" ("+x.gio+"): "+(m.length?m.map(r=>"{id="+r.id+" day="+dOf(r)+" r="+JSON.stringify(r.r)+" by="+(r.bn||"?")+"}").join(" "):"KHÔNG khớp bản ghi nào")+" | mọi ngày có bản ghi của tên này: "+(all.join(", ")||"không"))});
+ let ids=new Set(L.flatMap(x=>recsOf(x).map(r=>r.id))),ex=S.recs.filter(r=>dOf(r)==iso&&!ids.has(r.id));
+ o.push("","Bản ghi cùng ngày nhưng không khớp tên trong lịch ("+ex.length+"):");ex.forEach(r=>o.push("  - "+r.n+" r="+JSON.stringify(r.r)+" ca="+r.ca));
+ let t=o.join("\n"),d=document.createElement("div");d.style.cssText="position:fixed;inset:0;background:#000a;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px";
+ d.innerHTML='<div class="c" style="max-width:900px;width:100%;max-height:90vh;overflow:auto"><h2>🔍 Dữ liệu chẩn đoán</h2><pre style="white-space:pre-wrap;font-size:12px" id="dgt"></pre><div class="row"><button class="b" id="dgc">Sao chép</button><button id="dgx">Đóng</button></div></div>';
+ document.body.appendChild(d);d.querySelector("#dgt").textContent=t;d.querySelector("#dgx").onclick=()=>d.remove();
+ d.querySelector("#dgc").onclick=()=>(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Đã sao chép")).catch(()=>prompt("Sao chép:",t))}
 function report(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.localeCompare(b.gio)||a.n.localeCompare(b.n));
  if(!L.length){toast("Ngày này không có lịch");return}
  let warn=0,bl=L.map(x=>{let kq;
