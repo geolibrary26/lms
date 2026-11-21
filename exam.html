@@ -351,7 +351,7 @@ function diag(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.loc
  let ids=new Set(L.flatMap(x=>recsOf(x).map(r=>r.id))),ex=S.recs.filter(r=>dOf(r)==iso&&!ids.has(r.id));
  o.push("","Bản ghi cùng ngày nhưng không khớp tên trong lịch ("+ex.length+"):");ex.forEach(r=>o.push("  - "+r.n+" r="+JSON.stringify(r.r)+" ca="+r.ca));
  let t=o.join("\n"),d=document.createElement("div");d.style.cssText="position:fixed;inset:0;background:#000a;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px";
- d.innerHTML='<div class="c" style="max-width:900px;width:100%;max-height:90vh;overflow:auto"><h2>🔍 Dữ liệu chẩn đoán</h2><pre style="white-space:pre-wrap;font-size:12px" id="dgt"></pre><div class="row"><button class="b" id="dgc">Sao chép</button><button id="dgx">Đóng</button></div></div>';
+ d.innerHTML='<div class="c" style="max-width:900px;width:100%;max-height:90vh;overflow:auto"><h2>🔍 Kiểm tra dữ liệu</h2><pre style="white-space:pre-wrap;font-size:12px" id="dgt"></pre><div class="row"><button class="b" id="dgc">Sao chép</button><button id="dgx">Đóng</button></div></div>';
  document.body.appendChild(d);d.querySelector("#dgt").textContent=t;d.querySelector("#dgx").onclick=()=>d.remove();
  d.querySelector("#dgc").onclick=()=>(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Đã sao chép")).catch(()=>prompt("Sao chép:",t))}
 function report(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.localeCompare(b.gio)||a.n.localeCompare(b.n));
