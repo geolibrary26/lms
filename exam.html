@@ -366,7 +366,7 @@ function report(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.l
    kq="Học sinh vắng mặt"+(p?" "+p:"")+". Tổ Trợ giảng đã xếp lịch kiểm tra bù cho HS."}
   else{let r=recOf(x);if(r){let d=calc(r);kq=!d.na?"Chưa kiểm tra được câu nào (hết thời gian ca)":d.all.toFixed(1)+"/3 ("+VT(d.all)+")"+(d.na<5?" — tính trên "+d.na+"/5 câu đã kiểm tra":"")}else{kq="Chưa có kết quả";warn++}}
   return "Học sinh: "+x.n+"\nLớp: "+x.lop+"\nNgày: "+dayLbl(iso)+"\nCa số: "+caNo(x)+"\nThời gian: "+x.gio+"\nKết quả: "+kq}).join("\n\n");
- let t="[BÁO CÁO TÌNH HÌNH KIỂM TRA 1:1 NGÀY "+iso.split("-").reverse().slice(0,2).join("/")+"]\nKính gửi Quý phụ huynh,\nTổ Trợ giảng xin thông báo Kết quả kiểm tra lí thuyết 1:1 như sau:\n\n"+bl+"\n\nCác em và Quý phụ huynh vui lòng liên hệ Tổ Trợ giảng để xem thông tin chi tiết về kết quả kiểm tra.\nTrân trọng!";
+ let t="[BÁO CÁO TÌNH HÌNH KIỂM TRA 1:1 NGÀY "+iso.split("-").reverse().slice(0,2).join("/")+"]\nKính gửi Quý phụ huynh,\nTổ Trợ giảng xin thông báo Kết quả kiểm tra lí thuyết 1:1 như sau:\n\n"+bl+"\n\nKết quả kiểm tra đã được đẩy lên tài khoản cá nhân trên GeoLibrary App. Quý phụ huynh và các em vui lòng vào App để xem thông tin chi tiết.\nTrân trọng!";
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(warn?"Đã sao chép, nhưng còn "+warn+" mục cần kiểm tra lại":"Đã sao chép báo cáo")).catch(()=>prompt("Sao chép báo cáo:",t))}
 
 /* ---------- Tiến độ lưu trên Firebase (oral_prog) ---------- */
