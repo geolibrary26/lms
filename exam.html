@@ -238,7 +238,7 @@ function cp(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.rej
 function calc(r){let cats={},ra=r.r||[];Object.keys(CATS).forEach(k=>{let id=r.qs.map((x,j)=>x.c==k?j:-1).filter(j=>j>=0);if(id.length){let ok=id.filter(j=>ra[j]>=0);cats[k]={id,ok:ok.length,lv:ok.length?Math.min(3,Math.round(ok.reduce((t,j)=>t+ra[j],0)/ok.length)):null}}});let a=ra.filter(x=>x>=0);return{cats,all:a.length?a.reduce((x,y)=>x+y,0)/a.length:0,na:a.length}}
 const tg=v=>v>=0?`<span class="tag ${LC[v]}">${IC[v]} ${LV[v]}</span>`:'<span class="tag wn">⏭ Bỏ qua — hết thời gian ca</span>';
 const vd=r=>{let d=calc(r);return d.na?verdict(d.all):["⏭","CHƯA KIỂM TRA ĐƯỢC CÂU NÀO","wn"]};
-const verdict=a=>a>=2?["✅","ĐÃ HỌC BÀI","ok"]:a>=1?["⚠️","HỌC BÀI CHƯA KĨ","wn"]:["❌","CHƯA HỌC BÀI","bad"];
+const verdict=a=>a>=2?["✅","ĐÃ HỌC BÀI","ok"]:a>=1?["⚠️","CHƯA HỌC BÀI KĨ","wn"]:["❌","CHƯA HỌC BÀI","bad"];
 function resHTML(r,m){let d=calc(r),v=vd(r),n=r.r.filter(x=>x>=2).length,cm=r.cm||{};
  let box=k=>m=="adm"?`<textarea id="cm_${k}" rows="2" placeholder="✍️ Nhận xét thêm của trợ giảng...">${e(cm[k]||"")}</textarea>`:cm[k]?`<div class="ta">💬 <b>Trợ giảng nhận xét:</b> ${e(cm[k])}</div>`:"";
  let all=box("all");
@@ -297,7 +297,7 @@ async function del(id){let r=S.recs.find(x=>x.id==id);if(!r||!confirm("Xóa lư�
 const SHEET_ID="1TvI5xiJVy8qT52dZ64ZeAWiH11FDaqXuFq74hmJNtqM";
 const TAB="Học sinh";
 const norm=s=>String(s||"").normalize("NFC").trim().toLowerCase().replace(/\s+/g," ");
-const VT=a=>a>=2?"Đã học bài":a>=1?"Học bài chưa kĩ":"Chưa học bài";
+const VT=a=>a>=2?"Đã học bài":a>=1?"Chưa học bài kĩ":"Chưa học bài";
 const WD=["CN","T2","T3","T4","T5","T6","T7"];
 S.sch=[];S.schT=0;S.sd=dk();
 async function loadSched(){
