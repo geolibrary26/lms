@@ -2,7 +2,7 @@
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kiểm tra Lí thuyết • Cô Hải Hà</title>
-<link rel="icon" href="mascot.png">
+<link rel="icon" href="mascot.png" onerror="this.onerror=null;this.href=window.MFB||''">
 <meta property="og:title" content="Kiểm tra Lí thuyết • Chuyên Địa lí cô Hải Hà">
 <meta property="og:image" content="og-image.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -212,6 +212,10 @@ const ROOT=DB.replace(/\/oral_exams$/,"");
 const PG=ROOT+"/oral_prog";
 firebase.initializeApp({apiKey:"AIzaSyDKYJ4yMJQ-vxKkMQR4rLDC01npMhWPIbE",authDomain:"csdl-dl-nthh.firebaseapp.com",projectId:"csdl-dl-nthh"});
 const IC=["😟","🤔","🙂","🌟"],LC=["bad","wn","pr","ok"],CI={TN:"🌏",DC:"👥",KT:"🏭"};
+/* Logo: thử vài đường dẫn/tên file phổ biến (GitHub Pages phân biệt hoa/thường), cuối cùng dùng biểu tượng dự phòng */
+const MC=["mascot.png","Mascot.png","mascot.PNG","mascot.jpg","mascot.jpeg","mascot.webp","assets/mascot.png","images/mascot.png","img/mascot.png"];
+const MFB=window.MFB="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌏</text></svg>');
+function mfix(i){let n=(+i.dataset.n||0)+1;i.dataset.n=n;if(n<MC.length)i.src=MC[n];else{i.onerror=null;i.src=MFB}}
 const EX={};
 const A=document.getElementById("app");let S={recs:[],prog:{},cur:null,rec:null,win:null,tm:null,me:null,f:{},tab:"sc"},U=null;
 const $=h=>{A.innerHTML=h},e=s=>String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
@@ -219,7 +223,7 @@ const hero=(t,p,x="")=>`<div class="hero"><div><h1>${t}</h1><p>${p}</p></div><di
 const pub=h=>`<div class="wrap">${h}</div>`;
 const ph=(t,p,x="")=>`<div class="ph"><div><h1>${t}</h1><p class="mu">${p}</p></div><div class="row np">${x}</div></div>`;
 const NAV=[["sc","📅","Lịch kiểm tra & Lịch sử"],["nw","🚀","Mở lượt mới"],["pg","⏳","Đang dở"],["cv","🧭","Độ phủ kho đề"]];
-function shell(c,t){return `<div class="sh"><aside class="sd np"><div class="lg"><img src="mascot.png" alt=""><div><b>Kiểm tra Lí thuyết</b><small>Chuyên Địa lí cô Hải Hà</small></div></div><nav class="nv">${NAV.map(n=>`<button class="${n[0]==t?"on":""}" onclick="goTab('${n[0]}')"><span class="i">${n[1]}</span>${n[2]}${n[0]=="pg"?`<span class="bd" id="bpg" style="${Object.keys(S.prog).length?"":"display:none"}">${Object.keys(S.prog).length}</span>`:""}</button>`).join("")}</nav><div class="us"><b>👩‍🏫 ${e(S.me.name)}</b><span class="mu" style="color:#9fc3c9">${e(U.email)}</span><button onclick="out()">Đăng xuất</button></div></aside><main class="mn">${c}</main></div>`}
+function shell(c,t){return `<div class="sh"><aside class="sd np"><div class="lg"><img src="mascot.png" alt="" onerror="mfix(this)"><div><b>Kiểm tra Lí thuyết</b><small>Chuyên Địa lí cô Hải Hà</small></div></div><nav class="nv">${NAV.map(n=>`<button class="${n[0]==t?"on":""}" onclick="goTab('${n[0]}')"><span class="i">${n[1]}</span>${n[2]}${n[0]=="pg"?`<span class="bd" id="bpg" style="${Object.keys(S.prog).length?"":"display:none"}">${Object.keys(S.prog).length}</span>`:""}</button>`).join("")}</nav><div class="us"><b>👩‍🏫 ${e(S.me.name)}</b><span class="mu" style="color:#9fc3c9">${e(U.email)}</span><button onclick="out()">Đăng xuất</button></div></aside><main class="mn">${c}</main></div>`}
 function goTab(t){if(S.cur&&!S.cur.done){if(!confirm("Thoát lượt đang kiểm tra? Tiến độ đã được lưu, có thể vào lại ở mục Đang dở."))return;saveProg(1)}S.tab=t;home()}
 const fmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
 const nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -249,8 +253,8 @@ function resHTML(r,m){let d=calc(r),v=vd(r),n=r.r.filter(x=>x>=2).length,cm=r.cm
 /* ---------- Đăng nhập Google ---------- */
 function gl(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(x=>toast(x.message))}
 function out(){firebase.auth().signOut()}
-function login(){$(pub(`<div class="c lgn"><img src="mascot.png" alt=""><h1>Kiểm tra Lí thuyết</h1><p class="mu">Chuyên Địa lí cô Hải Hà • dành cho trợ giảng<br>Dùng tài khoản Google đã được quản trị viên duyệt.</p><button class="b" onclick="gl()">🔐 Đăng nhập bằng Google</button></div>`))}
-function deny(){$(pub(`<div class="c lgn"><img src="mascot.png" alt=""><h1>Chưa được cấp quyền</h1><p>Tài khoản <b>${e(U.email)}</b> chưa được duyệt hoặc đã hết hạn. Hãy nhờ quản trị viên duyệt.</p><button onclick="out()">Đăng xuất</button></div>`))}
+function login(){$(pub(`<div class="c lgn"><img src="mascot.png" alt="" onerror="mfix(this)"><h1>Kiểm tra Lí thuyết</h1><p class="mu">Chuyên Địa lí cô Hải Hà • dành cho trợ giảng<br>Dùng tài khoản Google đã được quản trị viên duyệt.</p><button class="b" onclick="gl()">🔐 Đăng nhập bằng Google</button></div>`))}
+function deny(){$(pub(`<div class="c lgn"><img src="mascot.png" alt="" onerror="mfix(this)"><h1>Chưa được cấp quyền</h1><p>Tài khoản <b>${e(U.email)}</b> chưa được duyệt hoặc đã hết hạn. Hãy nhờ quản trị viên duyệt.</p><button onclick="out()">Đăng xuất</button></div>`))}
 firebase.auth().onAuthStateChanged(async u=>{U=u;S.me=null;
  if(u){try{let t=await u.getIdToken(),p=await(await fetch(ROOT+"/users/"+u.uid+".json?auth="+t)).json();
   if(p&&p.status=="active"&&(!p.expiresAt||p.expiresAt>Date.now()))S.me={name:p.name||u.displayName||u.email,role:p.role}}catch(_){}}
@@ -266,7 +270,7 @@ async function view(id){$(pub(hero("📘 Kết quả Kiểm tra Lí thuyết","C
 /* ---------- Trang chính (các tab bên trái) ---------- */
 function hsBlock(){return ph("📚 Lịch sử kiểm tra","Lọc theo ngày, trợ giảng, học sinh")+`<div class="c"><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div></div><div class="c" id="ls"></div>`}
 function panel(t){
- if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button><button onclick="diag()">🔍 Kiểm tra dữ liệu</button>`)
+ if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button><button onclick="diag()">Kiểm tra dữ liệu</button>`)
   +`<div id="stt" class="sts"></div><div class="c"><div class="row" style="justify-content:flex-start"><button onclick="dayGo(-1)">‹</button><input type="date" id="sd" style="width:auto" oninput="setSd(this.value)"><button onclick="dayGo(1)">›</button><button onclick="setSd(dk());document.getElementById('sd').value=S.sd">Hôm nay</button></div></div><div class="c" id="sc"></div>`+hsBlock();
  if(t=="nw")return ph("🚀 Mở lượt kiểm tra mới","Mỗi HS 5 câu ngẫu nhiên • 1 phút 30 giây mỗi câu")
   +`<div class="two"><div class="c"><h2>Thông tin học sinh</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><div style="margin-top:16px"><button class="b" onclick="start()">▶ Bắt đầu kiểm tra</button></div></div><div class="c ans"><h2>💡 Lưu ý</h2><p class="mu">• 5 câu thuộc 5 chủ đề khác nhau trong 3 phạm trù.<br>• Bộ câu hỏi được chốt cho từng HS trong ngày và lưu tiến độ trên Firebase: thoát ra vào lại hoặc trợ giảng khác đều tiếp tục đúng lượt đó.<br>• Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).<br>• Muốn kiểm tra theo lịch Sheet, hãy bấm ▶ Bắt đầu ở tab 📅 Lịch kiểm tra.</p></div></div>`;
@@ -351,15 +355,15 @@ function diag(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.loc
  let ids=new Set(L.flatMap(x=>recsOf(x).map(r=>r.id))),ex=S.recs.filter(r=>dOf(r)==iso&&!ids.has(r.id));
  o.push("","Bản ghi cùng ngày nhưng không khớp tên trong lịch ("+ex.length+"):");ex.forEach(r=>o.push("  - "+r.n+" r="+JSON.stringify(r.r)+" ca="+r.ca));
  let t=o.join("\n"),d=document.createElement("div");d.style.cssText="position:fixed;inset:0;background:#000a;z-index:99;display:flex;align-items:center;justify-content:center;padding:16px";
- d.innerHTML='<div class="c" style="max-width:900px;width:100%;max-height:90vh;overflow:auto"><h2>🔍 Kiểm tra dữ liệu</h2><pre style="white-space:pre-wrap;font-size:12px" id="dgt"></pre><div class="row"><button class="b" id="dgc">Sao chép</button><button id="dgx">Đóng</button></div></div>';
+ d.innerHTML='<div class="c" style="max-width:900px;width:100%;max-height:90vh;overflow:auto"><h2>Kết quả kiểm tra dữ liệu</h2><pre style="white-space:pre-wrap;font-size:12px" id="dgt"></pre><div class="row"><button class="b" id="dgc">Sao chép</button><button id="dgx">Đóng</button></div></div>';
  document.body.appendChild(d);d.querySelector("#dgt").textContent=t;d.querySelector("#dgx").onclick=()=>d.remove();
  d.querySelector("#dgc").onclick=()=>(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Đã sao chép")).catch(()=>prompt("Sao chép:",t))}
 function report(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.localeCompare(b.gio)||a.n.localeCompare(b.n));
  if(!L.length){toast("Ngày này không có lịch");return}
  let warn=0,bl=L.map(x=>{let kq;
   if(absent(x)&&!hasRes(x)){let p=permit(x);if(!p){p="";warn++}
-   kq="Học sinh vắng mặt "+p+". Tổ Trợ giảng đã xếp lịch kiểm tra bù cho HS."}
-  else{let r=recOf(x);if(r){let d=calc(r);kq=d.na?"Chưa kiểm tra được câu nào (hết thời gian ca)":d.all.toFixed(1)+"/3 ("+VT(d.all)+")"+(d.na<5?" — tính trên "+d.na+"/5 câu đã kiểm tra":"")}else{kq="Chưa có kết quả";warn++}}
+   kq="Học sinh vắng mặt"+(p?" "+p:"")+". Tổ Trợ giảng đã xếp lịch kiểm tra bù cho HS."}
+  else{let r=recOf(x);if(r){let d=calc(r);kq=!d.na?"Chưa kiểm tra được câu nào (hết thời gian ca)":d.all.toFixed(1)+"/3 ("+VT(d.all)+")"+(d.na<5?" — tính trên "+d.na+"/5 câu đã kiểm tra":"")}else{kq="Chưa có kết quả";warn++}}
   return "Học sinh: "+x.n+"\nLớp: "+x.lop+"\nNgày: "+dayLbl(iso)+"\nCa số: "+caNo(x)+"\nThời gian: "+x.gio+"\nKết quả: "+kq}).join("\n\n");
  let t="[BÁO CÁO TÌNH HÌNH KIỂM TRA 1:1 NGÀY "+iso.split("-").reverse().slice(0,2).join("/")+"]\nKính gửi Quý phụ huynh,\nTổ Trợ giảng xin thông báo Kết quả kiểm tra lí thuyết 1:1 như sau:\n\n"+bl+"\n\nCác em và Quý phụ huynh vui lòng liên hệ Tổ Trợ giảng để xem thông tin chi tiết về kết quả kiểm tra.\nTrân trọng!";
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(warn?"Đã sao chép, nhưng còn "+warn+" mục cần kiểm tra lại":"Đã sao chép báo cáo")).catch(()=>prompt("Sao chép báo cáo:",t))}
