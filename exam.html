@@ -271,7 +271,7 @@ async function view(id){$(pub(hero("📘 Kết quả Kiểm tra Lí thuyết","C
 /* ---------- Trang chính (các tab bên trái) ---------- */
 function hsBlock(){return ph("📚 Lịch sử kiểm tra","Lọc theo ngày, trợ giảng, học sinh")+`<div class="c"><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div></div><div class="c" id="ls"></div>`}
 function panel(t){
- if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button><button onclick="diag()">Kiểm tra dữ liệu</button>`)
+ if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button><button onclick="diag()">Kiểm tra dữ liệu</button><button onclick="syncAll()">📲 Đẩy các lượt chưa gửi lên app HS</button>`)
   +`<div id="stt" class="sts"></div><div class="c"><div class="row" style="justify-content:flex-start"><button onclick="dayGo(-1)">‹</button><input type="date" id="sd" style="width:auto" oninput="setSd(this.value)"><button onclick="dayGo(1)">›</button><button onclick="setSd(dk());document.getElementById('sd').value=S.sd">Hôm nay</button></div></div><div class="c" id="sc"></div>`+hsBlock();
  if(t=="nw")return ph("🚀 Mở lượt kiểm tra mới","Mỗi HS 5 câu ngẫu nhiên • 1 phút 30 giây mỗi câu")
   +`<div class="two"><div class="c"><h2>Thông tin học sinh</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><div style="margin-top:16px"><button class="b" onclick="start()">▶ Bắt đầu kiểm tra</button></div></div><div class="c ans"><h2>💡 Lưu ý</h2><p class="mu">• 5 câu thuộc 5 chủ đề khác nhau: 2 câu Tự nhiên, 1 câu Dân cư, 2 câu Kinh tế ngành.<br>• Bộ câu hỏi được chốt cho từng HS trong ngày và lưu tiến độ trên Firebase: thoát ra vào lại hoặc trợ giảng khác đều tiếp tục đúng lượt đó.<br>• Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).<br>• Muốn kiểm tra theo lịch Sheet, hãy bấm ▶ Bắt đầu ở tab 📅 Lịch kiểm tra.</p></div></div>`;
@@ -296,7 +296,7 @@ async function loadRecs(){let l=lg();
  S.recs=l.sort((a,b)=>b.t-a.t)}
 async function load(){await loadRecs();await loadProg();if(!S.cur){list();sched();cv();pgl()}}
 async function del(id){let r=S.recs.find(x=>x.id==id);if(!r||!confirm("Xóa lượt kiểm tra của "+r.n+"? Không thể khôi phục."))return;
- try{await api("/"+id,"DELETE");S.recs=S.recs.filter(x=>x.id!=id);try{localStorage.oe=JSON.stringify(lg().filter(x=>x.id!=id))}catch(_){}
+ try{await api("/"+id,"DELETE");if(r.sid)try{await http(TH,"/"+r.sid+"/"+id,"DELETE")}catch(_){}S.recs=S.recs.filter(x=>x.id!=id);try{localStorage.oe=JSON.stringify(lg().filter(x=>x.id!=id))}catch(_){}
   if(S.rec&&S.rec.id==id){S.rec=null;home()}else{list();sched()}toast("Đã xóa")}
  catch(x){toast("Không xóa được ("+x.message+")")}}
 
@@ -430,15 +430,61 @@ function go(d){let c=S.cur;if(d>0&&c.i==4)return fin();clearInterval(S.tm);c.i+=
 async function fin(){let c=S.cur;clearInterval(S.tm);clearTimeout(spT);c.done=true;
  S.rec={id:nid(),t:Date.now(),n:c.n,ca:c.ca,gio:c.gio,qs:c.qs.map(x=>({c:x[0],q:x[1],a:ans(x)})),r:Array.from({length:5},(_,k)=>c.r[k]==null?-1:c.r[k]),cm:{},nt:Array.from({length:5},(_,k)=>(c.nt[k]||"").trim()),by:U.uid,bn:S.me.name,be:U.email,day:c.day||dk()};
  sv(S.rec);S.recs.unshift(S.rec);ch();sum(S.rec);
- await save(S.rec);
+ await save(S.rec);await syncTheory(S.rec);
  try{await apiP("/"+c.key,"PUT",{d:1,n:c.n,day:c.day,upd:Date.now()});delete S.prog[c.key]}catch(_){}}
 async function save(r){let s=document.getElementById("st");try{await api("/"+r.id,"PUT",r);if(s)s.innerHTML='<span class="chip ok">☁️ Đã lưu lên Firebase</span>'}catch(x){if(s)s.innerHTML='<span class="chip bad">⚠️ Chưa lưu được ('+e(x.message)+'). <a href="#" onclick="save(S.rec);return false">Thử lại</a></span>'}}
 function sum(r){if(typeof r=="string")r=S.recs.find(x=>x.id==r);S.rec=r;
  $(shell(ph("📊 Kết quả: "+e(r.n),e(r.ca)+" • "+e(r.gio)+(r.bn?" • TG: "+e(r.bn):""),'<button onclick="print()">🖨 In</button><button class="b" onclick="S.tab=\'sc\';home()">← Về lịch kiểm tra</button>')
- +`<div class="c np"><h2>🔗 Link kết quả gửi cho học sinh</h2><div class="row" style="flex-wrap:nowrap"><input id="lk" readonly value="${e(link(r.id))}"><button class="b" onclick="cp(document.getElementById('lk').value)">Sao chép</button></div><div id="st"></div>${location.protocol=="file:"?'<p class="mu">Bạn đang mở file trên máy nên link chỉ dùng được sau khi đưa trang này lên GitHub Pages (đăng nhập Google cũng cần chạy trên domain đã thêm vào Authorized domains).</p>':""}</div>`
- +resHTML(r,"adm")+`<div class="nav np"><button onclick="S.tab='sc';home()">← Về trang chính</button><button class="b" onclick="saveCm()">💾 Lưu nhận xét</button></div>`,"hs"))}
+ +`<div class="c np"><h2>🔗 Link kết quả gửi cho học sinh</h2><div class="row" style="flex-wrap:nowrap"><input id="lk" readonly value="${e(link(r.id))}"><button class="b" onclick="cp(document.getElementById('lk').value)">Sao chép</button></div><div id="st"></div><div id="sy" class="row" style="margin-top:8px;justify-content:flex-start"></div>${location.protocol=="file:"?'<p class="mu">Bạn đang mở file trên máy nên link chỉ dùng được sau khi đưa trang này lên GitHub Pages (đăng nhập Google cũng cần chạy trên domain đã thêm vào Authorized domains).</p>':""}</div>`
+ +resHTML(r,"adm")+`<div class="nav np"><button onclick="S.tab='sc';home()">← Về trang chính</button><button class="b" onclick="saveCm()">💾 Lưu nhận xét</button></div>`,"hs"));syncUI(r)}
 async function saveCm(){let r=S.rec,cm={};["TN","DC","KT","all"].forEach(k=>{let t=document.getElementById("cm_"+k);if(t&&t.value.trim())cm[k]=t.value.trim()});r.cm=cm;sv(r);
- try{await api("/"+r.id+"/cm","PUT",cm);toast("Đã lưu nhận xét")}catch(x){toast("Chưa lưu được lên Firebase: "+x.message)}}
+ try{await api("/"+r.id+"/cm","PUT",cm);if(r.sid)try{await http(TH,"/"+r.sid+"/"+r.id+"/cm","PUT",cm)}catch(_){}toast("Đã lưu nhận xét")}catch(x){toast("Chưa lưu được lên Firebase: "+x.message)}}
+
+/* ---------- Đẩy kết quả lên tài khoản HS trên app.html (GeoLibrary) ----------
+   Ghép HS: tên (roster/{mã HS}/name) + lớp (cột Lớp trong Google Sheet lịch ↔ classes/{id}/name).
+   Ghi vào: theory/{mã HS}/{mã lượt}  — app.html đọc nhánh này ở mục "Điểm số". */
+const TH=ROOT+"/theory";
+S.cn={};
+async function rosterLoad(){if(S.ros)return S.ros;
+ let ro=await http(ROOT,"/roster","GET")||{};
+ S.ros=Object.keys(ro).filter(id=>ro[id]&&ro[id].active!==false&&ro[id].name).map(id=>({id,name:ro[id].name,cids:Object.values(ro[id].classIds||{})}));return S.ros}
+async function clsNames(s){if(s.cn)return s.cn;
+ s.cn=(await Promise.all(s.cids.map(async c=>{if(S.cn[c]==null){try{S.cn[c]=await http(ROOT,"/classes/"+c+"/name","GET")||""}catch(_){S.cn[c]=""}}return S.cn[c]}))).filter(Boolean);return s.cn}
+function classMatch(lop,names){let a=nk(lop);return !!a&&names.some(n=>{let b=nk(n);return b&&(a==b||a.includes(b)||b.includes(a))})}
+async function lopOf(r){if(!S.sch.length){try{await loadSched()}catch(_){}}
+ let k=nk(r.n),d=dOf(r),l=S.sch.filter(y=>nk(y.n)==k);return((l.find(y=>y.iso==d)||l[0]||{}).lop)||""}
+async function findSid(r){let ro=await rosterLoad(),k=nk(r.n),c=ro.filter(s=>nk(s.name)==k),lop=await lopOf(r);
+ for(const s of c)await clsNames(s);
+ let m=lop?c.filter(s=>classMatch(lop,s.cn)):c;
+ return m.length==1?{s:m[0],lop}:{cand:c,lop}}
+async function pushTheory(r,s,lop){
+ let o={id:r.id,t:r.t,day:dOf(r),n:r.n,ca:r.ca,gio:r.gio,qs:r.qs.map(q=>({c:q.c,q:q.q,a:q.a||""})),r:r.r,nt:r.nt,cm:r.cm||{},bn:r.bn||"",cls:lop||(s.cn||[]).join(", "),at:Date.now()};
+ await http(TH,"/"+s.id+"/"+r.id,"PUT",o);
+ r.sid=s.id;r.sn=s.name;sv(r);
+ try{await api("/"+r.id+"/sid","PUT",s.id);await api("/"+r.id+"/sn","PUT",s.name)}catch(_){}}
+function syncUI(r){let el=document.getElementById("sy");if(!el||!r)return;
+ el.innerHTML=r.sid?`<span class="chip ok">📲 Đã gửi lên tài khoản HS: <b>${e(r.sn||r.sid)}</b></span><button onclick="syncTheory(S.rec)">↻ Gửi lại</button><button onclick="pickSid(S.rec)">Đổi học sinh</button>`:`<button class="b" onclick="syncTheory(S.rec)">📲 Đẩy kết quả lên app HS</button>`}
+async function syncTheory(r){let el=()=>document.getElementById("sy");
+ try{if(el())el().innerHTML='<span class="chip">⏳ Đang tìm học sinh trên app...</span>';
+  let f=await findSid(r);
+  if(f.s){await pushTheory(r,f.s,f.lop);syncUI(r);toast("Đã đẩy kết quả lên tài khoản "+f.s.name);return true}
+  if(el())el().innerHTML='<span class="chip wn">⚠️ Chưa xác định chắc chắn học sinh — cần chọn thủ công</span>';
+  pickSid(r,f);return false}
+ catch(x){if(el())el().innerHTML='<span class="chip bad">⚠️ Chưa đẩy được ('+e(x.message)+'). '+(/40[13]/.test(x.message)?'Cần cập nhật Rules: trợ giảng đọc roster/classes và ghi theory. ':'')+'<a href="#" onclick="syncTheory(S.rec);return false">Thử lại</a></span>';return false}}
+async function pickSid(r,f){let ro;try{ro=await rosterLoad()}catch(x){return toast("Không đọc được danh sách HS: "+x.message)}
+ let w=document.createElement("div");w.className="mdl";w.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:center;justify-content:center;padding:16px";
+ w.innerHTML=`<div class="c" style="max-width:540px;width:100%;max-height:85vh;overflow:auto"><h2>Chọn đúng học sinh trên app</h2><p class="mu">${e(r.n)}${f&&f.lop?" • lớp "+e(f.lop):""}${f&&f.cand?(f.cand.length>1?" — có "+f.cand.length+" HS trùng tên, chọn đúng lớp":f.cand.length==1?" — trùng tên nhưng lớp chưa khớp, hãy xác nhận":" — không tìm thấy tự động, tìm thủ công"):""}</p><input id="pq" placeholder="Tìm theo tên..." value="${e(r.n)}"><div id="pl" style="margin-top:10px"></div><div class="row" style="margin-top:10px"><button onclick="this.closest('.mdl').remove()">Đóng</button></div></div>`;
+ document.body.appendChild(w);S.pk={r,lop:f&&f.lop};
+ let draw=async()=>{let q=nk(w.querySelector("#pq").value),l=ro.filter(s=>q&&nk(s.name).includes(q)).slice(0,15);
+  for(const s of l)await clsNames(s);
+  w.querySelector("#pl").innerHTML=l.length?l.map(s=>`<div class="li"><div><b>${e(s.name)}</b><div class="mu">${e(s.cn.join(", ")||"(chưa rõ lớp)")}</div></div><button class="b" onclick="pickGo('${e(s.id)}')">Chọn</button></div>`).join(""):'<span class="mu">Không có học sinh nào khớp.</span>'};
+ w.querySelector("#pq").oninput=draw;draw()}
+async function pickGo(id){let s=S.ros.find(x=>x.id==id),p=S.pk;if(!s||!p)return;
+ try{await pushTheory(p.r,s,p.lop);document.querySelectorAll(".mdl").forEach(m=>m.remove());if(S.rec&&S.rec.id==p.r.id)syncUI(S.rec);toast("Đã đẩy kết quả lên tài khoản "+s.name)}catch(x){toast("Chưa đẩy được: "+x.message)}}
+async function syncAll(){let todo=S.recs.filter(r=>!r.sid&&calc(r).na>0);if(!todo.length)return toast("Không có lượt nào cần gửi");
+ let ok=0,manual=0;toast("Đang gửi "+todo.length+" lượt...");
+ for(const r of todo){try{let f=await findSid(r);if(f.s){await pushTheory(r,f.s,f.lop);ok++}else manual++}catch(x){return toast("Dừng: "+x.message+(/40[13]/.test(x.message)?" — cần cập nhật Rules":""))}}
+ list();sched();toast("Đã gửi "+ok+" lượt"+(manual?"; "+manual+" lượt cần chọn thủ công (mở lượt đó → Đẩy kết quả)":""))}
 addEventListener("hashchange",route);
 addEventListener("beforeunload",()=>{if(S.cur&&!S.cur.done)saveProg(1)});
 </script></body></html>
