@@ -271,7 +271,7 @@ async function view(id){$(pub(hero("📘 Kết quả Kiểm tra Lí thuyết","C
 /* ---------- Trang chính (các tab bên trái) ---------- */
 function hsBlock(){return ph("📚 Lịch sử kiểm tra","Lọc theo ngày, trợ giảng, học sinh")+`<div class="c"><div class="g"><div><label>Từ ngày</label><input type="date" id="f1" oninput="fl()"></div><div><label>Đến ngày</label><input type="date" id="f2" oninput="fl()"></div><div><label>Trợ giảng</label><select id="f3" onchange="fl()"></select></div><div><label>Học sinh</label><input id="f4" placeholder="Tìm theo tên..." oninput="fl()"></div></div><div class="row" style="margin-top:8px"><span class="mu" id="cnt"></span><button onclick="clr()">Xóa bộ lọc</button></div></div><div class="c" id="ls"></div>`}
 function panel(t){
- if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button><button onclick="diag()">Kiểm tra dữ liệu</button><button onclick="syncAll()">📲 Đẩy các lượt chưa gửi lên app HS</button>`)
+ if(t=="sc"||t=="hs")return ph("📅 Lịch kiểm tra & Lịch sử","Đồng bộ tự động từ Google Sheet • <span id='sst'></span>",`<button id="bi" onclick="infoKT()" title="Thông tin kiểm tra của ngày đang chọn">ℹ️ Thông tin kiểm tra</button><button class="b" onclick="report()">📋 Sao chép báo cáo ngày</button><button id="bn" onclick="lichKT()" title="Thông báo lịch kiểm tra của ngày hôm sau (ngày đang chọn + 1)">📣 Thông báo lịch</button><button onclick="diag()">Kiểm tra dữ liệu</button><button onclick="syncAll()">📲 Đẩy các lượt chưa gửi lên app HS</button>`)
   +`<div id="stt" class="sts"></div><div class="c"><div class="row" style="justify-content:flex-start"><button onclick="dayGo(-1)">‹</button><input type="date" id="sd" style="width:auto" oninput="setSd(this.value)"><button onclick="dayGo(1)">›</button><button onclick="setSd(dk());document.getElementById('sd').value=S.sd">Hôm nay</button></div></div><div class="c" id="sc"></div>`+hsBlock();
  if(t=="nw")return ph("🚀 Mở lượt kiểm tra mới","Mỗi HS 5 câu ngẫu nhiên • 1 phút 30 giây mỗi câu")
   +`<div class="two"><div class="c"><h2>Thông tin học sinh</h2><div class="g"><div><label>Tên học sinh</label><input id="n"></div><div><label>Ca</label><input id="ca" placeholder="VD: Ca 1"></div><div><label>Thời gian kiểm tra</label><input id="gio" placeholder="VD: 14:30 17/11"></div></div><div style="margin-top:16px"><button class="b" onclick="start()">▶ Bắt đầu kiểm tra</button></div></div><div class="c ans"><h2>💡 Lưu ý</h2><p class="mu">• 5 câu thuộc 5 chủ đề khác nhau: 2 câu Tự nhiên, 1 câu Dân cư, 2 câu Kinh tế ngành.<br>• Bộ câu hỏi được chốt cho từng HS trong ngày và lưu tiến độ trên Firebase: thoát ra vào lại hoặc trợ giảng khác đều tiếp tục đúng lượt đó.<br>• Khi bắt đầu, cửa sổ phụ sẽ mở để chia sẻ màn hình cho HS (hãy cho phép cửa sổ bật lên).<br>• Muốn kiểm tra theo lịch Sheet, hãy bấm ▶ Bắt đầu ở tab 📅 Lịch kiểm tra.</p></div></div>`;
@@ -332,6 +332,7 @@ function hasRes(x){let r=recOf(x);return r&&calc(r).na>0?r:null}
 function rtag(r){let v=vd(r),d=calc(r);return `<span class="tag ${v[2]}">${v[0]} ${v[1]}${d.na?" • "+d.all.toFixed(1)+"/3":""}</span>`}
 const dayLbl=iso=>WD[new Date(iso+"T00:00:00").getDay()]+", "+iso.split("-").reverse().join("/");
 function sched(){let box=document.getElementById("sc");if(!box)return;
+ {let a=document.getElementById("bi"),b=document.getElementById("bn");if(a)a.textContent="ℹ️ Thông tin kiểm tra "+sdm(S.sd);if(b)b.textContent="📣 Thông báo lịch "+sdm(nextIso(S.sd))}
  let L=S.sch.filter(x=>x.iso==S.sd).sort((a,b)=>a.gio.localeCompare(b.gio)||a.n.localeCompare(b.n));
  let st=document.getElementById("sst");if(st)st.textContent=S.schT?"đồng bộ lúc "+new Date(S.schT).toLocaleTimeString("vi-VN"):"đang tải...";
  let sb=document.getElementById("stt");if(sb){let dn=L.filter(x=>recOf(x)).length,ab=L.filter(x=>absent(x)&&!hasRes(x)).length,pgn=L.filter(x=>S.prog[PK(x.n,x.iso)]&&!recOf(x)).length;
@@ -368,6 +369,37 @@ function report(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort((a,b)=>a.gio.l
   return "Học sinh: "+x.n+"\nLớp: "+x.lop+"\nNgày: "+dayLbl(iso)+"\nCa số: "+caNo(x)+"\nThời gian: "+x.gio+"\nKết quả: "+kq}).join("\n\n");
  let t="[BÁO CÁO TÌNH HÌNH KIỂM TRA 1:1 NGÀY "+iso.split("-").reverse().slice(0,2).join("/")+"]\nKính gửi Quý phụ huynh,\nTổ Trợ giảng xin thông báo Kết quả kiểm tra lí thuyết 1:1 như sau:\n\n"+bl+"\n\nKết quả kiểm tra đã được đẩy lên tài khoản cá nhân trên GeoLibrary App. Quý phụ huynh và các em vui lòng vào App để xem thông tin chi tiết.\nTrân trọng!";
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(warn?"Đã sao chép, nhưng còn "+warn+" mục cần kiểm tra lại":"Đã sao chép báo cáo")).catch(()=>prompt("Sao chép báo cáo:",t))}
+
+/* ---------- Sao chép: Thông tin kiểm tra / Thông báo lịch kiểm tra ---------- */
+const sdm=iso=>iso.split("-").reverse().slice(0,2).join("/");
+function nextIso(iso){let d=new Date(iso+"T00:00:00");d.setDate(d.getDate()+1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function copyTxt(t,ok,warn){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(warn?ok+", nhưng còn "+warn+" mục thiếu dữ liệu":ok)).catch(()=>prompt("Sao chép:",t))}
+const byTime=(a,b)=>a.gio.localeCompare(b.gio)||a.n.localeCompare(b.n);
+/* THÔNG TIN KIỂM TRA: gửi trước giờ kiểm tra, cho ngày đang chọn (kèm link Meet + trợ giảng) */
+function infoKT(){let iso=S.sd,L=S.sch.filter(x=>x.iso==iso).sort(byTime);
+ if(!L.length){toast("Ngày "+sdm(iso)+" không có lịch");return}
+ let warn=0,bl=L.map(x=>{if(!x.meet)warn++;
+  return "Học sinh: "+x.n+"\nLớp: "+x.lop+"\nNgày: "+dayLbl(iso)+"\nCa số: "+caNo(x)+"\nThời gian: "+x.gio+"\nLink kiểm tra: "+(x.meet||"(chưa có link)")+"\nTrợ giảng: "+(x.tg||"(chưa xếp)")}).join("\n\n");
+ copyTxt("[THÔNG TIN KIỂM TRA NGÀY "+sdm(iso)+"]\n\n"+bl,"Đã sao chép thông tin kiểm tra "+sdm(iso),warn)}
+/* THÔNG BÁO LỊCH KIỂM TRA: gửi sau báo cáo, cho NGÀY HÔM SAU (ngày đang chọn + 1) */
+function lichKT(){let iso=nextIso(S.sd),L=S.sch.filter(x=>x.iso==iso).sort(byTime);
+ if(!L.length){toast("Ngày "+sdm(iso)+" chưa có lịch trong Sheet");return}
+ let warn=0,bl=L.map(x=>{if(!x.tg)warn++;
+  return x.n+" – "+x.lop+"\n"+dayLbl(iso)+" · Ca "+caNo(x)+" · "+x.gio+" · "+(x.tg||"(chưa xếp TG)")+" · "+(x.st||"Đã xếp")}).join("\n");
+ copyTxt("[THÔNG BÁO LỊCH KIỂM TRA NGÀY "+sdm(iso)+"]\n"+bl,"Đã sao chép thông báo lịch ngày "+sdm(iso),warn)}
+
+/* ---------- Đổi câu hỏi (bất kì câu nào trong 5 câu đang kiểm tra) ---------- */
+function swapQ(i){let c=S.cur;if(!c||c.done)return;i=i==null?c.i:i;
+ if((c.r[i]!=null||c.nt[i]||c.ts[i]<TM)&&!confirm("Đổi câu "+(i+1)+"? Mức đánh giá, ghi chú và thời gian của câu này sẽ được đặt lại."))return;
+ let cat=c.qs[i][0],h=hist(c.n),used=new Set(c.qi),usedT=new Set(c.qi.filter((_,k)=>k!=i).map(k=>TP[k]));
+ let cand=Q.map((_,k)=>k).filter(k=>Q[k][0]==cat&&!used.has(k));
+ if(!cand.length)cand=Q.map((_,k)=>k).filter(k=>!used.has(k));
+ if(!cand.length){toast("Không còn câu hỏi khác để đổi");return}
+ let pf=cand.filter(k=>!usedT.has(TP[k]));if(pf.length)cand=pf;
+ let k=rk(cand,k=>(h.mine[k]||0)*1e3+(h.qc[k]||0))[0];
+ clearInterval(S.tm);c.run=false;c.qi[i]=k;c.qs[i]=Q[k];c.r[i]=undefined;c.ts[i]=TM;c.nt[i]="";
+ saveProg(1);q();toast("Đã đổi câu "+(i+1)+" sang câu hỏi mới")}
+const qlist=c=>`<div class="c np"><h2>🔀 Bộ 5 câu hỏi <span class="mu">(bấm 🔄 để đổi bất kì câu nào)</span></h2>`+c.qs.map((x,k)=>`<div class="li"><div><b>Câu ${k+1}${k==c.i?" • đang hỏi":""}</b> <span class="tag">${CI[x[0]]} ${CATS[x[0]]}</span><div class="mu">${e(x[1])}</div></div><div class="row"><span class="mu">${c.r[k]===-1?"đã bỏ qua":c.r[k]!=null?"đã chấm":""}</span><button onclick="swapQ(${k})">🔄 Đổi</button></div></div>`).join("")+`</div>`;
 
 /* ---------- Tiến độ lưu trên Firebase (oral_prog) ---------- */
 const PK=(n,day)=>"p_"+[...norm(n)].map(c=>/[a-z0-9]/.test(c)?c:c.charCodeAt(0).toString(36)).join("").slice(0,80)+"_"+day;
@@ -416,10 +448,11 @@ function q(){clearInterval(S.tm);let c=S.cur,x=c.qs[c.i];c.run=false;
  $(shell(ph("📝 "+e(c.n),"Ca: "+e(c.ca)+" • "+e(c.gio),'<button onclick="openWin()">🖥 Mở lại cửa sổ HS</button><button onclick="if(confirm(\'Thoát? Tiến độ đã được lưu, bạn hoặc trợ giảng khác có thể vào lại để tiếp tục.\')){saveProg(1);S.tab=\'pg\';home()}">Thoát</button>')
  +`<div class="steps">${c.qs.map((_,k)=>`<i class="${k==c.i?"cur":c.r[k]===-1?"sk":c.r[k]!=null?"dn":""}">${k+1}</i>`).join("")}</div>
  <div class="ex"><div>
- <div class="c"><span class="tag">${CI[x[0]]} ${CATS[x[0]]}</span><div class="q">${e(x[1])}</div><div class="row"><div id="tm">${ring(c.ts[c.i])}</div><div class="bt"><button id="bt" class="b" onclick="run()">${c.ts[c.i]<TM?"▶ Tiếp tục":"▶ Bắt đầu tính giờ"}</button><button onclick="c0()">⏭ Bỏ qua thời gian</button></div></div></div>
+ <div class="c"><span class="tag">${CI[x[0]]} ${CATS[x[0]]}</span><div class="q">${e(x[1])}</div><div class="row"><div id="tm">${ring(c.ts[c.i])}</div><div class="bt"><button id="bt" class="b" onclick="run()">${c.ts[c.i]<TM?"▶ Tiếp tục":"▶ Bắt đầu tính giờ"}</button><button onclick="c0()">⏭ Bỏ qua thời gian</button><button onclick="swapQ(${c.i})">🔄 Đổi câu hỏi</button></div></div></div>
  <div class="c"><h2>🎯 HS học đến mức nào?</h2><div class="r">${LV.map((l,k)=>`<button class="lv ${LC[k]}${c.r[c.i]===k?" on":""}" onclick="rate(${k})">${IC[k]}<br>${l}</button>`).join("")}</div><div class="row" style="margin-top:12px"><span class="mu">Hết thời gian ca? Bỏ qua câu này — chỉ tính điểm trên các câu đã kiểm tra. ${c.r[c.i]===-1?'<span class="tag wn">Đã bỏ qua câu này</span>':""}</span><button onclick="skip()">⏭ Bỏ qua câu này</button></div></div>
  <div class="c"><h2>✍️ Ghi chú cho câu này <span class="mu">(HS sẽ thấy trong kết quả)</span></h2><textarea id="nt" rows="3" maxlength="900" placeholder="VD: nhớ đúng ý chính nhưng thiếu số liệu, chưa giải thích được nguyên nhân..." oninput="S.cur.nt[S.cur.i]=this.value;saveProg()">${e(c.nt[c.i])}</textarea></div>
- <div class="nav"><button onclick="go(-1)" ${c.i?"":"disabled"}>← Câu trước</button><button class="b" id="nx" onclick="go(1)" ${c.r[c.i]==null?"disabled":""}>${c.i<4?"Câu tiếp theo →":"🏁 Kết thúc & xem kết quả"}</button></div>
+ ${qlist(c)}
+  <div class="nav"><button onclick="go(-1)" ${c.i?"":"disabled"}>← Câu trước</button><button class="b" id="nx" onclick="go(1)" ${c.r[c.i]==null?"disabled":""}>${c.i<4?"Câu tiếp theo →":"🏁 Kết thúc & xem kết quả"}</button></div>
  </div><div class="c ans"><h2>📖 Đáp án chi tiết <span class="mu">(chỉ trợ giảng thấy)</span></h2><div class="a">${e(ans(x))}</div></div></div>`,"nw"));ch()}
 function tick(){let c=S.cur;if(c.ts[c.i]>0)c.ts[c.i]--;let t=document.getElementById("tm");if(t)t.innerHTML=ring(c.ts[c.i]);if(c.ts[c.i]<=0){clearInterval(S.tm);c.run=false;let b=document.getElementById("bt");if(b)b.textContent="⏰ Hết giờ";saveProg()}else if(c.ts[c.i]%10==0)saveProg();ch()}
 function run(){let c=S.cur,b=document.getElementById("bt");if(c.run){clearInterval(S.tm);c.run=false;b.textContent="▶ Tiếp tục";saveProg()}else{if(c.ts[c.i]<=0)return;c.run=true;b.textContent="⏸ Tạm dừng";S.tm=setInterval(tick,1000)}ch()}
