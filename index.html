@@ -3909,10 +3909,10 @@ window.LIBV={lib_dash:vDash,lib_books:vBooks,lib_import:vImport,lib_lock:vLock,l
 
 <script>
 /* ===== Định tuyến theo link: mỗi tác vụ / tab / bộ lọc có URL riêng =====
-   #/att?class=ID&date=2026-11-24      #/fees/batch?month=2026-11&class=ID
-   #/students/risk                      #/students/profile/ID
-   #/online/ended   #/report/online    #/portal/log
-   #/library/books?cat=ID   #/library/exam/res   #/library/req?status=new          */
+   #/attendance?class=ID&date=2026-11-24     #/fees/batches?month=2026-11&class=ID
+   #/students/at-risk   #/students/profile/ID   #/online-classes/ended
+   #/reports/online     #/student-portal/login-history
+   #/library/documents?category=ID   #/library/exams/results   #/library/document-requests?status=new */
 (function(){
   const mkNow=()=>{ try{ return mk(new Date()); }catch(e){ return ''; } };
   const F=(k,get,set,def)=>({k,get:()=>{ try{ return get()||''; }catch(e){ return ''; } },set:v=>{ try{ set(v); }catch(e){} },def});
@@ -3923,18 +3923,22 @@ window.LIBV={lib_dash:vDash,lib_books:vBooks,lib_import:vImport,lib_lock:vLock,l
     att:{q:[P('att','classId','class'),P('att','date','date')]},
     report:{seg:SEG(()=>S.P.rep.type,v=>{S.P.rep.type=v;},same(['fixed','online']))},
     classes:{},
-    students:{seg:SEG(()=>S.P.stu.status,v=>{S.P.stu.status=v;},[['all',''],['active','active'],['risk','risk'],['free','free'],['bd','bd'],['off','off']]),q:[P('stu','classId','class')]},
+    students:{seg:SEG(()=>S.P.stu.status,v=>{S.P.stu.status=v;},[['all',''],['active','active'],['at-risk','risk'],['no-class','free'],['birthdays','bd'],['inactive','off']]),q:[P('stu','classId','class')]},
     scores:{q:[P('sc','classId','class')]},
-    fees:{seg:SEG(()=>S.P.fee.tab,v=>{S.P.fee.tab=v;},same(['track','batch','bank','old'])),q:[F('month',()=>S.feeMonth,v=>{S.feeMonth=v;},mkNow()),P('fee','classId','class')]},
+    fees:{seg:SEG(()=>S.P.fee.tab,v=>{S.P.fee.tab=v;},[['tracking','track'],['batches','batch'],['bank-accounts','bank'],['manual-sheet','old']]),q:[F('month',()=>S.feeMonth,v=>{S.feeMonth=v;},mkNow()),P('fee','classId','class')]},
     online:{seg:SEG(()=>S.P.onl.tab,v=>{S.P.onl.tab=v;},same(['active','ended','all']))},
-    portal:{seg:SEG(()=>S.portal.tab,v=>{S.portal.tab=v;},same(['acc','sc','log','nt']))},
+    portal:{seg:SEG(()=>S.portal.tab,v=>{S.portal.tab=v;},[['accounts','acc'],['scores','sc'],['login-history','log'],['notices','nt']])},
     merge:{q:[P('mg','month','month')]},
     photos:{q:[P('px','month','month',mkNow()),P('px','classId','class')]},
-    lib_books:{q:[F('cat',()=>LB.cf,v=>{LB.cf=v;})]},
-    lib_exam:{seg:SEG(()=>LB.xt,v=>{LB.xt=v;},same(['list','mon','res','blind']))},
+    lib_books:{q:[F('category',()=>LB.cf,v=>{LB.cf=v;})]},
+    lib_exam:{seg:SEG(()=>LB.xt,v=>{LB.xt=v;},[['list','list'],['monitor','mon'],['results','res'],['blind-grading','blind']])},
     lib_req:{q:[F('status',()=>LB.rq,v=>{LB.rq=v;})]}
   };
-  const toPath=v=>String(v).startsWith('lib_')?'library/'+String(v).slice(4):String(v);
+  const SLUG={dash:'dashboard',att:'attendance',report:'reports',merge:'merge-classes',online:'online-classes',members:'staff',portal:'student-portal',grade:'grading'};
+  const LSLUG={dash:'dashboard',books:'documents',import:'import-excel',exam:'exams',lock:'locked-accounts',cats:'categories',news:'news',pages:'pages',act:'reading-activity',req:'document-requests',cfg:'settings'};
+  const rev=o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[v,k]));
+  const RSLUG=rev(SLUG), RLSLUG=rev(LSLUG);
+  const toPath=v=>String(v).startsWith('lib_')?'library/'+(LSLUG[String(v).slice(4)]||String(v).slice(4)):(SLUG[v]||String(v));
   const valid=v=>{ if(!v) return false; if(window.LIBV&&window.LIBV[v]) return true; try{ return navList().some(n=>n[0]===v); }catch(e){ return false; } };
   const enc=encodeURIComponent;
   function build(){
@@ -3948,7 +3952,7 @@ window.LIBV={lib_dash:vDash,lib_books:vBooks,lib_import:vImport,lib_lock:vLock,l
   function parse(){
     let raw=''; try{ raw=decodeURIComponent(location.hash.replace(/^#\/?/,'')); }catch(e){ return null; }
     const [pth,qs]=raw.split('?'), parts=pth.split('/').filter(Boolean); if(!parts.length) return null;
-    let v,rest; if(parts[0]==='library'){ v='lib_'+(parts[1]||'dash'); rest=parts.slice(2); } else { v=parts[0]; rest=parts.slice(1); }
+    let v,rest; if(parts[0]==='library'){ v='lib_'+(RLSLUG[parts[1]]||parts[1]||'dash'); rest=parts.slice(2); } else { v=RSLUG[parts[0]]||parts[0]; rest=parts.slice(1); }
     if(!valid(v)) return null;
     const sp=SPEC[v]||{}, qp=new URLSearchParams(qs||'');
     return {view:v,apply(){
