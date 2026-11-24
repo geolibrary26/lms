@@ -3907,6 +3907,73 @@ window.LIBV={lib_dash:vDash,lib_books:vBooks,lib_import:vImport,lib_lock:vLock,l
 })();
 </script>
 
+<script>
+/* ===== Định tuyến theo link: mỗi tác vụ / tab / bộ lọc có URL riêng =====
+   #/att?class=ID&date=2026-11-24      #/fees/batch?month=2026-11&class=ID
+   #/students/risk                      #/students/profile/ID
+   #/online/ended   #/report/online    #/portal/log
+   #/library/books?cat=ID   #/library/exam/res   #/library/req?status=new          */
+(function(){
+  const mkNow=()=>{ try{ return mk(new Date()); }catch(e){ return ''; } };
+  const F=(k,get,set,def)=>({k,get:()=>{ try{ return get()||''; }catch(e){ return ''; } },set:v=>{ try{ set(v); }catch(e){} },def});
+  const P=(o,f,k,def)=>F(k,()=>S.P[o][f],v=>{ S.P[o][f]=v; },def);
+  const SEG=(get,set,pairs)=>({get:()=>{ try{ return get()||''; }catch(e){ return ''; } },set:v=>{ try{ set(v); }catch(e){} },pairs});
+  const same=a=>a.map(x=>[x,x]);
+  const SPEC={
+    att:{q:[P('att','classId','class'),P('att','date','date')]},
+    report:{seg:SEG(()=>S.P.rep.type,v=>{S.P.rep.type=v;},same(['fixed','online']))},
+    classes:{},
+    students:{seg:SEG(()=>S.P.stu.status,v=>{S.P.stu.status=v;},[['all',''],['active','active'],['risk','risk'],['free','free'],['bd','bd'],['off','off']]),q:[P('stu','classId','class')]},
+    scores:{q:[P('sc','classId','class')]},
+    fees:{seg:SEG(()=>S.P.fee.tab,v=>{S.P.fee.tab=v;},same(['track','batch','bank','old'])),q:[F('month',()=>S.feeMonth,v=>{S.feeMonth=v;},mkNow()),P('fee','classId','class')]},
+    online:{seg:SEG(()=>S.P.onl.tab,v=>{S.P.onl.tab=v;},same(['active','ended','all']))},
+    portal:{seg:SEG(()=>S.portal.tab,v=>{S.portal.tab=v;},same(['acc','sc','log','nt']))},
+    merge:{q:[P('mg','month','month')]},
+    photos:{q:[P('px','month','month',mkNow()),P('px','classId','class')]},
+    lib_books:{q:[F('cat',()=>LB.cf,v=>{LB.cf=v;})]},
+    lib_exam:{seg:SEG(()=>LB.xt,v=>{LB.xt=v;},same(['list','mon','res','blind']))},
+    lib_req:{q:[F('status',()=>LB.rq,v=>{LB.rq=v;})]}
+  };
+  const toPath=v=>String(v).startsWith('lib_')?'library/'+String(v).slice(4):String(v);
+  const valid=v=>{ if(!v) return false; if(window.LIBV&&window.LIBV[v]) return true; try{ return navList().some(n=>n[0]===v); }catch(e){ return false; } };
+  const enc=encodeURIComponent;
+  function build(){
+    const v=S.view, sp=SPEC[v]||{}; let path='#/'+toPath(v);
+    if(v==='students'&&S.P.stu&&S.P.stu.profile) return path+'/profile/'+enc(S.P.stu.profile);
+    if(sp.seg){ const cv=sp.seg.get(), e=sp.seg.pairs.find(x=>x[1]===cv)||sp.seg.pairs[0]; path+='/'+e[0]; }
+    const q=(sp.q||[]).map(f=>{ const x=f.get(); return x&&x!==f.def?f.k+'='+enc(x):''; }).filter(Boolean).join('&');
+    return q?path+'?'+q:path;
+  }
+  /* đọc hash -> {view, apply()} ; không đổi gì nếu link không hợp lệ */
+  function parse(){
+    let raw=''; try{ raw=decodeURIComponent(location.hash.replace(/^#\/?/,'')); }catch(e){ return null; }
+    const [pth,qs]=raw.split('?'), parts=pth.split('/').filter(Boolean); if(!parts.length) return null;
+    let v,rest; if(parts[0]==='library'){ v='lib_'+(parts[1]||'dash'); rest=parts.slice(2); } else { v=parts[0]; rest=parts.slice(1); }
+    if(!valid(v)) return null;
+    const sp=SPEC[v]||{}, qp=new URLSearchParams(qs||'');
+    return {view:v,apply(){
+      if(v==='students'&&rest[0]==='profile'&&rest[1]) return {profile:rest[1]};
+      if(sp.seg&&rest[0]){ const e=sp.seg.pairs.find(x=>x[0]===rest[0]); if(e) sp.seg.set(e[1]); }
+      (sp.q||[]).forEach(f=>{ if(qp.has(f.k)) f.set(qp.get(f.k)); });
+      return {};
+    }};
+  }
+  let inGo=false;
+  const setHash=replace=>{ try{ const h=build(); if(location.hash!==h) history[replace?'replaceState':'pushState'](null,'',location.pathname+location.search+h); }catch(e){} };
+  function openProf(id,n){ if(S.students&&S.students[id]&&window.stuProfile) window.stuProfile(id); else if(n<40) setTimeout(()=>openProf(id,n+1),500); }
+  const og=window.go, or=window.render, osp=window.stuProfile, ocm=window.closeModal, os=window.showShell;
+  window.go=function(v,p){ inGo=true; try{ og.apply(this,arguments); }finally{ inGo=false; } setHash(false); };
+  window.render=function(){ or.apply(this,arguments); if(!inGo) setHash(true); };
+  if(osp) window.stuProfile=function(id){ const r=osp.apply(this,arguments); if(S.students[id]){ S.P.stu.profile=id; setHash(true); } return r; };
+  if(ocm) window.closeModal=function(){ const r=ocm.apply(this,arguments); if(S.P.stu&&S.P.stu.profile){ S.P.stu.profile=null; setHash(true); } return r; };
+  addEventListener('hashchange',()=>{ if(!S.profile) return; const r=parse(); if(!r) return; const o=r.apply(); const ch=r.view!==S.view; if(ch) og(r.view); else or(); if(o.profile) openProf(o.profile,0); setHash(true); });
+  window.showShell=function(){
+    const r=parse(), o=r?r.apply():{}; if(r) S.view=r.view;
+    os.apply(this,arguments); setHash(true);
+    if(o.profile) openProf(o.profile,0);
+  };
+})();
+</script>
 </body>
 
 </html>
